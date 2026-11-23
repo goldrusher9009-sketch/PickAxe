@@ -7,8 +7,8 @@ use crate::i18n::{tr, trf};
 use crate::state::Modal;
 use crate::theme::{self, Tokens};
 use crate::{CraftApp, icons, widgets};
-use craft_anything_engine::evidence::ToolError;
-use craft_anything_engine::pins::{Pin, PinMode};
+use pickaxe_engine::evidence::ToolError;
+use pickaxe_engine::pins::{Pin, PinMode};
 use egui::{RichText, Ui, Vec2};
 use serde_json::{Value, json};
 use std::path::{Path, PathBuf};
@@ -21,7 +21,7 @@ const BIG_COPY: u64 = 1_000_000_000;
 
 /// Whether two project paths name the same folder after resolving `.` and `..`.
 fn same_project(named: &str, project: &Path) -> bool {
-    craft_anything_engine::workspace::normalized(Path::new(named)) == craft_anything_engine::workspace::normalized(project)
+    pickaxe_engine::workspace::normalized(Path::new(named)) == pickaxe_engine::workspace::normalized(project)
 }
 
 /// Whether an estimate result names the project whose dialog is open. A missing name is another
@@ -133,7 +133,7 @@ impl CraftApp {
                 {
                     // Not only a drive: a file can refuse a link for its own reasons (its link
                     // limit, permissions), so the message says what is known, not the cause.
-                    let size = craft_anything_engine::evidence::human_bytes(copied);
+                    let size = pickaxe_engine::evidence::human_bytes(copied);
                     self.toast(trf("Some shared files could not be hard-linked and were copied instead ({size}).", &[("size", &size)]), false);
                 }
                 self.state.pins_collapsed = false;
@@ -409,7 +409,7 @@ mod tests {
     }
 
     fn app() -> CraftApp {
-        crate::demo::app(crate::demo::engine(craft_anything_engine::Mode::Beginner, true))
+        crate::demo::app(crate::demo::engine(pickaxe_engine::Mode::Beginner, true))
     }
 
     #[test]

@@ -1,5 +1,5 @@
-use craft_anything_formats::tarcpio::{member_data, tar};
-use craft_anything_testkit::firmware::tar_entries;
+use pickaxe_formats::tarcpio::{member_data, tar};
+use pickaxe_testkit::firmware::tar_entries;
 
 /// Make an octal size unreadable while leaving the enclosing TAR header checksum valid.
 fn corrupt_size(archive: &mut [u8], offset: usize) {

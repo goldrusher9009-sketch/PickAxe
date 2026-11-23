@@ -503,7 +503,7 @@ mod tests {
     use super::*;
 
     fn signature_identifier(id: &str, null_parameter: bool) -> Vec<u8> {
-        use craft_anything_testkit::android::{der, der_oid};
+        use pickaxe_testkit::android::{der, der_oid};
         let mut fields = der_oid(id);
         if null_parameter {
             fields.extend_from_slice(&der(0x05, &[]));
@@ -512,7 +512,7 @@ mod tests {
     }
 
     fn signed_certificate_with_algorithms(inner: &[u8], outer: &[u8], versioned: bool) -> Vec<u8> {
-        use craft_anything_testkit::{android::der, crypto};
+        use pickaxe_testkit::{android::der, crypto};
         let original = crypto::self_signed_rsa("Algorithm Fixture", "Fixture Org");
         let certificate = children(&original, &read(&original, 0).unwrap());
         let fields = children(&original, &certificate[0]);
@@ -534,7 +534,7 @@ mod tests {
         let parts = children(cert, &read(cert, 0).unwrap());
         let tbs = parts[0].whole(cert).unwrap();
         let signature = &parts[2].bytes(cert).unwrap()[1..];
-        assert_eq!(verify_signature(&craft_anything_testkit::crypto::rsa_spki(), SigScheme::RsaPkcs1v15(Digest::Sha256), tbs, signature), Verified::Valid);
+        assert_eq!(verify_signature(&pickaxe_testkit::crypto::rsa_spki(), SigScheme::RsaPkcs1v15(Digest::Sha256), tbs, signature), Verified::Valid);
     }
 
     #[test]
@@ -554,7 +554,7 @@ mod tests {
 
     #[test]
     fn malformed_signed_algorithm_fields_do_not_verify() {
-        use craft_anything_testkit::android::der;
+        use pickaxe_testkit::android::der;
         let outer = signature_identifier("1.2.840.113549.1.1.11", true);
         for inner in [der(0x02, &[1]), der(0x30, &der(0x02, &[1])), der(0x30, &der(0x06, &[0x80, 0x2a]))] {
             let cert = signed_certificate_with_algorithms(&inner, &outer, true);
@@ -585,7 +585,7 @@ mod tests {
 
     #[test]
     fn verifier_checks_the_fields_before_exposing_their_bytes() {
-        let cert = craft_anything_testkit::android::certificate_der("Subject", "Org");
+        let cert = pickaxe_testkit::android::certificate_der("Subject", "Org");
         let outer = children(&cert, &read(&cert, 0).unwrap());
         let fields = children(&cert, &outer[0]);
         assert!(certificate_parts(&cert).is_some());
@@ -607,7 +607,7 @@ mod tests {
 
     #[test]
     fn name_marks_attribute_boundaries_and_literal_separators() {
-        let cert = craft_anything_testkit::android::certificate_der("Alpha, O=Beta", "One+Two");
+        let cert = pickaxe_testkit::android::certificate_der("Alpha, O=Beta", "One+Two");
         let info = certificate(&cert).unwrap();
         assert_eq!(info.subject, r"CN=Alpha\, O=Beta, O=One\+Two");
         assert_eq!(info.issuer, info.subject);
@@ -619,7 +619,7 @@ mod tests {
 
     #[test]
     fn reads_synthetic_certificate() {
-        let cert = craft_anything_testkit::android::certificate_der("Craft Test", "Craft Org");
+        let cert = pickaxe_testkit::android::certificate_der("Craft Test", "Craft Org");
         let info = certificate(&cert).unwrap();
         assert_eq!(info.subject, "CN=Craft Test, O=Craft Org");
         assert_eq!(info.issuer, "CN=Craft Test, O=Craft Org");
@@ -628,7 +628,7 @@ mod tests {
         assert_eq!(info.public_key_algorithm, "rsaEncryption");
         assert_eq!(info.version, 3);
         assert_eq!(info.not_before, "250101000000Z");
-        let p7 = craft_anything_testkit::android::pkcs7_der(&cert);
+        let p7 = pickaxe_testkit::android::pkcs7_der(&cert);
         let certs = pkcs7_certificates(&p7);
         assert_eq!(certs, vec![cert.as_slice()]);
         assert!(count_nodes(&p7) > 10);
@@ -640,7 +640,7 @@ mod tests {
         for i in 0..70 {
             choices.extend_from_slice(&[0x30, 3, 2, 1, i]);
         }
-        let cms = craft_anything_testkit::android::pkcs7_der(&choices);
+        let cms = pickaxe_testkit::android::pkcs7_der(&choices);
         let certs = pkcs7_certificates(&cms);
         assert_eq!(certs.len(), MAX_CERTS);
         assert_eq!(certs[0], [0x30, 3, 2, 1, 0]);
@@ -680,7 +680,7 @@ mod tests {
 
     #[test]
     fn length_inspection_is_bounded_and_does_not_decode_primitive_payloads() {
-        use craft_anything_testkit::android::der;
+        use pickaxe_testkit::android::der;
         let redundant = [0x04, 0x81, 0];
         assert!(has_non_minimal_length(&der(0x30, &redundant)));
         assert!(!has_non_minimal_length(&der(0x04, &redundant)));
@@ -702,8 +702,8 @@ mod tests {
     #[test]
     fn oids_and_garbage() {
         assert_eq!(oid(&[0x2a, 0x86, 0x48, 0x86, 0xf7, 0x0d, 0x01, 0x01, 0x0b]), "1.2.840.113549.1.1.11");
-        let cert = craft_anything_testkit::android::pkcs7_der(&craft_anything_testkit::android::certificate_der("A", "B"));
-        for m in craft_anything_testkit::mutations(&cert) {
+        let cert = pickaxe_testkit::android::pkcs7_der(&pickaxe_testkit::android::certificate_der("A", "B"));
+        for m in pickaxe_testkit::mutations(&cert) {
             let _ = pkcs7_certificates(&m);
             let _ = certificate(&m);
             let _ = count_nodes(&m);
@@ -713,7 +713,7 @@ mod tests {
             let _ = certificate(&cert[..len]);
         }
         for seed in 0..64 {
-            let n = craft_anything_testkit::noise(seed, 300);
+            let n = pickaxe_testkit::noise(seed, 300);
             let _ = certificate(&n);
             let _ = pkcs7_certificates(&n);
         }

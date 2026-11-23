@@ -1,4 +1,4 @@
-use craft_anything_js::lex::unescape;
+use pickaxe_js::lex::unescape;
 
 /// Annex B octal escapes consume only the digits allowed by the leading digit.
 #[test]
@@ -34,7 +34,7 @@ fn keeps_common_escape_values() {
 /// The fallback inventory uses decoded paths, not the source spelling of escapes.
 #[test]
 fn fallback_imports_and_endpoints_use_decoded_values() {
-    use craft_anything_js::{Limits, analyze};
+    use pickaxe_js::{Limits, analyze};
     let source = r#"require('./\141pp.js'); fetch('/\u{000000061}pi');"#;
     let a = analyze("app.js", source, &Limits { max_parse_bytes: 0, ..Limits::default() });
     assert!(a.facts.imports.iter().any(|i| i.specifier == "./app.js"));

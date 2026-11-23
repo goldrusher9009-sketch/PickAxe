@@ -1,6 +1,6 @@
 //! Regression tests for `web_scripts::trace_location` on indexed Source Map v3 bundles.
 
-use craft_anything_analysis::web_scripts::{parse_map, trace_location};
+use pickaxe_analysis::web_scripts::{parse_map, trace_location};
 use serde_json::json;
 
 /// Flat (non-indexed) source maps continue to return source snippets, ignore status, and source counts.

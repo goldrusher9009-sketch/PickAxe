@@ -1,4 +1,4 @@
-use craft_anything_formats::dotnet::cil::{Operand, decode, normalized_hash};
+use pickaxe_formats::dotnet::cil::{Operand, decode, normalized_hash};
 use std::collections::HashSet;
 
 fn hash(opcode: u8, operand: &[u8]) -> String {

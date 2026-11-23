@@ -259,7 +259,7 @@ mod tests {
     fn a_version_before_the_build_info_is_not_used() {
         // An unrelated `go1.` that appears before the build-info marker must not win over the
         // version the marker carries (#1397).
-        let (elf, _) = craft_anything_testkit::elf64(craft_anything_testkit::ElfArch::X86_64, true);
+        let (elf, _) = pickaxe_testkit::elf64(pickaxe_testkit::ElfArch::X86_64, true);
         let mut go = elf.clone();
         go.extend_from_slice(b"go1.190119941996 ");
         go.extend_from_slice(b"\xff Go buildinf:\x08\x02go1.22.3\0");
@@ -273,7 +273,7 @@ mod tests {
     fn go_version_comes_from_build_info() {
         // The version the build-info reader extracts wins, and it keeps strong confidence
         // (#1397, #1858).
-        let elf = craft_anything_testkit::formats::go_elf();
+        let elf = pickaxe_testkit::formats::go_elf();
         let b = crate::parse_binary(&elf).unwrap();
         let hints = detect(&b, &elf);
         let g = hints.iter().find(|h| h.id == "go").unwrap();
@@ -283,7 +283,7 @@ mod tests {
 
     #[test]
     fn finds_markers() {
-        let (elf, _) = craft_anything_testkit::elf64(craft_anything_testkit::ElfArch::X86_64, true);
+        let (elf, _) = pickaxe_testkit::elf64(pickaxe_testkit::ElfArch::X86_64, true);
         let b = crate::parse_binary(&elf).unwrap();
         assert!(detect(&b, &elf).iter().all(|h| h.id != "go"));
         let mut go = elf.clone();
@@ -291,7 +291,7 @@ mod tests {
         let hints = detect(&b, &go);
         let g = hints.iter().find(|h| h.id == "go").unwrap();
         assert_eq!(g.label, "Go (go1.22.3)");
-        let pe = craft_anything_testkit::pe64();
+        let pe = pickaxe_testkit::pe64();
         let b = crate::parse_binary(&pe).unwrap();
         let _ = detect(&b, &pe);
     }

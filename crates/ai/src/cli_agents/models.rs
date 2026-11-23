@@ -3,8 +3,8 @@
 
 use crate::model::{Effort, Stop};
 use crate::{BackendConfig, BackendEntry, BackendOptions};
-use craft_anything_evidence::{ErrorCode, ToolError};
-use craft_anything_platform::{Output, Process, process};
+use pickaxe_evidence::{ErrorCode, ToolError};
+use pickaxe_platform::{Output, Process, process};
 use serde::{Deserialize, Serialize};
 use serde_json::json;
 use std::ffi::OsStr;
@@ -274,7 +274,7 @@ mod tests {
     /// An owner's cancellation survives reset and prevents model-selection I/O.
     #[test]
     fn a_cancelled_tool_stops_selection_before_io() {
-        let cancel = craft_anything_engine::CancelToken::default();
+        let cancel = pickaxe_engine::CancelToken::default();
         let stop = Stop::for_tool(cancel.clone());
         cancel.cancel();
         assert!(stop.is_stopped());

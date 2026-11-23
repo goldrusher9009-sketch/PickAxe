@@ -1,4 +1,4 @@
-use craft_anything_formats::fsread::{Limits, extfs};
+use pickaxe_formats::fsread::{Limits, extfs};
 
 const TABLE: usize = 12 * 1024;
 const INODE: usize = TABLE + 10 * 256;
@@ -8,7 +8,7 @@ fn put32(data: &mut [u8], at: usize, value: u32) {
 }
 
 fn image(payload: &[u8]) -> Vec<u8> {
-    let mut data = craft_anything_testkit::firmware::ext_image(false);
+    let mut data = pickaxe_testkit::firmware::ext_image(false);
     let inodes = data[5120..7168].to_vec();
     data.resize(TABLE + 16 * 256, 0);
     put32(&mut data, 1028, 16);

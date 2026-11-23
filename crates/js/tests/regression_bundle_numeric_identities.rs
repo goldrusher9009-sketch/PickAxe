@@ -1,4 +1,4 @@
-use craft_anything_js::{Analysis, Limits, ParseMode, analyze};
+use pickaxe_js::{Analysis, Limits, ParseMode, analyze};
 
 fn bundle(source: &str) -> Analysis {
     let analysis = analyze("bundle.js", source, &Limits::default());

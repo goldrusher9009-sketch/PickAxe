@@ -266,7 +266,7 @@ mod tests {
 
     /// A hub whose Builder is an agent app, so queued runs pass the up-front check.
     fn hub() -> AiHub {
-        let mut s = craft_anything_engine::testing::session();
+        let mut s = pickaxe_engine::testing::session();
         s.settings.ai = toml::from_str("[[backends]]\nname = \"Agent\"\nkind = \"agent_cli\"\nmodel = \"claude-code\"\n").unwrap();
         assert!(builder_backend(&crate::AiConfig::from_settings(&s.settings), None).is_ok());
         AiHub::new(Arc::new(Engine::new(s)))
@@ -304,7 +304,7 @@ mod tests {
 
     /// An agent app, which has a tool server of its own, and an API backend, which uses the session.
     fn two_backends() -> AiHub {
-        let mut s = craft_anything_engine::testing::session();
+        let mut s = pickaxe_engine::testing::session();
         s.settings.ai = toml::from_str(
             "[[backends]]\nname = \"Agent\"\nkind = \"agent_cli\"\nmodel = \"claude-code\"\n[[backends]]\nname = \"Key\"\nkind = \"openrouter\"\nmodel = \"m\"\n",
         )
@@ -413,7 +413,7 @@ mod tests {
     fn a_follow_up_with_an_api_extractor_can_build_beside_others() {
         let d = tempfile::tempdir().unwrap();
         let mut ws = Workspace::create(d.path(), "A", "A game", TargetRef::None).unwrap();
-        let mut s = craft_anything_engine::testing::session();
+        let mut s = pickaxe_engine::testing::session();
         s.settings.ai = toml::from_str(
             "[roles]\nextractor = \"Key\"\n[[backends]]\nname = \"Agent\"\nkind = \"agent_cli\"\nmodel = \"claude-code\"\n[[backends]]\nname = \"Key\"\nkind = \"openrouter\"\nmodel = \"m\"\n",
         )
@@ -476,7 +476,7 @@ mod tests {
         let d = tempfile::tempdir().unwrap();
         let a = Workspace::create(d.path(), "A", "A game", TargetRef::None).unwrap();
         let b = Workspace::create(d.path(), "B", "A game", TargetRef::None).unwrap();
-        let hub = AiHub::new(Arc::new(Engine::new(craft_anything_engine::testing::session())));
+        let hub = AiHub::new(Arc::new(Engine::new(pickaxe_engine::testing::session())));
         let mut set = RunSet::new(1).with_starter(StandIns::new().starter());
         set.start(&hub, a, RunOptions::default()).unwrap();
         let root = b.root.clone();

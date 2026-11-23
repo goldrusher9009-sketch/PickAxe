@@ -1,8 +1,8 @@
 //! Regression tests for exclusive, priority-ordered module matching in `js_compare`.
 
-use craft_anything_analysis::js_app::{AppGraph, BundleModuleSummary, ModuleSummary};
-use craft_anything_analysis::js_compare::{compare_export_outlines, compare_versions};
-use craft_anything_js::ExportShape;
+use pickaxe_analysis::js_app::{AppGraph, BundleModuleSummary, ModuleSummary};
+use pickaxe_analysis::js_compare::{compare_export_outlines, compare_versions};
+use pickaxe_js::ExportShape;
 
 /// Build a minimal script `ModuleSummary` for comparison tests.
 fn script(path: &str, sha256: &str, fingerprint: Option<&str>, exports: &[&str]) -> ModuleSummary {

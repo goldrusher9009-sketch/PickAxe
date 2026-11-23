@@ -1,5 +1,5 @@
-use craft_anything_formats::zip::{self, ZipArchive, ZipError};
-use craft_anything_testkit::electron::zip_stored;
+use pickaxe_formats::zip::{self, ZipArchive, ZipError};
+use pickaxe_testkit::electron::zip_stored;
 
 fn warning_contains(archive: &ZipArchive, text: &str) -> bool {
     serde_json::to_value(archive).unwrap()["warnings"]

@@ -6,8 +6,8 @@ use super::browser_tools::{self, CaptureFlags};
 use super::native_common::spec;
 use super::web_common::{self, Browser};
 use crate::tool::{Ctx, Effects, Requires, ToolOutput, ToolSpec, Toolset, parse_params, schema_of};
-use craft_anything_engines::cdp::{self, CdpClient, Deadline, PAGE_MAX_MESSAGE};
-use craft_anything_evidence::{Authority, Confidence, Coverage, CoverageStatus, EvidenceBuilder, Limitation, Location, Subject, ToolError};
+use pickaxe_engines::cdp::{self, CdpClient, Deadline, PAGE_MAX_MESSAGE};
+use pickaxe_evidence::{Authority, Confidence, Coverage, CoverageStatus, EvidenceBuilder, Limitation, Location, Subject, ToolError};
 use schemars::JsonSchema;
 use serde::Deserialize;
 use serde_json::{Value, json};
@@ -293,7 +293,7 @@ fn gather_listeners(client: &mut CdpClient, selector: &str, dl: &Deadline) -> Re
     let object_id = resolved
         .pointer("/object/objectId")
         .and_then(Value::as_str)
-        .ok_or_else(|| ToolError::new(craft_anything_evidence::ErrorCode::ProgramFailed, "could not resolve the element"))?;
+        .ok_or_else(|| ToolError::new(pickaxe_evidence::ErrorCode::ProgramFailed, "could not resolve the element"))?;
     let got = client.call("DOMDebugger.getEventListeners", json!({"objectId": object_id, "depth": 1}), None, dl)?;
     let mut out = Vec::new();
     for l in got.get("listeners").and_then(Value::as_array).into_iter().flatten().take(2000) {
@@ -353,14 +353,14 @@ fn web_modules_trace(ctx: &mut Ctx<'_>, params: Value) -> Result<ToolOutput, Too
     let cap = cap?;
     let dialogs = cap.result["dialogs"].clone();
 
-    let limits = craft_anything_js::Limits::default();
+    let limits = pickaxe_js::Limits::default();
     let mut nodes: Vec<Value> = Vec::new();
     let mut edges: Vec<Value> = Vec::new();
     let mut unresolved: Vec<Value> = Vec::new();
     for s in &cap.scripts {
         ctx.cancel.check()?;
         let Some(text) = &s.text else { continue };
-        let a = craft_anything_js::analyze(&s.url, text, &limits);
+        let a = pickaxe_js::analyze(&s.url, text, &limits);
         let san = web_common::sanitize_url(&s.url);
         let mut imports = 0u64;
         for imp in &a.facts.imports {

@@ -1,4 +1,4 @@
-use craft_anything_engine::{CallOptions, Caller, Engine, ToolOutput};
+use pickaxe_engine::{CallOptions, Caller, Engine, ToolOutput};
 use serde_json::{Value, json};
 
 fn archive(files: Value) -> Vec<u8> {
@@ -60,7 +60,7 @@ fn asar_entry_limits_keep_recovered_files_and_disclose_the_unread_remainder() {
         })),
     )
     .unwrap();
-    let engine = Engine::new(craft_anything_engine::testing::session());
+    let engine = Engine::new(pickaxe_engine::testing::session());
     let (output, bytes) = extract(&engine, json!({"path": path, "max_files": 1}), "a.txt");
     assert_eq!(bytes, b"kept");
     assert_partial_extraction(&output);
@@ -72,7 +72,7 @@ fn asar_path_limits_keep_inventory_and_extraction_partial_without_a_claimed_tota
     let directory = tempfile::tempdir().unwrap();
     let path = directory.path().join("paths.asar");
     std::fs::write(&path, &bytes).unwrap();
-    let engine = Engine::new(craft_anything_engine::testing::session());
+    let engine = Engine::new(pickaxe_engine::testing::session());
     let inventory = evidence(engine.call("core_archive_show", json!({"path": path, "limit": 1}), CallOptions::new(Caller::Mcp)).unwrap());
     assert_eq!(inventory["coverage"]["status"], "partial");
     assert_eq!(inventory["result"]["truncated"], true);
@@ -88,7 +88,7 @@ fn a_complete_asar_still_extracts_at_the_entry_limit() {
     let directory = tempfile::tempdir().unwrap();
     let path = directory.path().join("complete.asar");
     std::fs::write(&path, archive(json!({"folder": {"files": {"file.txt": {"size": 4, "offset": "0"}}}}))).unwrap();
-    let engine = Engine::new(craft_anything_engine::testing::session());
+    let engine = Engine::new(pickaxe_engine::testing::session());
     let (output, bytes) = extract(&engine, json!({"path": path, "max_files": 1}), "folder/file.txt");
     assert_eq!(bytes, b"kept");
     assert_eq!(output["result"]["files_written"], 1);
@@ -102,9 +102,9 @@ fn zip_listing_limits_keep_known_files_and_disclose_missing_members() {
     let directory = tempfile::tempdir().unwrap();
     let path = directory.path().join("limited.zip");
     let members: &[(&str, &[u8])] = &[("a.txt", b"kept"), ("folder/", b""), ("folder/hidden.txt", b"kept")];
-    let engine = Engine::new(craft_anything_engine::testing::session());
+    let engine = Engine::new(pickaxe_engine::testing::session());
     for count in [2, 3] {
-        std::fs::write(&path, craft_anything_testkit::electron::zip_stored(&members[..count])).unwrap();
+        std::fs::write(&path, pickaxe_testkit::electron::zip_stored(&members[..count])).unwrap();
         let (output, bytes) = extract(&engine, json!({"path": path, "max_files": 1}), "a.txt");
         assert_eq!(bytes, b"kept");
         if count == 3 {
@@ -121,7 +121,7 @@ fn js_app_map_preserves_asar_path_truncation_in_direct_and_packaged_folder_input
     let directory = tempfile::tempdir().unwrap();
     let path = directory.path().join("app.asar");
     std::fs::write(&path, path_limited_archive("a.js")).unwrap();
-    let engine = Engine::new(craft_anything_engine::testing::session());
+    let engine = Engine::new(pickaxe_engine::testing::session());
     for input in [path.as_path(), directory.path()] {
         let output = evidence(engine.call("js_app_map", json!({"input_path": input}), CallOptions::new(Caller::Mcp)).unwrap());
         assert_eq!(output["result"]["modules_total"], 1);
@@ -138,7 +138,7 @@ fn js_app_map_keeps_complete_coverage_for_a_fully_read_asar() {
     let directory = tempfile::tempdir().unwrap();
     let path = directory.path().join("complete.asar");
     std::fs::write(&path, archive(json!({"a.js": { "size": 4, "offset": "0" }}))).unwrap();
-    let engine = Engine::new(craft_anything_engine::testing::session());
+    let engine = Engine::new(pickaxe_engine::testing::session());
     let output = evidence(engine.call("js_app_map", json!({"input_path": path}), CallOptions::new(Caller::Mcp)).unwrap());
     assert_eq!(output["result"]["modules_total"], 1);
     assert_eq!(output["coverage"]["status"], "complete");

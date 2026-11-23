@@ -6,7 +6,7 @@
 use super::native_common::{params_json, spec};
 use super::static_input::{self, builder};
 use crate::tool::{Ctx, Effects, Requires, ToolOutput, ToolSpec, Toolset, parse_params, schema_of};
-use craft_anything_evidence::{Authority, Confidence, Coverage, CoverageStatus, ErrorCode, Limitation, Location, ToolError};
+use pickaxe_evidence::{Authority, Confidence, Coverage, CoverageStatus, ErrorCode, Limitation, Location, ToolError};
 use schemars::JsonSchema;
 use serde::{Deserialize, Serialize};
 use serde_json::{Value, json};
@@ -243,8 +243,8 @@ mod tests {
     use super::{PAGE_BYTES, SNIFF};
     use crate::Engine;
     use crate::target::looks_like_text;
-    use craft_anything_evidence::ErrorCode;
-    use craft_anything_testkit::temp_file;
+    use pickaxe_evidence::ErrorCode;
+    use pickaxe_testkit::temp_file;
     use serde_json::json;
 
     fn engine() -> Engine {

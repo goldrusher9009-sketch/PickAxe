@@ -3,9 +3,9 @@
 //! MI commands, `-interpreter-exec console` for any console command, while results come back as
 //! structured records. The engine's GDB tools keep sessions by id and turn results into evidence.
 
-use craft_anything_evidence::{ErrorCode, ToolError};
-use craft_anything_platform::sync::Mutex;
-use craft_anything_platform::{Process, RunningProcess, StdinMode};
+use pickaxe_evidence::{ErrorCode, ToolError};
+use pickaxe_platform::sync::Mutex;
+use pickaxe_platform::{Process, RunningProcess, StdinMode};
 use serde::Serialize;
 use serde_json::{Value, json};
 use std::collections::VecDeque;
@@ -568,8 +568,8 @@ mod tests {
     /// Shell-quoting the fixture executable path escapes apostrophes for `/bin/sh` while preserving plain paths.
     #[test]
     fn stand_in_gdb_shell_quoting_escapes_apostrophes() {
-        assert_eq!(sh_single_quote("/tmp/plain/craft-anything"), "'/tmp/plain/craft-anything'");
-        assert_eq!(sh_single_quote("/tmp/dev's/a'b/craft-anything"), "'/tmp/dev'\\''s/a'\\''b/craft-anything'");
+        assert_eq!(sh_single_quote("/tmp/plain/pickaxe"), "'/tmp/plain/pickaxe'");
+        assert_eq!(sh_single_quote("/tmp/dev's/a'b/pickaxe"), "'/tmp/dev'\\''s/a'\\''b/pickaxe'");
         #[cfg(not(windows))]
         {
             let dir = tempfile::tempdir().unwrap();

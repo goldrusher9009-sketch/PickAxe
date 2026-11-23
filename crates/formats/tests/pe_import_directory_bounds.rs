@@ -1,5 +1,5 @@
-use craft_anything_formats::pe;
-use craft_anything_testkit::pe64;
+use pickaxe_formats::pe;
+use pickaxe_testkit::pe64;
 
 fn normal(size: u32) -> (Vec<u8>, pe::PeHeaders) {
     let data = pe64();

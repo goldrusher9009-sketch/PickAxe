@@ -1,4 +1,4 @@
-use craft_anything_formats::sourcemap::find_source_mapping_url;
+use pickaxe_formats::sourcemap::find_source_mapping_url;
 
 /// Standard annotations permit zero or several whitespace characters after the marker.
 #[test]

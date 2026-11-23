@@ -1,14 +1,14 @@
-//! Regressions for `craft_anything_setup::uninstall` blocking diagnostics (and invalid-UTF-8 vs
+//! Regressions for `pickaxe_setup::uninstall` blocking diagnostics (and invalid-UTF-8 vs
 //! I/O remediation in `plan` and `uninstall`).
 
-use craft_anything_setup::{ActionKind, CheckStatus, DoctorRequest, Host, Os, PlanRequest, apply, clients, config, doctor, is_owned_entry, plan, uninstall};
+use pickaxe_setup::{ActionKind, CheckStatus, DoctorRequest, Host, Os, PlanRequest, apply, clients, config, doctor, is_owned_entry, plan, uninstall};
 use serde_json::json;
 
-/// Create an isolated Linux-layout host in `dir` with a dummy `craft-anything-cli` binary.
+/// Create an isolated Linux-layout host in `dir` with a dummy `pickaxe-cli` binary.
 fn test_host(dir: &std::path::Path) -> (Host, Vec<String>) {
     let mut host = Host::with_home(dir);
     host.os = Os::Linux;
-    let cli = dir.join("bin").join("craft-anything-cli");
+    let cli = dir.join("bin").join("pickaxe-cli");
     std::fs::create_dir_all(cli.parent().expect("bin parent")).expect("create bin dir");
     std::fs::write(&cli, "#!/bin/sh\n").expect("write dummy cli");
     (host, vec![cli.display().to_string(), "mcp".into()])
@@ -38,12 +38,12 @@ fn uninstall_reports_remove_refusal_instead_of_add_entry_failure_on_multiline_fl
         plan(&host, &PlanRequest { clients: vec!["cursor".into()], all_detected: false, command: cmd.clone(), include_skill: true }).expect("plan cursor");
     assert_eq!(apply(&p_cursor).status, "configured");
     let cursor_before = std::fs::read_to_string(&cursor_cfg).expect("read cursor before");
-    let shared_skill = host.shared_skills().join("craft-anything/SKILL.md");
+    let shared_skill = host.shared_skills().join("pickaxe/SKILL.md");
     assert!(shared_skill.is_file());
 
     let hermes_cfg = hermes_dir.join("config.yaml");
     let flow_yaml = format!(
-        "model: big\nmcp_servers:\n  craft-anything: {{\n    command: {},\n    args: [\"mcp\"],\n    enabled: true\n  }}\n  other: {{command: npx, args: [\"a\"]}}\n",
+        "model: big\nmcp_servers:\n  pickaxe: {{\n    command: {},\n    args: [\"mcp\"],\n    enabled: true\n  }}\n  other: {{command: npx, args: [\"a\"]}}\n",
         json!(&cmd[0])
     );
     std::fs::write(&hermes_cfg, &flow_yaml).expect("write flow yaml");
@@ -70,10 +70,10 @@ fn uninstall_reports_remove_refusal_instead_of_add_entry_failure_on_multiline_fl
     assert!(shared_skill.is_file(), "skills must remain untouched when uninstall is blocked");
 }
 
-/// An escaped YAML key (`"\x63raft-anything":`) parses as `"craft-anything"` via `YamlLoader`
+/// An escaped YAML key (`"\x63raft-anything":`) parses as `"pickaxe"` via `YamlLoader`
 /// (`is_owned_entry == true`) while `yaml::try_remove` returns `Ok(None)`. `uninstall` must emit
 /// `ActionKind::Invalid` with a removal reason and remediation rather than calling
-/// `inspect_client(c, &[])` (which tried to append a duplicate `craft-anything` entry and reported
+/// `inspect_client(c, &[])` (which tried to append a duplicate `pickaxe` entry and reported
 /// `"Can't add our entry ... duplicated key"`).
 #[test]
 fn uninstall_blocks_with_invalid_action_when_escaped_yaml_key_cannot_be_removed_in_place() {
@@ -92,7 +92,7 @@ fn uninstall_blocks_with_invalid_action_when_escaped_yaml_key_cannot_be_removed_
 
     let hermes_client = clients(&host).into_iter().find(|c| c.id == "hermes").expect("hermes client");
     let parsed = config::read_entry(&hermes_client, &escaped_yaml).expect("parse escaped yaml").expect("entry present");
-    assert!(is_owned_entry(&parsed), "escaped key decodes to owned craft-anything entry");
+    assert!(is_owned_entry(&parsed), "escaped key decodes to owned pickaxe entry");
     assert_eq!(config::remove_entry(&hermes_client, &escaped_yaml).expect("try_remove"), None);
 
     let u = uninstall(&host);
@@ -216,5 +216,5 @@ fn valid_configs_with_siblings_still_uninstall_cleanly() {
     assert_eq!(u.removed_entries.len(), 2);
     assert_eq!(std::fs::read_to_string(&hermes_cfg).expect("hermes after"), hermes_init);
     let cursor_after = std::fs::read_to_string(&cursor_cfg).expect("cursor after");
-    assert!(cursor_after.contains("// keep comment") && cursor_after.contains("\"other\"") && !cursor_after.contains("craft-anything"));
+    assert!(cursor_after.contains("// keep comment") && cursor_after.contains("\"other\"") && !cursor_after.contains("pickaxe"));
 }

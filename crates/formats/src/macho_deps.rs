@@ -578,7 +578,7 @@ impl MachoDeps {
 #[cfg(test)]
 mod tests {
     use super::*;
-    use craft_anything_testkit::apple as fx;
+    use pickaxe_testkit::apple as fx;
 
     #[test]
     fn zero_fill_sections_have_no_bytes_in_the_file() {
@@ -621,7 +621,7 @@ mod tests {
     #[test]
     fn hostile_inputs() {
         for s in [fx::macho_signed(), fx::macho_with_info_plist()] {
-            for m in craft_anything_testkit::mutations(&s) {
+            for m in pickaxe_testkit::mutations(&s) {
                 let _ = parse_thin(&m);
                 let _ = slices(&m);
             }
@@ -631,7 +631,7 @@ mod tests {
         }
         for seed in 0..100 {
             let mut n = vec![0xcf, 0xfa, 0xed, 0xfe];
-            n.extend(craft_anything_testkit::noise(seed, 300));
+            n.extend(pickaxe_testkit::noise(seed, 300));
             let _ = parse_thin(&n);
             n[..4].copy_from_slice(&[0xfe, 0xed, 0xfa, 0xce]);
             let _ = parse_thin(&n);

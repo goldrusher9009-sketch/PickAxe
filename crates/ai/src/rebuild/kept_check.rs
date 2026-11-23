@@ -6,7 +6,7 @@
 
 use super::kinds::{TargetKind, plugin_ids};
 use super::*;
-use craft_anything_engine::workspace::progress::CheckedBuild;
+use pickaxe_engine::workspace::progress::CheckedBuild;
 
 /// The run's kept round, and the scan cache its digests reuse.
 #[derive(Default)]

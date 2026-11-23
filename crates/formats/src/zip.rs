@@ -12,8 +12,8 @@ mod parity_tests {
 
     #[test]
     fn shared_zip_matches_legacy_listing_read_errors_and_caps() {
-        let bytes = craft_anything_testkit::electron::zip_stored(&[("a.txt", b"abc"), ("nested/b.bin", &[0, 255, 1])]);
-        for data in std::iter::once(bytes.clone()).chain(craft_anything_testkit::mutations(&bytes)) {
+        let bytes = pickaxe_testkit::electron::zip_stored(&[("a.txt", b"abc"), ("nested/b.bin", &[0, 255, 1])]);
+        for data in std::iter::once(bytes.clone()).chain(pickaxe_testkit::mutations(&bytes)) {
             assert_eq!(looks_like_zip(&data), legacy::looks_like_zip(&data));
             assert_eq!(has_entry(&data, "a.txt"), legacy::has_entry(&data, "a.txt"));
             for max in [0, 1, 10] {

@@ -9,9 +9,9 @@ use crate::slash::{self, Command, Typed};
 use crate::state::FeedItem;
 use crate::theme::{self, Tokens};
 use crate::{CraftApp, chat, icons, prompt_box, widgets};
-use craft_anything_engine::evidence::ToolError;
-use craft_anything_engine::questions::{self, AskedQuestion};
-use craft_anything_engine::workspace::Workspace;
+use pickaxe_engine::evidence::ToolError;
+use pickaxe_engine::questions::{self, AskedQuestion};
+use pickaxe_engine::workspace::Workspace;
 use egui::{RichText, Ui};
 use serde_json::{Value, json};
 use std::path::{Path, PathBuf};
@@ -223,7 +223,7 @@ mod tests {
 
     #[test]
     fn a_question_answered_by_a_replacement_says_so() {
-        let mut app = crate::demo::app(crate::demo::engine(craft_anything_engine::Mode::Beginner, true));
+        let mut app = crate::demo::app(crate::demo::engine(pickaxe_engine::Mode::Beginner, true));
         app.question_done(Ok(serde_json::json!({
             "project": "/tmp/example",
             "question": "where?",

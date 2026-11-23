@@ -1,7 +1,7 @@
 //! Regression tests for `.gitignore` pattern escaping, trailing spaces, globstar boundaries,
 //! and ignored parent-directory propagation in `js_source::Ignore`.
 
-use craft_anything_analysis::js_source::Ignore;
+use pickaxe_analysis::js_source::Ignore;
 
 /// Leading backslashes escape wildcards (`\*`, `\[`, `\?`), `#`, and `!`, while a dangling trailing `\` is rejected.
 #[test]

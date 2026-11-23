@@ -1,4 +1,4 @@
-use craft_anything_formats::{FormatError, java_class};
+use pickaxe_formats::{FormatError, java_class};
 
 fn class_with_pool(count: u16, pool: &[u8]) -> Vec<u8> {
     let mut bytes = vec![0xca, 0xfe, 0xba, 0xbe, 0, 0, 0, 52];
@@ -48,6 +48,6 @@ fn a_wide_constant_with_two_remaining_slots_is_retained() {
 fn ordinary_final_constants_and_existing_classes_still_parse() {
     let parsed = java_class::parse(&class_with_pool(2, &[3, 0, 0, 0, 7])).unwrap();
     assert_eq!(parsed.pool, vec![java_class::Const::Unusable, java_class::Const::Integer(7)]);
-    let parsed = java_class::parse(&craft_anything_testkit::java::hello_class()).unwrap();
+    let parsed = java_class::parse(&pickaxe_testkit::java::hello_class()).unwrap();
     assert!(!parsed.methods.is_empty());
 }

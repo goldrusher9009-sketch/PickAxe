@@ -1,5 +1,5 @@
-use craft_anything_formats::{firmware, zip};
-use craft_anything_testkit::electron::zip_stored;
+use pickaxe_formats::{firmware, zip};
+use pickaxe_testkit::electron::zip_stored;
 
 fn zip_regions(data: &[u8]) -> Vec<firmware::Region> {
     firmware::scan(data, &firmware::ScanOptions::default(), &|| false).regions.into_iter().filter(|region| region.kind == "zip").collect()

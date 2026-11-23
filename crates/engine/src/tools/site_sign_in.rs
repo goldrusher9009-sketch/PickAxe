@@ -1,5 +1,5 @@
 //! Saved sign-ins for websites (#1178). `web_site_sign_in` opens a visible browser on a site with
-//! a profile folder Craft Anything keeps for that site; the person signs in themselves and closes
+//! a profile folder Pickaxe keeps for that site; the person signs in themselves and closes
 //! the window. Later, `web_site_open` on the same site (exact host and port) starts its private
 //! browser with a copy of that profile, so the study sees the pages as the person does when signed
 //! in. `web_site_sign_out` deletes the saved sign-in.
@@ -15,8 +15,8 @@ use super::web_common::{self, Browser, LaunchOptions, ProfileChoice};
 use super::website_tools::check_url;
 use crate::session::Session;
 use crate::tool::{CancelToken, Ctx, Effects, Requires, ToolOutput, ToolSpec, Toolset, parse_params, schema_of};
-use craft_anything_engines::cdp::{self, Deadline};
-use craft_anything_evidence::{Authority, Confidence, Coverage, ErrorCode, EvidenceBuilder, Limitation, Location, Subject, ToolError};
+use pickaxe_engines::cdp::{self, Deadline};
+use pickaxe_evidence::{Authority, Confidence, Coverage, ErrorCode, EvidenceBuilder, Limitation, Location, Subject, ToolError};
 use schemars::JsonSchema;
 use serde::Deserialize;
 use serde_json::{Value, json};
@@ -44,7 +44,7 @@ pub fn specs() -> Vec<ToolSpec> {
         spec(
             SIGN_IN_TOOL,
             "Sign in to a website",
-            "Open a website in a visible browser window with a profile Craft Anything keeps for that site, and wait until you close the window (or timeout_secs passes, default 600, at most 1800). Sign in there yourself: Craft Anything never sees your password and never reads cookie or storage values. Until you forget it with web_site_sign_out, later web_site_open calls for that exact host and effective port (studies and captures included) use a copy of that sign-in by default; signed_in: false starts fresh. An expired or rejected session may still open signed out. The sign-in is kept in Craft Anything's folder on this computer: anyone who can open your files here could use it. When a sign-in is already saved for the site, the window opens with it, and what you leave when you close the window replaces it: to use another account, sign out on the site in the window first, or forget the saved one with web_site_sign_out. Needs a desktop where a window can open.",
+            "Open a website in a visible browser window with a profile Pickaxe keeps for that site, and wait until you close the window (or timeout_secs passes, default 600, at most 1800). Sign in there yourself: Pickaxe never sees your password and never reads cookie or storage values. Until you forget it with web_site_sign_out, later web_site_open calls for that exact host and effective port (studies and captures included) use a copy of that sign-in by default; signed_in: false starts fresh. An expired or rejected session may still open signed out. The sign-in is kept in Pickaxe's folder on this computer: anyone who can open your files here could use it. When a sign-in is already saved for the site, the window opens with it, and what you leave when you close the window replaces it: to use another account, sign out on the site in the window first, or forget the saved one with web_site_sign_out. Needs a desktop where a window can open.",
             "Sign in to a site once yourself, so its pages can be studied as you see them. The sign-in is kept on this computer, and used for that site until you forget it.",
             Toolset::Browser,
             Effects::EVIDENCE
@@ -471,7 +471,7 @@ fn no_display_error(display: Option<String>, wayland: Option<String>) -> Option<
     let has = |v: Option<String>| v.is_some_and(|s| !s.trim().is_empty());
     (cfg!(all(unix, not(target_os = "macos"))) && !has(display) && !has(wayland)).then(|| {
         ToolError::new(ErrorCode::NotSupported, "There's no desktop here to open a sign-in window on.")
-            .with_remediation(format!("Run {SIGN_IN_TOOL} from Craft Anything on a computer with a screen (the app, or the CLI in a desktop session). Websites still open without signing in."))
+            .with_remediation(format!("Run {SIGN_IN_TOOL} from Pickaxe on a computer with a screen (the app, or the CLI in a desktop session). Websites still open without signing in."))
     })
 }
 
@@ -550,7 +550,7 @@ fn web_site_sign_in(ctx: &mut Ctx<'_>, params: Value) -> Result<ToolOutput, Tool
         .authority(Authority::OurRun)
         .limitation(Limitation::new(
             "not_checked",
-            "Craft Anything never sees your password and never reads cookie or storage values: whether you finished signing in is judged only by opening the site once more (`check`).",
+            "Pickaxe never sees your password and never reads cookie or storage values: whether you finished signing in is judged only by opening the site once more (`check`).",
         ))
         .limitation(Limitation::new(
             "session_cookies",
@@ -558,7 +558,7 @@ fn web_site_sign_in(ctx: &mut Ctx<'_>, params: Value) -> Result<ToolOutput, Tool
         ))
         .limitation(Limitation::new(
             "kept_here",
-            format!("The sign-in is kept in Craft Anything's folder on this computer: anyone who can open your files here could use it. Later web_site_open calls for {key} use it by default until {SIGN_OUT_TOOL} forgets it; signed_in: false starts fresh, and the site may expire or reject the session."),
+            format!("The sign-in is kept in Pickaxe's folder on this computer: anyone who can open your files here could use it. Later web_site_open calls for {key} use it by default until {SIGN_OUT_TOOL} forgets it; signed_in: false starts fresh, and the site may expire or reject the session."),
         ))
         .limitation(Limitation::new(
             "exact_site",
@@ -576,7 +576,7 @@ fn web_site_sign_in(ctx: &mut Ctx<'_>, params: Value) -> Result<ToolOutput, Tool
     if ended != Ended::Closed {
         ev = ev.limitation(Limitation::new(
             "window_stopped",
-            "The window was closed by Craft Anything, not by you: a sign-in still in progress may not be complete.",
+            "The window was closed by Pickaxe, not by you: a sign-in still in progress may not be complete.",
         ));
     }
     Ok(ToolOutput::evidence(ev.build()?))
@@ -609,7 +609,7 @@ fn check_saved(ctx: &mut Ctx<'_>, url: &str, dir: &Path) -> Result<Checked, Tool
     let browser = Browser::launch(ctx, &opts, &dl)?;
     let targets = cdp::json_list(&browser.endpoint, &dl)?;
     let target = web_common::pick_target(&targets, None, Some("page"))?;
-    let mut client = web_common::connect_target(&browser, target, craft_anything_engines::cdp::PAGE_MAX_MESSAGE, &dl)?;
+    let mut client = web_common::connect_target(&browser, target, pickaxe_engines::cdp::PAGE_MAX_MESSAGE, &dl)?;
     let r = (|| -> Result<(String, bool, Vec<u8>), ToolError> {
         super::website_tools::navigate(&mut client, url, 1280, 900, 1500, &dl)?;
         let here = super::website_tools::eval(&mut client, "location.href", &dl)?.as_str().unwrap_or_default().to_string();
@@ -626,7 +626,7 @@ fn check_saved(ctx: &mut Ctx<'_>, url: &str, dir: &Path) -> Result<Checked, Tool
     crate::project::write_atomic(&path, &png)?;
     owner_only(&path, 0o600)?;
     let picture =
-        json!({"path": path.display().to_string(), "sha256": craft_anything_evidence::sha256_hex(&png), "width": width, "height": height, "bytes": png.len()});
+        json!({"path": path.display().to_string(), "sha256": pickaxe_evidence::sha256_hex(&png), "width": width, "height": height, "bytes": png.len()});
     Ok(Checked { sign_in_page, url: super::website_tools::shown_url(&here), picture })
 }
 
@@ -638,7 +638,7 @@ pub(crate) fn check_result(r: Result<Checked, ToolError>) -> (Value, Vec<Limitat
             let mut notes = vec![Limitation::new(
                 "check_picture",
                 format!(
-                    "{} is a picture of the site opened with your sign-in, so it shows your own account. It stays in Craft Anything's folder on this computer and is deleted by {SIGN_OUT_TOOL}.",
+                    "{} is a picture of the site opened with your sign-in, so it shows your own account. It stays in Pickaxe's folder on this computer and is deleted by {SIGN_OUT_TOOL}.",
                     c.picture["path"].as_str().unwrap_or(CHECK_PICTURE)
                 ),
             )];
@@ -882,7 +882,7 @@ fn web_site_sign_out(ctx: &mut Ctx<'_>, params: Value) -> Result<ToolOutput, Too
         .authority(Authority::OurRun)
         .limitation(Limitation::new(
             "this_computer",
-            "Only Craft Anything's saved copy is deleted: the site may still count the sign-in as active until it expires.",
+            "Only Pickaxe's saved copy is deleted: the site may still count the sign-in as active until it expires.",
         ))
         .coverage(Coverage::complete(1))
         .location(Location::new("site", key))

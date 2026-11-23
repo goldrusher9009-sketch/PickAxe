@@ -13,7 +13,7 @@
 
 use crate::session::Annotations;
 use crate::versioned::{Step, upgrade};
-use craft_anything_evidence::{ErrorCode, Evidence, ToolError, Unknown, is_evidence_id};
+use pickaxe_evidence::{ErrorCode, Evidence, ToolError, Unknown, is_evidence_id};
 use serde::{Deserialize, Serialize};
 use std::path::{Path, PathBuf};
 
@@ -39,8 +39,8 @@ pub fn read_project_meta(text: &str) -> Result<ProjectMeta, ToolError> {
         Some(v) => v.as_integer().and_then(|n| u32::try_from(n).ok()).ok_or_else(|| bad(format!("format_version ({v}) isn't a whole number")))?,
     };
     if found > FORMAT_VERSION {
-        return Err(ToolError::unsupported(format!("This project was made by a newer Craft Anything (format {found})."))
-            .with_remediation("Update Craft Anything to open it."));
+        return Err(ToolError::unsupported(format!("This project was made by a newer Pickaxe (format {found})."))
+            .with_remediation("Update Pickaxe to open it."));
     }
     let reached = upgrade(&mut table, found, FIRST_FORMAT, FORMAT_STEPS).map_err(bad)?;
     table.insert("format_version".into(), toml::Value::Integer(reached.into()));
@@ -214,12 +214,12 @@ impl Project {
 
 /// Write `bytes` to `path` atomically: a temp file of its own, fsync, then rename (retried on
 /// Windows while another program holds the file for a moment).
-pub use craft_anything_platform::fs::write_atomic;
+pub use pickaxe_platform::fs::write_atomic;
 
 #[cfg(test)]
 mod tests {
     use super::*;
-    use craft_anything_evidence::{Environment, EvidenceBuilder, Subject};
+    use pickaxe_evidence::{Environment, EvidenceBuilder, Subject};
 
     /// #273: threads saving one file at once shared a temp file, so saves failed with "not found"
     /// and the file could be left half one version, half another.

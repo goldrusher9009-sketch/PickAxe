@@ -1,7 +1,7 @@
 //! Notes the person adds while the builder works, handed over at the builder's next step instead
 //! of after its whole turn. The run writes each one to `inbox/notes/<id>.json`; a coding agent
 //! that runs a command after every tool call (Claude Code's PostToolUse hook, running
-//! `craft-anything-cli builder-notes <dir>`) claims what's there by renaming it to
+//! `pickaxe-cli builder-notes <dir>`) claims what's there by renaming it to
 //! `<id>.read.json` and gives the text to the model; the run sees the rename and shows the note as
 //! read. The rename is the one moment a note changes hands, so "take back" works until then.
 //! Notes nobody claimed still go in after the turn, as before. A note's file also keeps the
@@ -36,11 +36,11 @@ pub struct Left {
 }
 
 /// Leave a note for the builder's next step: `text` is what the agent's hook hands over.
-pub fn hand_over(dir: &Path, id: u64, text: &str, left: Option<&Left>) -> Result<(), craft_anything_evidence::ToolError> {
-    std::fs::create_dir_all(dir).map_err(|e| craft_anything_evidence::ToolError::io(dir.display(), e))?;
+pub fn hand_over(dir: &Path, id: u64, text: &str, left: Option<&Left>) -> Result<(), pickaxe_evidence::ToolError> {
+    std::fs::create_dir_all(dir).map_err(|e| pickaxe_evidence::ToolError::io(dir.display(), e))?;
     let bytes = serde_json::to_vec(&serde_json::json!({"id": id, "text": text, "left": left}))
-        .map_err(|e| craft_anything_evidence::ToolError::internal(e.to_string()))?;
-    craft_anything_engine::project::write_atomic(&pending(dir, id), &bytes)
+        .map_err(|e| pickaxe_evidence::ToolError::internal(e.to_string()))?;
+    pickaxe_engine::project::write_atomic(&pending(dir, id), &bytes)
 }
 
 /// The notes an earlier run left waiting (the app closed before the builder took them, #1620),

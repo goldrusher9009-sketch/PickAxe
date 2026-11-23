@@ -319,7 +319,7 @@ BEGIN {
 }' "$env_file" "$home_env" "$oauth" "$conf"
 "#;
 
-fn remote_setup_status(host: &str, out: &craft_anything_platform::Output) -> Result<(), ToolError> {
+fn remote_setup_status(host: &str, out: &pickaxe_platform::Output) -> Result<(), ToolError> {
     if out.success {
         return Ok(());
     }
@@ -515,7 +515,7 @@ fn check_setup(options: &BackendOptions, env: &dyn Fn(&str) -> Option<String>, f
             "Aider has no model or API key set up, so it would offer to sign in to OpenRouter and wait for a browser nobody is at.",
         )
         .with_remediation(
-                        "Set OPENROUTER_API_KEY, ANTHROPIC_API_KEY or OPENAI_API_KEY for the computer Craft Anything runs on, or name a model in Aider's own ~/.aider.conf.yml. Aider's ~/.env counts too.",
+                        "Set OPENROUTER_API_KEY, ANTHROPIC_API_KEY or OPENAI_API_KEY for the computer Pickaxe runs on, or name a model in Aider's own ~/.aider.conf.yml. Aider's ~/.env counts too.",
         )),
         Some(model) if model.starts_with("openrouter/") && !key_seen("OPENROUTER_API_KEY", options, env, files) => Err(ToolError::new(
             ErrorCode::BadSettings,
@@ -535,7 +535,7 @@ mod tests {
     }
 
     fn args_with(builder: bool, options: &BackendOptions, message_file: Option<&Path>) -> Vec<String> {
-        let mcp = McpCommand { command: "craft-anything-cli".into(), args: vec!["mcp".into()], notes: None };
+        let mcp = McpCommand { command: "pickaxe-cli".into(), args: vec!["mcp".into()], notes: None };
         Aider.args(&ArgsCx {
             options,
             prompt: "make a game",
@@ -606,7 +606,7 @@ mod tests {
     /// Run the on-host setup script exactly as `check_remote_options` does, with a fixture home
     /// and only the environment a remote shell would see.
     #[cfg(unix)]
-    fn run_remote_setup(home: &Path, options: &BackendOptions, env: &[(&str, &str)]) -> craft_anything_platform::Output {
+    fn run_remote_setup(home: &Path, options: &BackendOptions, env: &[(&str, &str)]) -> pickaxe_platform::Output {
         let mut proc = Process::new("sh")
             .args(["-c", &remote_setup_line(options)])
             .cwd(home)
@@ -718,7 +718,7 @@ mod tests {
     /// A check that couldn't run says nothing about a sign-in, so only 10 and 11 refuse.
     #[test]
     fn only_the_two_definite_setup_answers_refuse() {
-        let output = |code: i32| craft_anything_platform::Output {
+        let output = |code: i32| pickaxe_platform::Output {
             code: Some(code),
             success: false,
             stdout: Vec::new(),

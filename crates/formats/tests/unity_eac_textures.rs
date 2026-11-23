@@ -1,4 +1,4 @@
-use craft_anything_formats::{FormatError, unity_texture};
+use pickaxe_formats::{FormatError, unity_texture};
 
 fn block(base: u8, multiplier: u8, table: u8, selectors: [u8; 16]) -> [u8; 8] {
     let mut bits = (u64::from(base) << 56) | (u64::from((multiplier << 4) | table) << 48);
@@ -113,7 +113,7 @@ fn serialized_texture_objects_reach_all_four_eac_decoders() {
     for format in 41..=44 {
         let one = block(0, 0, 13, [4; 16]);
         let data = if format < 43 { one.to_vec() } else { [one, one].concat() };
-        let object = craft_anything_testkit::games::unity_texture2d(version, "ChannelTexture", 4, 4, format, Some(&data), None);
+        let object = pickaxe_testkit::games::unity_texture2d(version, "ChannelTexture", 4, 4, format, Some(&data), None);
         let texture = unity_texture::parse(&object, version, false).unwrap();
         let (start, size) = texture.inline.unwrap();
         let decoded = unity_texture::decode(texture.format, texture.width, texture.height, &object[start..start + size]).unwrap();

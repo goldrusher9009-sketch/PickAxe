@@ -1,8 +1,8 @@
-use craft_anything_formats::FormatError;
-use craft_anything_formats::packed::PackedFormat;
-use craft_anything_formats::pyc;
-use craft_anything_formats::pyinstaller::{PyInstaller, PyzArchive};
-use craft_anything_testkit::packed::{code_311, pyinstaller, pyz};
+use pickaxe_formats::FormatError;
+use pickaxe_formats::packed::PackedFormat;
+use pickaxe_formats::pyc;
+use pickaxe_formats::pyinstaller::{PyInstaller, PyzArchive};
+use pickaxe_testkit::packed::{code_311, pyinstaller, pyz};
 
 // Marshal's None value is unchanged across these releases. These fixtures test byte preservation
 // and header framing, not execution of a legacy Python code object.

@@ -25,8 +25,8 @@ mod parity {
     use super::*;
     #[test]
     fn shared_reader_and_opcodes_match() {
-        let data = craft_anything_testkit::android::notes_dex();
-        let mut samples = craft_anything_testkit::mutations(&data);
+        let data = pickaxe_testkit::android::notes_dex();
+        let mut samples = pickaxe_testkit::mutations(&data);
         samples.push(data);
         for data in samples {
             assert_eq!(legacy::is_dex(&data), is_dex(&data));

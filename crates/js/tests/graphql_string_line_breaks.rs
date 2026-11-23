@@ -1,4 +1,4 @@
-use craft_anything_js::api_ops::read_document;
+use pickaxe_js::api_ops::read_document;
 
 /// A raw CR invalidates quoted variable defaults and arguments.
 #[test]

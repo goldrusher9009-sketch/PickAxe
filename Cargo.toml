@@ -7,7 +7,7 @@ version = "0.6.1"
 edition = "2024"
 license = "MIT OR Apache-2.0"
 rust-version = "1.97"
-repository = "https://github.com/storytold/craft-anything"
+repository = "https://github.com/goldrusher9009-sketch/pickaxe"
 
 [workspace.dependencies]
 craft-evm = { git = "https://github.com/storytold/craft-libs", rev = "b9c7b6970382acb1da090d83eb21e51f7006763a" }
@@ -16,19 +16,19 @@ craft-android-res = { git = "https://github.com/storytold/craft-libs", rev = "b9
 craft-har = { git = "https://github.com/storytold/craft-libs", rev = "b9c7b6970382acb1da090d83eb21e51f7006763a" }
 craft-pcap = { git = "https://github.com/storytold/craft-libs", rev = "b9c7b6970382acb1da090d83eb21e51f7006763a" }
 # internal
-craft-anything-evidence = { path = "crates/evidence" }
-craft-anything-formats = { path = "crates/formats" }
-craft-anything-disasm = { path = "crates/disasm" }
-craft-anything-js = { path = "crates/js" }
-craft-anything-analysis = { path = "crates/analysis" }
-craft-anything-platform = { path = "crates/platform" }
-craft-anything-engines = { path = "crates/engines" }
-craft-anything-engine = { path = "crates/engine" }
-craft-anything-ai = { path = "crates/ai" }
-craft-anything-mcp = { path = "crates/mcp" }
-craft-anything-setup = { path = "crates/setup" }
-craft-anything-ui-egui = { path = "crates/ui-egui" }
-craft-anything-testkit = { path = "crates/testkit" }
+pickaxe-evidence = { path = "crates/evidence" }
+pickaxe-formats = { path = "crates/formats" }
+pickaxe-disasm = { path = "crates/disasm" }
+pickaxe-js = { path = "crates/js" }
+pickaxe-analysis = { path = "crates/analysis" }
+pickaxe-platform = { path = "crates/platform" }
+pickaxe-engines = { path = "crates/engines" }
+pickaxe-engine = { path = "crates/engine" }
+pickaxe-ai = { path = "crates/ai" }
+pickaxe-mcp = { path = "crates/mcp" }
+pickaxe-setup = { path = "crates/setup" }
+pickaxe-ui-egui = { path = "crates/ui-egui" }
+pickaxe-testkit = { path = "crates/testkit" }
 
 # external
 # Shared unwrapped standard Base64 encoding; decoding keeps format-specific validation.
@@ -116,7 +116,7 @@ debug = "line-tables-only"
 lto = "thin"
 codegen-units = 1
 
-# The browser build (apps/craft-anything-web, `trunk build --release`): small and fast to load.
+# The browser build (apps/pickaxe-web, `trunk build --release`): small and fast to load.
 [profile.web-release]
 inherits = "release"
 opt-level = "s"
@@ -126,7 +126,7 @@ debug = false
 strip = true
 panic = "abort"
 
-# wgpu-hal with a Metal shader-language probe (Craft Anything #742; upstream wgpu #10687).
-# Remove this once the upstream wgpu release picks a Metal version the compiler accepts. See vendor/wgpu-hal/CRAFT_ANYTHING.md.
+# wgpu-hal with a Metal shader-language probe (Pickaxe #742; upstream wgpu #10687).
+# Remove this once the upstream wgpu release picks a Metal version the compiler accepts. See vendor/wgpu-hal/PICKAXE.md.
 [patch.crates-io]
 wgpu-hal = { path = "vendor/wgpu-hal" }

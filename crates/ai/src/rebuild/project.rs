@@ -2,8 +2,8 @@
 //! asset budget from settings and whether assets may be generated. Shared by the CLI's `rebuild` and the `rebuild_start` tool.
 
 use super::*;
-use craft_anything_engine::Settings;
-use craft_anything_engine::workspace::{ExistingFiles, suggest_name};
+use pickaxe_engine::Settings;
+use pickaxe_engine::workspace::{ExistingFiles, suggest_name};
 
 /// Where a new project goes.
 #[derive(Debug, Clone, Copy, Default)]
@@ -36,7 +36,7 @@ pub(super) fn first_stack(kinds: &KindRegistry, ws: &Workspace, deep: bool) -> O
 
 /// Whether `folder` already holds a project (its `craft.json` is there).
 pub fn has_project(folder: &Path) -> bool {
-    folder.join(craft_anything_engine::workspace::MANIFEST).is_file()
+    folder.join(pickaxe_engine::workspace::MANIFEST).is_file()
 }
 
 /// What a run says after opening a folder: a request typed for one that already held a project

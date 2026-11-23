@@ -1,6 +1,6 @@
-# Using Codex with Craft Anything
+# Using Codex with Pickaxe
 
-Craft Anything reaches Codex in two ways, and both have to get past Codex's own tool approval.
+Pickaxe reaches Codex in two ways, and both have to get past Codex's own tool approval.
 
 ## Find and check Codex on macOS
 
@@ -14,7 +14,7 @@ There is no shell-profile edit, global symlink, recursive scan or app launch.
 
 In Settings → AI, add Codex under Found on this computer → Harnesses, then use
 **Check** in its configured row. The check runs the selected program's `--version`
-and `login status` on a worker. `craft-anything-cli ai test <name>` uses the same
+and `login status` on a worker. `pickaxe-cli ai test <name>` uses the same
 headless API. It sends no prompt, and its `version_only` flag remains true:
 installation and sign-in do not prove model entitlement or remaining usage.
 Unknown or failed status output leaves the version reply unchanged, without a
@@ -24,8 +24,8 @@ selected configuration folder where supported.
 
 Codex owns authentication. Run the selected Codex program with `login` in a
 terminal and choose Sign in with ChatGPT, or use Codex's supported API-key login.
-Craft Anything does not read, copy or store Codex's credential files or tokens.
-This is not native ChatGPT OAuth inside Craft Anything and does not change
+Pickaxe does not read, copy or store Codex's credential files or tokens.
+This is not native ChatGPT OAuth inside Pickaxe and does not change
 Codex's sandbox, approval policy or model selection. A known signed-out state
 and recognized authentication failures include sign-in guidance. Unrelated
 errors such as a failed login shell do not get authentication advice. SSH connection
@@ -42,16 +42,16 @@ by these tests.
 `codex exec` is non-interactive: it has no one to ask, so its approval policy is `never`. A tool
 that an MCP server doesn't mark read-only (such as `rebuild_start`, which runs a coding agent) is
 refused before our server sees the call, with `requires approval, but approval policy is never`.
-Codex's own settings decide this; Craft Anything's consent is a second, separate check.
+Codex's own settings decide this; Pickaxe's consent is a second, separate check.
 
 ## What we set
 
-Only tools Craft Anything limits itself are approved on Codex's side
+Only tools Pickaxe limits itself are approved on Codex's side
 (`AGENT_APP_PREAPPROVED_TOOLS` in the engine): `rebuild_start`, which asks you before it runs a
 coding agent, and `assets_image_generate` and `assets_model_generate`, which run only when you
 turned on generated assets for the project and spend within its budget, asking you before going
 over it (#1464). Every other tool keeps whatever approval policy you set in Codex. If you set up
-Codex before this, run `craft-anything-cli setup --client codex --yes` again to add the asset tools.
+Codex before this, run `pickaxe-cli setup --client codex --yes` again to add the asset tools.
 
 So when a build's feed says Codex blocked another of our tools, such as `build_command_run`,
 running setup again changes nothing for it (#1867). To let Codex call it during a build, approve
@@ -62,41 +62,41 @@ table, so add the tool inside that table:
 tools = { rebuild_start = { approval_mode = "approve" }, build_command_run = { approval_mode = "approve" } }
 ```
 
-A `[mcp_servers.craft-anything.tools.build_command_run]` table cannot be added after an inline
+A `[mcp_servers.pickaxe.tools.build_command_run]` table cannot be added after an inline
 `tools` table: TOML refuses it with "cannot extend value of type inline table with a dotted key".
-If your file already uses a `[mcp_servers.craft-anything.tools]` table, add
+If your file already uses a `[mcp_servers.pickaxe.tools]` table, add
 `build_command_run = { approval_mode = "approve" }` there instead.
 
-- **Connecting Codex to Craft Anything** (`craft-anything-cli setup --client codex --yes`, or the
+- **Connecting Codex to Pickaxe** (`pickaxe-cli setup --client codex --yes`, or the
   Connect screen) writes the entry in `~/.codex/config.toml` (`$CODEX_HOME/config.toml` if set):
 
   ```toml
-  [mcp_servers.craft-anything]
-  command = "…/craft-anything-cli"
+  [mcp_servers.pickaxe]
+  command = "…/pickaxe-cli"
   args = ["mcp"]
   startup_timeout_sec = 30
   tools = { rebuild_start = { approval_mode = "approve" } }
   ```
 
   Your other entries and comments stay as they are, the old file is kept as
-  `config.toml.craft-anything.backup`, and settings you added to our entry (`env`,
+  `config.toml.pickaxe.backup`, and settings you added to our entry (`env`,
   `enabled_tools`, approvals for other tools) are kept when setup updates it. Setting
   `approval_mode` for `rebuild_start` yourself is overwritten by the next setup run.
-  `craft-anything-cli doctor --client codex` reports an entry without the approval as "a different
+  `pickaxe-cli doctor --client codex` reports an entry without the approval as "a different
   copy or shape of the command"; running setup again fixes it.
 - **Building with Codex from the app** starts `codex exec` with the same setting on its `-c`
-  flags, so nothing in your config is needed. Chats and builds also start the Craft Anything MCP
+  flags, so nothing in your config is needed. Chats and builds also start the Pickaxe MCP
   server with `--all-tools`: Codex doesn't refresh its callable tool list after `enable_toolset`,
   so every tool permitted by the current mode is listed from startup. Clean room restrictions still apply.
 
 ## Who still asks
 
-Approving `rebuild_start` in Codex doesn't remove Craft Anything's own consent: it runs a coding
+Approving `rebuild_start` in Codex doesn't remove Pickaxe's own consent: it runs a coding
 agent, so our server asks before it runs. Who can answer depends on how the server was started:
 
 - **Builds started from the app** run the server with the project's inbox, so the person answers
   in the app (Allow / Don't allow).
-- **The entry from `setup`** starts `craft-anything-cli mcp` on its own, with no app attached, so
+- **The entry from `setup`** starts `pickaxe-cli mcp` on its own, with no app attached, so
   there is no approval card: the call returns `consent_required` and nothing runs. To let Codex
   start builds this way, add `"--allow-run"` to the entry's `args` (every tool that runs code is
   then treated as allowed, so only do it for a Codex you trust), or start the build from the app.
@@ -131,8 +131,8 @@ turn and reopening a saved conversation. To explicitly check an installed Codex
 against a real account, build the CLI and run the manual example:
 
 ```sh
-cargo build -p craft-anything-cli
-PATH="$PWD/target/debug:$PATH" cargo run -p craft-anything-ai --example codex_resume_smoke -- <model>
+cargo build -p pickaxe-cli
+PATH="$PWD/target/debug:$PATH" cargo run -p pickaxe-ai --example codex_resume_smoke -- <model>
 ```
 
 The model argument is optional. The example uses the installed Codex's sign-in

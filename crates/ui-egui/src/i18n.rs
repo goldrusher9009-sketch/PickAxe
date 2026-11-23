@@ -121,7 +121,7 @@ pub fn tr(s: &str) -> String {
 /// value stays literal even when it looks like a placeholder.
 pub fn trf(s: &str, args: &[(&str, &str)]) -> String {
     let template = tr(s);
-    if template.contains('{') { craft_anything_platform::text::fill(&template, args) } else { template }
+    if template.contains('{') { pickaxe_platform::text::fill(&template, args) } else { template }
 }
 
 #[cfg(test)]

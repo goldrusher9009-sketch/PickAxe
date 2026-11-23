@@ -1,5 +1,5 @@
-use craft_anything_formats::{keyed_archive, plist};
-use craft_anything_testkit::apple as fx;
+use pickaxe_formats::{keyed_archive, plist};
+use pickaxe_testkit::apple as fx;
 use serde_json::json;
 
 #[test]

@@ -1,5 +1,5 @@
-use craft_anything_formats::{parse_binary, pe};
-use craft_anything_testkit::{PE_IAT_RVA, pe64};
+use pickaxe_formats::{parse_binary, pe};
+use pickaxe_testkit::{PE_IAT_RVA, pe64};
 
 fn image(plus: bool, base: u64, entry: u32) -> Vec<u8> {
     let mut data = pe64();

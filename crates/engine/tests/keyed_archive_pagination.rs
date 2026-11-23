@@ -1,5 +1,5 @@
-use craft_anything_engine::{CallOptions, Caller, Engine};
-use craft_anything_testkit::apple as fx;
+use pickaxe_engine::{CallOptions, Caller, Engine};
+use pickaxe_testkit::apple as fx;
 use serde_json::{Value, json};
 
 fn call(engine: &Engine, path: &std::path::Path, offset: usize, limit: usize) -> Value {
@@ -8,10 +8,10 @@ fn call(engine: &Engine, path: &std::path::Path, offset: usize, limit: usize) ->
 
 #[test]
 fn archive_tool_pages_keep_global_counts_and_root_projection() {
-    let directory = craft_anything_engine::testing::temp_dir();
+    let directory = pickaxe_engine::testing::temp_dir();
     let path = directory.join("sample.archive");
     std::fs::write(&path, fx::keyed_archive()).unwrap();
-    let engine = Engine::new(craft_anything_engine::testing::session());
+    let engine = Engine::new(pickaxe_engine::testing::session());
     let full = call(&engine, &path, 0, 20_000);
     let rows = full["result"]["objects"].as_array().unwrap();
     for (offset, limit) in [(0, 1), (1, 3), (rows.len() - 1, 20_000), (rows.len(), 1), (rows.len() + 1, 1), (usize::MAX, 1)] {
@@ -39,10 +39,10 @@ fn a_small_tool_page_keeps_shared_classes_counted_globally() {
         ("$objects", fx::P::Array(objects)),
         ("$top", fx::dict(vec![("root", fx::P::Uid(2))])),
     ]));
-    let directory = craft_anything_engine::testing::temp_dir();
+    let directory = pickaxe_engine::testing::temp_dir();
     let path = directory.join("shared.archive");
     std::fs::write(&path, bytes).unwrap();
-    let engine = Engine::new(craft_anything_engine::testing::session());
+    let engine = Engine::new(pickaxe_engine::testing::session());
     let output = call(&engine, &path, 513, 1);
     assert_eq!(output["result"]["objects_total"], 1026);
     assert_eq!(output["result"]["objects"].as_array().unwrap().len(), 1);

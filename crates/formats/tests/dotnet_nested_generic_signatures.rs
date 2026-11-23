@@ -1,4 +1,4 @@
-use craft_anything_formats::dotnet::{
+use pickaxe_formats::dotnet::{
     csharp,
     meta::{Metadata, t},
     model::{MethodInfo, Param, TypeInfo},
@@ -219,7 +219,7 @@ fn decoded_nested_generic_signatures_reconcile_with_csharp_declarations() {
         rva: 0,
         body: None,
     };
-    let meta = craft_anything_formats::dotnet::Members {
+    let meta = pickaxe_formats::dotnet::Members {
         types: vec![TypeInfo {
             token: String::new(),
             full_name: "Ns.Consumer".into(),
@@ -285,7 +285,7 @@ fn nested_generic_conversion_targets_preserve_namespace_qualification() {
     };
 
     // Unrelated namespace `M.Outer<int>/Inner` must not match `Outer<int>.Inner` inside `namespace N`.
-    let unrelated_meta = craft_anything_formats::dotnet::Members {
+    let unrelated_meta = pickaxe_formats::dotnet::Members {
         types: vec![TypeInfo {
             token: String::new(),
             full_name: "N.C".into(),
@@ -316,7 +316,7 @@ fn nested_generic_conversion_targets_preserve_namespace_qualification() {
     assert!(unrelated_rec.matched.is_empty(), "{:?}", unrelated_rec.matched);
 
     // Distinct fully qualified nested generic targets match their respective lines without conflation.
-    let distinct_meta = craft_anything_formats::dotnet::Members {
+    let distinct_meta = pickaxe_formats::dotnet::Members {
         types: vec![TypeInfo {
             token: String::new(),
             full_name: "C".into(),

@@ -1,4 +1,4 @@
-use craft_anything_js::{Limits, ParseMode, analyze};
+use pickaxe_js::{Limits, ParseMode, analyze};
 
 /// Reading or assigning a hook property does not invoke a procedure.
 #[test]

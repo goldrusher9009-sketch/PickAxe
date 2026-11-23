@@ -1,4 +1,4 @@
-use craft_anything_js::html::scan_html;
+use pickaxe_js::html::scan_html;
 
 #[test]
 fn regression_preload_relationships_are_tokens() {

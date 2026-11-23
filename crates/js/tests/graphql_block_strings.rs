@@ -1,4 +1,4 @@
-use craft_anything_js::api_ops::read_document;
+use pickaxe_js::api_ops::read_document;
 
 /// The selection and later definitions survive escaped triple quotes in an argument.
 #[test]

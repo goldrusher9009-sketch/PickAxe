@@ -332,7 +332,7 @@ fn to_entry(m: &Member, end: u64) -> PackedEntry {
 #[cfg(test)]
 mod tests {
     use super::*;
-    use craft_anything_testkit::games::{GodotFile, godot_embedded, godot_pck, godot_pck_at};
+    use pickaxe_testkit::games::{GodotFile, godot_embedded, godot_pck, godot_pck_at};
 
     fn plain(path: &'static str, data: &'static [u8]) -> GodotFile<'static> {
         GodotFile { path, data, flags: 0, md5: [0xab; 16] }

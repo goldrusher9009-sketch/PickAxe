@@ -1,4 +1,4 @@
-use craft_anything_formats::{FormatError, pixels, unreal_texture};
+use pickaxe_formats::{FormatError, pixels, unreal_texture};
 
 fn layout() -> pixels::Layout {
     unreal_texture::layout("PF_DXT3").expect("Unreal DXT3 pixels should be decoded")
@@ -73,7 +73,7 @@ fn complete_blocks_and_rgba_budgets_are_checked_before_decoding() {
 #[test]
 fn cooked_unreal_texture_reaches_the_shared_decoder() {
     let block = solid_block(0x001f, 15);
-    let (uasset, uexp) = craft_anything_testkit::games::unreal_texture_package("T_Alpha", "PF_DXT3", 4, 4, &block, None);
+    let (uasset, uexp) = pickaxe_testkit::games::unreal_texture_package("T_Alpha", "PF_DXT3", 4, 4, &block, None);
     let package = unreal_texture::package(&uasset).unwrap();
     let export = &package.exports[0];
     let start = usize::try_from(export.serial_offset - package.header_size).unwrap();

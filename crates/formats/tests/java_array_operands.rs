@@ -1,4 +1,4 @@
-use craft_anything_formats::java_ops::{decode, decode_one};
+use pickaxe_formats::java_ops::{decode, decode_one};
 
 #[test]
 fn invalid_primitive_array_types_stop_before_the_allocation() {

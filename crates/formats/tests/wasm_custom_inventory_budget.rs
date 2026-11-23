@@ -1,5 +1,5 @@
-use craft_anything_formats::wasm::{MAX_ITEMS, inspect};
-use craft_anything_testkit::formats::wasm_module;
+use pickaxe_formats::wasm::{MAX_ITEMS, inspect};
+use pickaxe_testkit::formats::wasm_module;
 
 fn leb(mut value: usize) -> Vec<u8> {
     let mut out = Vec::new();

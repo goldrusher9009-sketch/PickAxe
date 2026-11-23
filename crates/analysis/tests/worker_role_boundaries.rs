@@ -1,4 +1,4 @@
-use craft_anything_analysis::js_app::{AppFile, AppGraph, AppInput, AppOptions, analyze_application};
+use pickaxe_analysis::js_app::{AppFile, AppGraph, AppInput, AppOptions, analyze_application};
 
 fn graph_of(files: Vec<(&str, String)>) -> AppGraph {
     let files: Vec<_> = files.into_iter().map(|(path, source)| AppFile { path: path.into(), bytes: source.into_bytes() }).collect();

@@ -3,7 +3,7 @@
 use crate::project::Project;
 use crate::settings::Settings;
 use crate::target::{Target, TargetId};
-use craft_anything_evidence::{ErrorCode, Evidence, ToolError, Unknown};
+use pickaxe_evidence::{ErrorCode, Evidence, ToolError, Unknown};
 use std::any::{Any, TypeId};
 use std::collections::{BTreeMap, HashMap};
 use std::sync::Arc;
@@ -107,7 +107,7 @@ impl Session {
 
     /// Keep a project started in a folder the person picked in the project list
     /// ([`Settings::remember_project`]), saving settings when that changed them.
-    pub fn remember_project(&mut self, root: &std::path::Path) -> Result<(), craft_anything_evidence::ToolError> {
+    pub fn remember_project(&mut self, root: &std::path::Path) -> Result<(), pickaxe_evidence::ToolError> {
         let mut next = self.settings.clone();
         if next.remember_project(root) {
             next.save_to(&self.config_dir().join("config.toml"))?;
@@ -364,7 +364,7 @@ impl Session {
 mod tests {
     use super::*;
     use crate::project::{Project, Purpose};
-    use craft_anything_evidence::{Environment, Evidence, EvidenceBuilder, Severity, Subject, Unknown};
+    use pickaxe_evidence::{Environment, Evidence, EvidenceBuilder, Severity, Subject, Unknown};
 
     /// A record that differs by `tag`, and so gets its own id.
     fn evidence(tag: &str) -> Evidence {

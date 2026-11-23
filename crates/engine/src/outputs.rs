@@ -107,8 +107,8 @@ fn under_app(app: &Path, dir: PathBuf) -> PathBuf {
 
 /// `cargo metadata` for `app`, run from it: Cargo reads its configuration from the working
 /// directory, so this sees the same settings a `cargo build` there does.
-fn cargo_metadata(app: &Path) -> craft_anything_platform::process::Process {
-    craft_anything_platform::process::Process::new("cargo")
+fn cargo_metadata(app: &Path) -> pickaxe_platform::process::Process {
+    pickaxe_platform::process::Process::new("cargo")
         .args(["metadata", "--format-version", "1", "--no-deps", "--offline"])
         .cwd(crate::workspace::absolute(app))
         .timeout(std::time::Duration::from_secs(30))
@@ -116,7 +116,7 @@ fn cargo_metadata(app: &Path) -> craft_anything_platform::process::Process {
 }
 
 /// Where Cargo builds, from a `cargo metadata` run; none when Cargo is missing, fails or times out.
-fn target_dir_of(run: craft_anything_platform::process::Process) -> Option<PathBuf> {
+fn target_dir_of(run: pickaxe_platform::process::Process) -> Option<PathBuf> {
     let out = run.run().ok().filter(|o| o.success)?;
     let meta: serde_json::Value = serde_json::from_slice(&out.stdout).ok()?;
     meta.get("target_directory")?.as_str().map(PathBuf::from)
@@ -903,7 +903,7 @@ mod target_dir_tests {
 
     #[test]
     fn without_an_answer_from_cargo_it_is_the_file_lookup() {
-        assert_eq!(target_dir_of(craft_anything_platform::process::Process::new("no-such-cargo-here")), None, "no Cargo");
+        assert_eq!(target_dir_of(pickaxe_platform::process::Process::new("no-such-cargo-here")), None, "no Cargo");
         let d = tempfile::tempdir().unwrap();
         let app = d.path().join("app");
         package(&app, "snake");

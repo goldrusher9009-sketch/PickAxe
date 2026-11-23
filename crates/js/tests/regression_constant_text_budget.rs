@@ -2,7 +2,7 @@
 //! constant with itself doubles that text with every declaration, so a few hundred bytes of source
 //! could ask for gigabytes. Built text is bounded and stays readable at ordinary sizes.
 
-use craft_anything_js::{Analysis, Limits, ParseMode, analyze};
+use pickaxe_js::{Analysis, Limits, ParseMode, analyze};
 
 /// Analyse `src` and check the syntax tree was used.
 fn parsed(src: &str) -> Analysis {

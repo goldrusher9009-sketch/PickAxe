@@ -10,7 +10,7 @@
 use super::investigation_tools::{self, Finding, HypothesisStatus, Investigation};
 use crate::project::write_atomic;
 use crate::tool::{Ctx, Effects, Requires, ToolOutput, ToolSpec, Toolset, parse_params, schema_of};
-use craft_anything_evidence::{Confidence, Evidence, ToolError, Unknown};
+use pickaxe_evidence::{Confidence, Evidence, ToolError, Unknown};
 use schemars::JsonSchema;
 use serde::{Deserialize, Serialize};
 use serde_json::{Value, json};
@@ -204,7 +204,7 @@ impl ReportData<'_> {
 }
 
 fn is_resolved(u: &Unknown) -> bool {
-    matches!(u.status, craft_anything_evidence::UnknownStatus::Resolved)
+    matches!(u.status, pickaxe_evidence::UnknownStatus::Resolved)
 }
 
 fn confidence_label(c: Confidence) -> &'static str {
@@ -560,10 +560,10 @@ th { color: var(--muted); font-weight: 600; }\n\
 mod tests {
     use crate::project::{Project, Purpose};
     use crate::{CallOptions, Caller, Engine};
-    use craft_anything_evidence::{Confidence, Environment, EvidenceBuilder, Limitation, Location, Subject};
+    use pickaxe_evidence::{Confidence, Environment, EvidenceBuilder, Limitation, Location, Subject};
     use serde_json::json;
 
-    fn call(e: &Engine, id: &str, p: serde_json::Value) -> Result<serde_json::Value, craft_anything_evidence::ToolError> {
+    fn call(e: &Engine, id: &str, p: serde_json::Value) -> Result<serde_json::Value, pickaxe_evidence::ToolError> {
         e.call(id, p, CallOptions::new(Caller::Agent)).map(|o| o.to_json())
     }
 

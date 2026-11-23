@@ -1,6 +1,6 @@
 #![allow(clippy::unwrap_used, clippy::expect_used, clippy::panic, clippy::indexing_slicing)]
 
-use craft_anything_formats::ai_model;
+use pickaxe_formats::ai_model;
 
 fn model(json: &str) -> Vec<u8> {
     let mut data = (json.len() as u64).to_le_bytes().to_vec();

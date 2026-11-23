@@ -481,7 +481,7 @@ pub fn graph(doc: &IbDocument, max_objects: usize, max_connections: usize) -> Gr
 #[cfg(test)]
 mod tests {
     use super::*;
-    use craft_anything_testkit::apple as fx;
+    use pickaxe_testkit::apple as fx;
 
     fn shared_nib(class: &str, key: &str, value: fx::NV, copies: usize) -> Vec<u8> {
         let mut data = fx::nib_write(&[(class, vec![(key, value)])]);
@@ -630,7 +630,7 @@ mod tests {
     #[test]
     fn hostile_inputs() {
         let s = fx::nib_archive();
-        for m in craft_anything_testkit::mutations(&s) {
+        for m in pickaxe_testkit::mutations(&s) {
             if let Ok(d) = parse(&m) {
                 let _ = graph(&d, 100, 100);
             }
@@ -640,7 +640,7 @@ mod tests {
         }
         for seed in 0..100 {
             let mut n = b"NIBArchive".to_vec();
-            n.extend(craft_anything_testkit::noise(seed, 80));
+            n.extend(pickaxe_testkit::noise(seed, 80));
             if let Ok(d) = parse(&n) {
                 let _ = graph(&d, 10, 10);
             }

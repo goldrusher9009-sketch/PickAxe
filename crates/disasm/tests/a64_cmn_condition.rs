@@ -1,5 +1,5 @@
-use craft_anything_disasm::{Image, Limits, NoControl, Program, pseudo};
-use craft_anything_formats::Arch;
+use pickaxe_disasm::{Image, Limits, NoControl, Program, pseudo};
+use pickaxe_formats::Arch;
 use std::sync::Arc;
 
 fn lift_a64(words: &[u32]) -> pseudo::Pseudo {

@@ -4,9 +4,9 @@
 //!
 //! Pure: the caller supplies file bytes (from an ASAR, folder or ZIP). Nothing is executed.
 
-use craft_anything_evidence::sha256_hex;
-use craft_anything_js::html::{HtmlFacts, scan_html};
-use craft_anything_js::{self as js, ModuleFacts, PrefValue};
+use pickaxe_evidence::sha256_hex;
+use pickaxe_js::html::{HtmlFacts, scan_html};
+use pickaxe_js::{self as js, ModuleFacts, PrefValue};
 use serde::{Deserialize, Serialize};
 use serde_json::{Value, json};
 use std::collections::{BTreeMap, BTreeSet, HashMap, VecDeque};
@@ -598,7 +598,7 @@ pub fn analyze_application(input: &AppInput, opts: &AppOptions, cancelled: &dyn 
             let h = scan_html(&text);
             for (n, s) in h.scripts.iter().enumerate() {
                 if let Some((a, z)) = s.inline {
-                    let code = craft_anything_js::util::slice(&text, a, z);
+                    let code = pickaxe_js::util::slice(&text, a, z);
                     let name = format!("{}#inline-{n}", f.path);
                     let an = js::analyze(&name, code, &opts.limits);
                     let code_sha256 = Some(sha256_hex(code.as_bytes()));
@@ -1132,13 +1132,13 @@ pub fn analyze_application(input: &AppInput, opts: &AppOptions, cancelled: &dyn 
     }
 
     // Source maps.
-    let mut source_budget = craft_anything_formats::sourcemap::InventoryLimits::default();
+    let mut source_budget = pickaxe_formats::sourcemap::InventoryLimits::default();
     for a in &analysed {
         let Some(url) = &a.facts.source_map_url else { continue };
         let mut r = SourceMapRef { script: a.path.clone(), url: url.chars().take(256).collect(), ..Default::default() };
         let map_bytes: Option<Vec<u8>> = if url.starts_with("data:") {
             r.inline = true;
-            craft_anything_formats::sourcemap::decode_data_url(url)
+            pickaxe_formats::sourcemap::decode_data_url(url)
         } else {
             let p = join_rel(dir_of(&a.path), url);
             r.resolved = p.clone();
@@ -1326,13 +1326,13 @@ pub fn graph_id(nodes: &[Node], edges: &[Edge]) -> String {
     let mut es: Vec<&Edge> = edges.iter().collect();
     es.sort();
     let v = json!({"nodes": ids, "edges": es});
-    format!("ag_{}", sha256_hex(craft_anything_evidence::canonical_json(&v).as_bytes()))
+    format!("ag_{}", sha256_hex(pickaxe_evidence::canonical_json(&v).as_bytes()))
 }
 
 #[cfg(test)]
 pub(crate) mod tests_support {
     use super::*;
-    use craft_anything_testkit::electron as fx;
+    use pickaxe_testkit::electron as fx;
 
     pub fn graph_of(files: Vec<(&str, String)>) -> AppGraph {
         let files = files.into_iter().map(|(p, c)| AppFile { path: p.into(), bytes: c.into_bytes() }).collect::<Vec<_>>();
@@ -1352,10 +1352,10 @@ fn read_source_map(
     r: &mut SourceMapRef,
     bytes: &[u8],
     script: &str,
-    budget: &mut craft_anything_formats::sourcemap::InventoryLimits,
+    budget: &mut pickaxe_formats::sourcemap::InventoryLimits,
     limitations: &mut Vec<(String, String)>,
 ) {
-    use craft_anything_formats::sourcemap::{Limits, SourceMapError, parse, parse_sources};
+    use pickaxe_formats::sourcemap::{Limits, SourceMapError, parse, parse_sources};
     let map = match parse(bytes, Limits::default()) {
         // The mappings or section offsets are broken, but the list of sources may still be
         // whole, and the list is all that is kept here.
@@ -1369,7 +1369,7 @@ fn read_source_map(
     };
     match map {
         Ok(map) => {
-            let inventory = map.source_inventory(craft_anything_formats::sourcemap::InventoryLimits {
+            let inventory = map.source_inventory(pickaxe_formats::sourcemap::InventoryLimits {
                 max_sources: budget.max_sources.min(5000),
                 max_bytes: budget.max_bytes,
             });
@@ -1405,7 +1405,7 @@ fn read_source_map(
 }
 
 /// Count embedded `sourcesContent` entries across a source map and its nested inline `sections`.
-fn count_sources_with_content(root: &craft_anything_formats::sourcemap::SourceMap) -> usize {
+fn count_sources_with_content(root: &pickaxe_formats::sourcemap::SourceMap) -> usize {
     let mut stack = vec![root];
     let mut count = 0usize;
     while let Some(map) = stack.pop() {
@@ -1429,8 +1429,8 @@ fn unprefixed(listed: &str) -> &str {
 }
 
 /// A refusal at one of the source-map parser's limits, as opposed to a map that is malformed.
-fn is_limit(e: &craft_anything_formats::sourcemap::SourceMapError) -> bool {
-    use craft_anything_formats::sourcemap::SourceMapError as E;
+fn is_limit(e: &pickaxe_formats::sourcemap::SourceMapError) -> bool {
+    use pickaxe_formats::sourcemap::SourceMapError as E;
     matches!(e, E::TooLarge(..) | E::TooManySegments(_) | E::TooManyLines(_) | E::LineAllocationFailed | E::TooDeep(_) | E::TooManyEntries(_))
 }
 
@@ -1438,7 +1438,7 @@ fn is_limit(e: &craft_anything_formats::sourcemap::SourceMapError) -> bool {
 mod tests {
     use super::tests_support::{graph_of, notes_graph};
     use super::*;
-    use craft_anything_testkit::electron as fx;
+    use pickaxe_testkit::electron as fx;
 
     #[test]
     fn notes_app_graph() {

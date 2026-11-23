@@ -1,8 +1,8 @@
-use craft_anything_setup::{ActionKind, CheckStatus, DoctorRequest, Host, Os, PlanRequest, apply, clients, config, doctor, plan, uninstall};
+use pickaxe_setup::{ActionKind, CheckStatus, DoctorRequest, Host, Os, PlanRequest, apply, clients, config, doctor, plan, uninstall};
 use serde_json::json;
 
 fn cli() -> Vec<String> {
-    vec!["/b/craft-anything-cli".to_string(), "mcp".to_string()]
+    vec!["/b/pickaxe-cli".to_string(), "mcp".to_string()]
 }
 
 /// Setup writes into an existing inline `mcp_servers` table (empty or with sibling servers), keeps
@@ -48,17 +48,17 @@ fn inline_mcp_servers_table_merges_owned_and_replaces_foreign_entries() {
     let codex = all.iter().find(|c| c.id == "codex").unwrap();
     let entry = codex.desired_entry(&cli());
 
-    let owned = "mcp_servers = { craft-anything = { command = \"/old/craft-anything-cli\", args = [\"mcp\"], enabled = false, disabled_tools = [\"x\"] }, other = { command = \"o\" } }\n";
+    let owned = "mcp_servers = { pickaxe = { command = \"/old/pickaxe-cli\", args = [\"mcp\"], enabled = false, disabled_tools = [\"x\"] }, other = { command = \"o\" } }\n";
     let merged = config::set_entry(codex, owned, &entry).unwrap();
     let got = config::read_entry(codex, &merged).unwrap().unwrap();
-    assert_eq!(got["command"], "/b/craft-anything-cli");
+    assert_eq!(got["command"], "/b/pickaxe-cli");
     assert_eq!(got["enabled"], false);
     assert_eq!(got["disabled_tools"][0], "x");
     assert_eq!(got["tools"]["rebuild_start"]["approval_mode"], "approve");
     assert_eq!(config::parse(codex, &merged).unwrap()["mcp_servers"]["other"]["command"], "o");
     assert_eq!(config::set_entry(codex, &merged, &entry).unwrap(), merged);
 
-    let foreign = "mcp_servers = { craft-anything = { url = \"https://example.test/mcp\" }, other = { command = \"o\" } }\n";
+    let foreign = "mcp_servers = { pickaxe = { url = \"https://example.test/mcp\" }, other = { command = \"o\" } }\n";
     let replaced = config::set_entry(codex, foreign, &entry).unwrap();
     let got = config::read_entry(codex, &replaced).unwrap().unwrap();
     assert!(got.get("url").is_none(), "{got}");
@@ -79,7 +79,7 @@ fn non_table_mcp_servers_values_are_still_refused() {
         assert!(err.contains("is not a table"), "{bad}: {err}");
     }
 
-    let regular_foreign = "[mcp_servers]\ncraft-anything = { url = \"https://example.test/mcp\" }\nother = { command = \"o\" }\n";
+    let regular_foreign = "[mcp_servers]\npickaxe = { url = \"https://example.test/mcp\" }\nother = { command = \"o\" }\n";
     let replaced = config::set_entry(codex, regular_foreign, &entry).unwrap();
     let got = config::read_entry(codex, &replaced).unwrap().unwrap();
     assert!(got.get("url").is_none(), "{got}");
@@ -98,7 +98,7 @@ fn setup_plan_apply_doctor_and_uninstall_work_with_inline_mcp_servers() {
     std::fs::create_dir_all(home.join(".codex")).unwrap();
     let initial = "# Codex config\nmcp_servers = { other = { command = \"other-server\" } } # theirs\n";
     std::fs::write(home.join(".codex/config.toml"), initial).unwrap();
-    let bin = home.join("bin/craft-anything-cli");
+    let bin = home.join("bin/pickaxe-cli");
     std::fs::create_dir_all(bin.parent().unwrap()).unwrap();
     std::fs::write(&bin, "#!/bin/sh\n").unwrap();
 

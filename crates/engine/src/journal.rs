@@ -108,14 +108,14 @@ fn scrubbed_part(part: &str) -> String {
     let mut token = String::new();
     for c in part.chars() {
         if "=:/@".contains(c) {
-            out.push_str(if craft_anything_analysis::standin::looks_secret(&token) { HIDDEN } else { &token });
+            out.push_str(if pickaxe_analysis::standin::looks_secret(&token) { HIDDEN } else { &token });
             token.clear();
             out.push(c);
         } else {
             token.push(c);
         }
     }
-    out.push_str(if craft_anything_analysis::standin::looks_secret(&token) { HIDDEN } else { &token });
+    out.push_str(if pickaxe_analysis::standin::looks_secret(&token) { HIDDEN } else { &token });
     out
 }
 

@@ -1,6 +1,6 @@
 [package]
-name = "craft-anything-formats"
-description = "Pure, standalone file-format parsers for Craft Anything (no workspace dependencies)"
+name = "pickaxe-formats"
+description = "Pure, standalone file-format parsers for Pickaxe (no workspace dependencies)"
 version.workspace = true
 edition.workspace = true
 license.workspace = true
@@ -50,4 +50,4 @@ ruzstd = { version = "0.9.1", default-features = false, features = ["std"] }
 [dev-dependencies]
 wasmparser = { workspace = true }
 wasmprinter = { workspace = true }
-craft-anything-testkit = { workspace = true }
+pickaxe-testkit = { workspace = true }

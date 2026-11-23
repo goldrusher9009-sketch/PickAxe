@@ -1,5 +1,5 @@
-use craft_anything_disasm::{Flow, Image, Insn, Kind, Limits, Mode, NoControl, Program, dataflow::def_use, decode};
-use craft_anything_formats::Arch;
+use pickaxe_disasm::{Flow, Image, Insn, Kind, Limits, Mode, NoControl, Program, dataflow::def_use, decode};
+use pickaxe_formats::Arch;
 
 fn instruction(word: u32) -> Insn {
     decode(Mode::A64, &word.to_le_bytes(), 0x1000, true).unwrap()
@@ -77,7 +77,7 @@ fn ordinary_indirect_branches_and_calls_keep_their_register_effects() {
     reads_and_writes(&instruction(0xd63f_0260), &["x19"], &["x30"]);
 }
 
-fn graph(words: &[u32]) -> craft_anything_disasm::dataflow::DefUse {
+fn graph(words: &[u32]) -> pickaxe_disasm::dataflow::DefUse {
     let bytes = words.iter().flat_map(|word| word.to_le_bytes()).collect::<Vec<_>>();
     let image = Image::raw(bytes.into(), Arch::Aarch64, 0x1000);
     let program = Program::analyze(&image, &Limits { scan_prologues: false, ..Limits::default() }, &NoControl).unwrap();

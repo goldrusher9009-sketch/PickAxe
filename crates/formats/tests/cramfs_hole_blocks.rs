@@ -1,7 +1,7 @@
-use craft_anything_formats::fsread::{self, Limits};
+use pickaxe_formats::fsread::{self, Limits};
 
 fn fixture(contents: &[u8], holes: bool) -> (Vec<u8>, usize) {
-    let mut data = craft_anything_testkit::firmware::cramfs_image();
+    let mut data = pickaxe_testkit::firmware::cramfs_image();
     data.resize(data.len().div_ceil(4) * 4, 0);
     let pointers = data.len();
     data.resize(pointers + contents.len().div_ceil(4096) * 4, 0);

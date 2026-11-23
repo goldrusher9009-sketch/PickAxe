@@ -1,15 +1,15 @@
 # OpenCode as an AI backend
 
-Craft Anything can run OpenCode V2 locally or on an SSH host. OpenCode owns its provider
+Pickaxe can run OpenCode V2 locally or on an SSH host. OpenCode owns its provider
 connections and sign-in. Set these up in OpenCode on the computer where it will run.
 
 Model and thinking choices can be discovered, validated and saved. A run with an explicit
 selection goes through the native adapter (`opencode run --standalone`), which hands the run
-the Craft Anything MCP server in a config file named by `OPENCODE_CONFIG`; the person's own
-settings stay unchanged. Over SSH one `ssh` run checks that `craft-anything-cli` is on the
-remote PATH and writes the file on the host itself (`~/.cache/craft-anything/`, named by its
+the Pickaxe MCP server in a config file named by `OPENCODE_CONFIG`; the person's own
+settings stay unchanged. Over SSH one `ssh` run checks that `pickaxe-cli` is on the
+remote PATH and writes the file on the host itself (`~/.cache/pickaxe/`, named by its
 content, kept private), so the remote run gets the same tools. The host needs
-`craft-anything-cli` on its PATH — install Craft Anything there (the app keeps the helper
+`pickaxe-cli` on its PATH — install Pickaxe there (the app keeps the helper
 next to it). If the check fails, the turn stops before any work with the fix.
 
 **Which OpenCode.** Runs need OpenCode 2.x, whose `run` has `--standalone`. OpenCode's install
@@ -18,7 +18,7 @@ doesn't have it. 2.x comes from npm's `@opencode/cli` package (`npm install -g @
 with the OpenCode desktop app, whose CLI is `opencode-cli` in the app's resources folder
 (`/opt/OpenCode/resources/opencode-cli` from the Linux package), and from OpenCode's GitHub
 releases. When the `opencode` on your PATH is 1.x, install `@opencode/cli`, or point the backend
-at a 2.x CLI: step 2 below, or `craft-anything-cli ai program OpenCode <path>`. If npm's
+at a 2.x CLI: step 2 below, or `pickaxe-cli ai program OpenCode <path>`. If npm's
 `opencode-ai` gave you 1.x, remove it first (`npm uninstall -g opencode-ai`): both packages
 install the `opencode` command, so installing `@opencode/cli` beside it fails with `EEXIST`.
 
@@ -61,15 +61,15 @@ by a terminal turn event, so headless chat finishes without waiting for an agent
 ## CLI
 
 ```sh
-craft-anything-cli ai add OpenCode --kind agent_cli --model opencode
-craft-anything-cli ai model OpenCode
-craft-anything-cli ai model OpenCode my-provider/my-model --thinking high
-craft-anything-cli ai model OpenCode --thinking max
-craft-anything-cli ai model OpenCode --default
+pickaxe-cli ai add OpenCode --kind agent_cli --model opencode
+pickaxe-cli ai model OpenCode
+pickaxe-cli ai model OpenCode my-provider/my-model --thinking high
+pickaxe-cli ai model OpenCode --thinking max
+pickaxe-cli ai model OpenCode --default
 
-craft-anything-cli ai add "OpenCode on studio" --kind agent_cli --model opencode --ssh-host studio
-craft-anything-cli ai program "OpenCode on studio" /opt/opencode/bin/opencode
-craft-anything-cli ai model "OpenCode on studio"
+pickaxe-cli ai add "OpenCode on studio" --kind agent_cli --model opencode --ssh-host studio
+pickaxe-cli ai program "OpenCode on studio" /opt/opencode/bin/opencode
+pickaxe-cli ai model "OpenCode on studio"
 ```
 
 Replace `my-provider/my-model` with an id from the listing. Listing an OpenCode backend also
@@ -120,8 +120,8 @@ folder, over SSH on the host itself). V2 names a tool call `id` (V1: `callID`); 
 are read, so tool calls reach the feed while the turn runs.
 
 A builder runs with `--auto`, so it never asks us before it edits. For a build, the same config
-file carries OpenCode `permissions` rules that deny its edit tool Craft Anything's records: each
-name in the project folder that Craft Anything keeps (`craft.json`, `feed.json`, `inbox/`,
+file carries OpenCode `permissions` rules that deny its edit tool Pickaxe's records: each
+name in the project folder that Pickaxe keeps (`craft.json`, `feed.json`, `inbox/`,
 `investigation.cany/`, `reference/`…, from `workspace::OWN_NAMES`) and everything under it.
 `checks/` is left out, since the builder keeps its notes there. OpenCode enforces a configured
 deny under `--auto`, and the rules hold whether the app is in `app/` or in the project folder
@@ -136,8 +136,8 @@ So a local turn that doesn't finish (stopped, failed or timed out) deletes its s
 `opencode session delete --standalone <id>`, which removes it without resuming it (over SSH, on
 the host). A turn that finishes keeps its session. While a turn runs, its session is recorded in
 `logs/unfinished-sessions/` in the config folder, under a lock the system drops when Craft
-Anything ends; if Craft Anything is killed mid-turn, the desktop app sweeps the records when it
-starts, and the next agent turn or `craft-anything-cli uninstall` does too. A delete that
+Anything ends; if Pickaxe is killed mid-turn, the desktop app sweeps the records when it
+starts, and the next agent turn or `pickaxe-cli uninstall` does too. A delete that
 keeps failing is given up after three tries, with the command to run by hand.
 
 Model discovery uses `opencode api model.list --param location[directory]=...` (the V2

@@ -4,8 +4,8 @@
 
 use crate::target::{Target, TargetKind};
 use crate::tool::Ctx;
-use craft_anything_evidence::{Coverage, CoverageStatus, Environment, ErrorCode, EvidenceBuilder, Subject, ToolError};
-use craft_anything_formats::FormatError;
+use pickaxe_evidence::{Coverage, CoverageStatus, Environment, ErrorCode, EvidenceBuilder, Subject, ToolError};
+use pickaxe_formats::FormatError;
 use serde_json::Value;
 use std::path::PathBuf;
 use std::sync::Arc;
@@ -46,7 +46,7 @@ pub fn load_path(p: &str, max: u64) -> Result<Input, ToolError> {
     if !pb.is_absolute() {
         return Err(ToolError::invalid(format!("{p:?} is not an absolute path")).with_remediation("Pass the full path, for example /home/me/app.apk."));
     }
-    let bytes = craft_anything_platform::fs::read_file_capped(&pb, max)?;
+    let bytes = pickaxe_platform::fs::read_file_capped(&pb, max)?;
     let name = pb.file_name().map(|n| n.to_string_lossy().into_owned()).unwrap_or_else(|| p.to_string());
     let t = Target::from_bytes(pb.clone(), name.clone(), bytes);
     Ok(Input { subject: t.subject(), bytes: t.bytes.clone(), path: pb, name, kind: t.kind })
@@ -89,7 +89,7 @@ pub fn load_prefix(ctx: &Ctx<'_>, path: Option<&str>, max: u64) -> Result<Prefix
     if !pb.is_absolute() {
         return Err(ToolError::invalid(format!("{p:?} is not an absolute path")).with_remediation("Pass the full path, for example /home/me/model.gguf."));
     }
-    let (mut file, meta) = craft_anything_platform::fs::open_regular_file(&pb)?;
+    let (mut file, meta) = pickaxe_platform::fs::open_regular_file(&pb)?;
     let mut bytes = Vec::with_capacity(usize::try_from(meta.len().min(max)).unwrap_or(0));
     (&mut file).take(max).read_to_end(&mut bytes).map_err(|e| ToolError::io(p, e))?;
     // Metadata can be stale or report zero for readable virtual files. Only EOF proves this
@@ -101,7 +101,7 @@ pub fn load_prefix(ctx: &Ctx<'_>, path: Option<&str>, max: u64) -> Result<Prefix
         Err(error) => return Err(ToolError::io(p, error)),
     };
     let name = pb.file_name().map(|n| n.to_string_lossy().into_owned()).unwrap_or_else(|| p.to_string());
-    let sha256 = whole.then(|| craft_anything_evidence::sha256_hex(&bytes));
+    let sha256 = whole.then(|| pickaxe_evidence::sha256_hex(&bytes));
     let subject = Subject { kind: "file".into(), sha256, name: Some(name.clone()) };
     Ok(PrefixInput { bytes, file_size: meta.len(), whole, subject, path: pb, name })
 }

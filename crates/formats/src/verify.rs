@@ -1001,7 +1001,7 @@ mod tests {
     }
 
     fn cert_with_key_id(name: &str, key_id: &[u8], value_tag: u8, duplicate: bool, critical: Option<&[u8]>) -> Vec<u8> {
-        use craft_anything_testkit::{android as a, crypto};
+        use pickaxe_testkit::{android as a, crypto};
         let original = crypto::self_signed_rsa(name, "Org");
         let mut cert = der_fields(&original);
         let mut tbs = der_fields(&cert[0]);
@@ -1019,13 +1019,13 @@ mod tests {
     }
 
     fn issuer_serial(cert: &[u8]) -> Vec<u8> {
-        use craft_anything_testkit::android as a;
+        use pickaxe_testkit::android as a;
         let parts = der::certificate_parts(cert).unwrap();
         a::der(0x30, &[parts.issuer.to_vec(), a::der(0x02, parts.serial)].concat())
     }
 
     fn cms_with_identity(content: &[u8], certs: &[Vec<u8>], sid: Vec<u8>, version: u8) -> Vec<u8> {
-        use craft_anything_testkit::{android as a, crypto};
+        use pickaxe_testkit::{android as a, crypto};
         let original = crypto::cms_detached_rsa(content, "Signer", "Org");
         let mut ci = der_fields(&original);
         let mut sd = der_fields(&der_fields(&ci[1])[0]);
@@ -1056,7 +1056,7 @@ mod tests {
 
     #[test]
     fn cms_unmatched_issuer_or_serial_keeps_the_signer_unknown() {
-        use craft_anything_testkit::{android as a, crypto};
+        use pickaxe_testkit::{android as a, crypto};
         let content = b"signed identity fixture";
         let cert = crypto::self_signed_rsa("Signer", "Org");
         let fields = der_fields(&issuer_serial(&cert));
@@ -1068,7 +1068,7 @@ mod tests {
 
     #[test]
     fn cms_key_identifier_selects_the_matching_certificate() {
-        use craft_anything_testkit::android as a;
+        use pickaxe_testkit::android as a;
         let content = b"signed key identifier fixture";
         let key_id = [7; 20];
         let signer = cert_with_key_id("Signer", &key_id, 0x04, false, None);
@@ -1085,7 +1085,7 @@ mod tests {
 
     #[test]
     fn cms_missing_key_identifier_does_not_fall_back_to_a_certificate() {
-        use craft_anything_testkit::{android as a, crypto};
+        use pickaxe_testkit::{android as a, crypto};
         let content = b"missing key identifier fixture";
         for cert in [crypto::self_signed_rsa("Signer", "Org"), cert_with_key_id("Signer", &[8; 20], 0x04, false, None)] {
             let cms = cms_with_identity(content, &[cert], a::der(0x80, &[7; 20]), 3);
@@ -1095,7 +1095,7 @@ mod tests {
 
     #[test]
     fn cms_key_identifier_requires_one_well_formed_extension() {
-        use craft_anything_testkit::android as a;
+        use pickaxe_testkit::android as a;
         let content = b"malformed key identifier extension fixture";
         for (tag, duplicate) in [(0x02, false), (0x04, true)] {
             let cert = cert_with_key_id("Signer", &[7; 20], tag, duplicate, None);
@@ -1106,7 +1106,7 @@ mod tests {
 
     #[test]
     fn cms_issuer_serial_finds_a_later_certificate() {
-        use craft_anything_testkit::crypto;
+        use pickaxe_testkit::crypto;
         let content = b"later certificate fixture";
         let cert = crypto::self_signed_rsa("Signer", "Org");
         let cms = cms_with_identity(content, &[crypto::self_signed_rsa("Other", "Org"), cert.clone()], issuer_serial(&cert), 1);
@@ -1116,7 +1116,7 @@ mod tests {
 
     #[test]
     fn cms_key_identifier_checks_critical_flag_encoding() {
-        use craft_anything_testkit::android as a;
+        use pickaxe_testkit::android as a;
         let content = b"key identifier critical flag fixture";
         for flag in [&[0xff][..], &[0], &[], &[1], &[0xff, 0]] {
             let cert = cert_with_key_id("Signer", &[7; 20], 0x04, false, Some(flag));
@@ -1132,7 +1132,7 @@ mod tests {
 
     #[test]
     fn cms_signer_identifier_rejects_unknown_structure() {
-        use craft_anything_testkit::{android as a, crypto};
+        use pickaxe_testkit::{android as a, crypto};
         let cert = crypto::self_signed_rsa("Signer", "Org");
         let fields = der_fields(&issuer_serial(&cert));
         for (sid, version) in [(a::der(0x31, &fields.concat()), 1), (a::der(0x30, &[fields[0].clone(), a::der(0x04, &[1, 2, 3, 4, 5])].concat()), 1)] {
@@ -1144,7 +1144,7 @@ mod tests {
     /// A wrong SignerInfo version is a readable fact, not a reason to discard its identity.
     #[test]
     fn cms_identifier_version_mismatches_preserve_the_signature_and_report_a_note() {
-        use craft_anything_testkit::android as a;
+        use pickaxe_testkit::android as a;
         let content = b"readable version mismatch";
         let key_id = [7; 20];
         let cert = cert_with_key_id("Signer", &key_id, 0x04, false, None);
@@ -1168,7 +1168,7 @@ mod tests {
     /// An empty serial cannot identify a signer, but its certificates and algorithms remain useful.
     #[test]
     fn cms_empty_signer_serial_preserves_metadata_and_leaves_the_signer_unknown() {
-        use craft_anything_testkit::{android as a, crypto};
+        use pickaxe_testkit::{android as a, crypto};
         let content = b"readable empty serial";
         let cert = crypto::self_signed_rsa("Signer", "Org");
         let fields = der_fields(&issuer_serial(&cert));
@@ -1271,7 +1271,7 @@ mod tests {
     fn unsupported_is_never_valid_on_garbage() {
         // Random bytes must never verify as Valid.
         for seed in 0..64 {
-            let n = craft_anything_testkit::noise(seed, 200);
+            let n = pickaxe_testkit::noise(seed, 200);
             let v = verify_signature(&n, SigScheme::RsaPkcs1v15(Digest::Sha256), &n, &n);
             assert!(!v.is_valid());
             let _ = verify_macho_cms(&n, &n);
@@ -1281,7 +1281,7 @@ mod tests {
 
     #[test]
     fn rsa_signature_round_trip_and_tamper() {
-        use craft_anything_testkit::crypto;
+        use pickaxe_testkit::crypto;
         let (spki, sign) = crypto::rsa_signer();
         let msg = b"the exact bytes that were signed";
         let sig = sign(msg, 0);
@@ -1298,7 +1298,7 @@ mod tests {
 
     #[test]
     fn ecdsa_p256_round_trip() {
-        use craft_anything_testkit::crypto;
+        use pickaxe_testkit::crypto;
         let (spki, sign) = crypto::p256_signer();
         let msg = b"ecdsa message";
         let sig = sign(msg);
@@ -1309,7 +1309,7 @@ mod tests {
     }
 
     fn ec_spki_with_parameters(parameters: &[u8], point: &[u8]) -> Vec<u8> {
-        use craft_anything_testkit::android::{der, der_oid};
+        use pickaxe_testkit::android::{der, der_oid};
         let algorithm = der(0x30, &[der_oid(EC_PUBLIC_KEY), parameters.to_vec()].concat());
         let key = der(0x03, &[&[0], point].concat());
         der(0x30, &[algorithm, key].concat())
@@ -1317,7 +1317,7 @@ mod tests {
 
     #[test]
     fn ecdsa_never_guesses_a_curve_from_point_length() {
-        use craft_anything_testkit::{android::der_oid, crypto};
+        use pickaxe_testkit::{android::der_oid, crypto};
         let original = crypto::p256_spki();
         let (_, point) = der::spki_parts(&original).unwrap();
         let message = b"the declared curve must select the verification group";
@@ -1332,7 +1332,7 @@ mod tests {
 
     #[test]
     fn ecdsa_requires_one_complete_named_curve_parameter() {
-        use craft_anything_testkit::{
+        use pickaxe_testkit::{
             android::{der, der_oid},
             crypto,
         };
@@ -1359,7 +1359,7 @@ mod tests {
 
     #[test]
     fn declared_curves_accept_compressed_and_uncompressed_points() {
-        use craft_anything_testkit::{android::der_oid, crypto};
+        use pickaxe_testkit::{android::der_oid, crypto};
         use p384::{
             ecdsa::{Signature, SigningKey, signature::Signer},
             elliptic_curve::rand_core::OsRng,
@@ -1382,7 +1382,7 @@ mod tests {
 
     #[test]
     fn chain_links_and_self_signed() {
-        use craft_anything_testkit::crypto;
+        use pickaxe_testkit::crypto;
         // Leaf signed by a self-signed CA: the leaf link verifies against the CA.
         let (leaf, ca) = crypto::cert_chain();
         let chain = verify_chain(&[&leaf, &ca]);
@@ -1398,7 +1398,7 @@ mod tests {
 
     #[test]
     fn chain_tries_later_issuers_with_the_same_name() {
-        use craft_anything_testkit::{
+        use pickaxe_testkit::{
             android::{der, der_oid},
             crypto,
         };
@@ -1443,7 +1443,7 @@ mod tests {
 
     #[test]
     fn self_issued_rollover_follows_the_actual_issuer_key() {
-        use craft_anything_testkit::crypto;
+        use pickaxe_testkit::crypto;
         let root = crypto::self_signed_rsa("Rollover CA", "Fixture Org");
         let rollover = crypto::make_cert("Rollover CA", "Fixture Org", "Rollover CA", &crypto::p256_spki(), "1.2.840.113549.1.1.11", &crypto::rsa_sign_sha256);
         assert!(!verify_cert_by(&rollover, &rollover).is_valid());
@@ -1461,7 +1461,7 @@ mod tests {
 
     #[test]
     fn verified_links_without_a_root_do_not_complete_a_chain() {
-        use craft_anything_testkit::crypto;
+        use pickaxe_testkit::crypto;
         let a = crypto::make_cert("Cycle A", "Fixture Org", "Cycle B", &crypto::rsa_spki(), "1.2.840.10045.4.3.2", &crypto::p256_sign_sha256);
         let b = crypto::make_cert("Cycle B", "Fixture Org", "Cycle A", &crypto::p256_spki(), "1.2.840.113549.1.1.11", &crypto::rsa_sign_sha256);
         let cycle = verify_chain(&[&a, &b]);
@@ -1492,7 +1492,7 @@ mod tests {
 
     #[test]
     fn chain_cycles_at_the_walk_bound_are_distinguished_from_roots() {
-        use craft_anything_testkit::crypto;
+        use pickaxe_testkit::crypto;
         for cycle in [true, false] {
             let certificates: Vec<_> = (0..16)
                 .map(|i| {
@@ -1525,7 +1525,7 @@ mod tests {
 
     #[test]
     fn macho_cms_verifies_and_detects_tamper() {
-        use craft_anything_testkit::{apple, crypto};
+        use pickaxe_testkit::{apple, crypto};
         let cd = apple::code_directory_blob();
         let cms = crypto::cms_detached_rsa(&cd, "Craft Signer", "Craft Org");
         let r = verify_macho_cms(&cms, &cd).expect("parse");
@@ -1542,7 +1542,7 @@ mod tests {
 
     #[test]
     fn apk_signer_verifies_and_detects_tamper() {
-        use craft_anything_testkit::android;
+        use pickaxe_testkit::android;
         let apk = android::signed_apk(false);
         let block = crate::apk_sign::parse(&apk).expect("signing block");
         assert!(!block.signers.is_empty());
@@ -1564,7 +1564,7 @@ mod tests {
 
     #[test]
     fn apk_content_digest_matches_reference() {
-        use craft_anything_testkit::{android, crypto};
+        use pickaxe_testkit::{android, crypto};
         let apk = android::signed_apk(false);
         let block = crate::apk_sign::parse(&apk).unwrap();
         let computed = apk_content_digest(&apk, block.offset, Digest::Sha256).unwrap();
@@ -1577,7 +1577,7 @@ mod tests {
 
     #[test]
     fn jar_v1_integrity_and_pkcs7() {
-        use craft_anything_testkit::{android, crypto};
+        use pickaxe_testkit::{android, crypto};
         // Build the same .SF/.RSA the signed APK carries and verify the PKCS#7 over the .SF.
         let sf = b"Signature-Version: 1.0\r\nSHA-256-Digest-Manifest: AAA=\r\n\r\n";
         let rsa = crypto::cms_detached_rsa(sf, "Craft Signer", "Craft Org");

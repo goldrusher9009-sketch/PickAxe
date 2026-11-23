@@ -1,5 +1,5 @@
-use craft_anything_formats::codesign;
-use craft_anything_testkit::apple;
+use pickaxe_formats::codesign;
+use pickaxe_testkit::apple;
 
 #[test]
 fn a_blob_outside_the_declared_signature_cannot_supply_cms_data() {

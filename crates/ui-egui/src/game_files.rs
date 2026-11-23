@@ -6,7 +6,7 @@ use crate::i18n::tr;
 use crate::state::{GameFiles, GameJob, Modal, PendingPicture};
 use crate::theme::{self, Tokens};
 use crate::{CraftApp, Pick, icons, widgets};
-use craft_anything_engine::evidence::ToolError;
+use pickaxe_engine::evidence::ToolError;
 use egui::{RichText, Sense, Ui, Vec2};
 use serde_json::{Value, json};
 use std::path::{Path, PathBuf};
@@ -315,7 +315,7 @@ pub fn folder_picked(app: &mut CraftApp, folder: PathBuf) {
     // The tools take paths as text, so a name that isn't text can't be looked through; say so
     // instead of sending a lossy path that names something else.
     let Some(path) = folder.to_str() else {
-        app.toast(tr("That folder's name has characters Craft Anything can't read. Pick another folder."), true);
+        app.toast(tr("That folder's name has characters Pickaxe can't read. Pick another folder."), true);
         return;
     };
     let path = path.to_string();
@@ -366,8 +366,8 @@ fn looked_up(tool: &str) -> bool {
 /// A finished save belongs to the archive still on screen.
 fn still_showing(app: &CraftApp, params: &Value) -> bool {
     let Some(asked) = params.get("path").and_then(Value::as_str) else { return false };
-    let asked = craft_anything_engine::workspace::normalized(Path::new(asked));
-    app.state.game.open.as_deref().is_some_and(|shown| craft_anything_engine::workspace::normalized(Path::new(shown)) == asked)
+    let asked = pickaxe_engine::workspace::normalized(Path::new(asked));
+    app.state.game.open.as_deref().is_some_and(|shown| pickaxe_engine::workspace::normalized(Path::new(shown)) == asked)
 }
 
 /// A game tool finished.
@@ -420,7 +420,7 @@ mod tests {
     use crate::jobs::Finished;
     use crate::state::PendingGameJob;
     use crate::{Done, demo};
-    use craft_anything_engine::Mode;
+    use pickaxe_engine::Mode;
     use serde_json::json;
     use std::path::PathBuf;
 

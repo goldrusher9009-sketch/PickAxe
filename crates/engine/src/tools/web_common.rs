@@ -4,10 +4,10 @@
 //! summary, PNG pixel diffing and base64.
 
 use crate::tool::Ctx;
-use craft_anything_analysis::web_har::{contains_ascii_ci, encode_query, replace_needles_with};
-use craft_anything_engines::cdp::{self, CdpClient, CdpEvent, Deadline, Endpoint, WsConn};
-use craft_anything_evidence::{Environment, ErrorCode, ToolError, host_triple, sha256_hex};
-use craft_anything_platform::process::{Process, RunningProcess, StdinMode};
+use pickaxe_analysis::web_har::{contains_ascii_ci, encode_query, replace_needles_with};
+use pickaxe_engines::cdp::{self, CdpClient, CdpEvent, Deadline, Endpoint, WsConn};
+use pickaxe_evidence::{Environment, ErrorCode, ToolError, host_triple, sha256_hex};
+use pickaxe_platform::process::{Process, RunningProcess, StdinMode};
 use serde_json::{Value, json};
 use std::time::Duration;
 
@@ -242,7 +242,7 @@ impl Browser {
 
     pub(crate) fn launch(ctx: &Ctx<'_>, opts: &LaunchOptions, dl: &Deadline) -> Result<Browser, ToolError> {
         let exe =
-            craft_anything_engines::locate("chromium", &ctx.session.settings.engines.tools, &ctx.session.settings.engine_store_dir()).ok_or_else(|| {
+            pickaxe_engines::locate("chromium", &ctx.session.settings.engines.tools, &ctx.session.settings.engine_store_dir()).ok_or_else(|| {
                 // Browser tools that take an endpoint come here without `Requires::Engine`'s check.
                 let (reason, fix) = ctx.session.settings.engine_not_found("chromium");
                 ToolError::new(ErrorCode::EngineMissing, reason)
@@ -305,7 +305,7 @@ impl Browser {
             user_agent: version.get("User-Agent").and_then(Value::as_str).unwrap_or_default().to_string(),
             endpoint,
             launched: true,
-            _watch: craft_anything_platform::end_with_this_process(&proc, profile.as_ref().map(|p| p.0.as_path())),
+            _watch: pickaxe_platform::end_with_this_process(&proc, profile.as_ref().map(|p| p.0.as_path())),
             _proc: Some(proc),
             _profile: profile,
         })
@@ -348,7 +348,7 @@ impl Browser {
             user_agent: version.get("User-Agent").and_then(Value::as_str).unwrap_or_default().to_string(),
             endpoint,
             launched: true,
-            _watch: craft_anything_platform::end_with_this_process(&proc, Some(&profile.0)),
+            _watch: pickaxe_platform::end_with_this_process(&proc, Some(&profile.0)),
             _proc: Some(proc),
             _profile: Some(profile),
         })
@@ -681,7 +681,7 @@ pub fn kept_text(raw: &[u8], secrets: &mut Secrets, cap: usize) -> Value {
             json!({
                 "state": "captured",
                 "bytes": raw.len(),
-                "sha256": craft_anything_evidence::sha256_hex(redacted.as_bytes()),
+                "sha256": pickaxe_evidence::sha256_hex(redacted.as_bytes()),
                 "text": redacted.get(..end).unwrap_or_default(),
                 "truncated": end < redacted.len(),
             })
@@ -1248,7 +1248,7 @@ mod tests {
     #[test]
     fn page_dialogs_are_reported_with_their_answer() {
         use super::{dialogs_from, dialogs_said, dialogs_said_in};
-        use craft_anything_engines::cdp::{CdpEvent, DIALOG_OPENING};
+        use pickaxe_engines::cdp::{CdpEvent, DIALOG_OPENING};
         use serde_json::json;
         let event = |params| CdpEvent { method: DIALOG_OPENING.into(), params, session_id: None };
         let dialogs = dialogs_from(&[
@@ -1657,7 +1657,7 @@ mod tests {
 
 /// The last lines a launched browser wrote to stderr, for a failure's message.
 #[derive(Clone, Default)]
-struct StderrTail(std::sync::Arc<craft_anything_platform::sync::Mutex<std::collections::VecDeque<String>>>);
+struct StderrTail(std::sync::Arc<pickaxe_platform::sync::Mutex<std::collections::VecDeque<String>>>);
 
 impl StderrTail {
     fn push(&self, line: &str) {

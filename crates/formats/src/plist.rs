@@ -265,7 +265,7 @@ fn shared_value(value: craft_plist::Value) -> Value {
 #[cfg(test)]
 mod tests {
     use super::*;
-    use craft_anything_testkit::apple as fx;
+    use pickaxe_testkit::apple as fx;
 
     #[test]
     fn shared_xml_keeps_order_dates_and_rejects_nonfinite_reals() {
@@ -390,7 +390,7 @@ mod tests {
         let sample = fx::sample_plist();
         let b = fx::to_bplist(&sample);
         let x = fx::to_xml(&sample).into_bytes();
-        for m in craft_anything_testkit::mutations(&b).into_iter().chain(craft_anything_testkit::mutations(&x)) {
+        for m in pickaxe_testkit::mutations(&b).into_iter().chain(pickaxe_testkit::mutations(&x)) {
             let _ = parse(&m);
         }
         for i in 0..b.len() {
@@ -398,7 +398,7 @@ mod tests {
         }
         for seed in 0..200 {
             let mut n = b"bplist00".to_vec();
-            n.extend(craft_anything_testkit::noise(seed, 64));
+            n.extend(pickaxe_testkit::noise(seed, 64));
             let _ = parse(&n);
         }
         // A self-referencing array must be refused, not loop.

@@ -15,7 +15,7 @@
   timestamp server, ...). Optional overrides: WINDOWS_TIMESTAMP_URL, SIGNTOOL (path to signtool.exe).
 
 .EXAMPLE
-  pwsh packaging/windows/sign.ps1 dist/craft-anything.exe dist/craft-anything.msi
+  pwsh packaging/windows/sign.ps1 dist/pickaxe.exe dist/pickaxe.msi
 #>
 param(
   [Parameter(Mandatory = $true, ValueFromRemainingArguments = $true)]
@@ -55,8 +55,8 @@ if (-not $haveCert -and -not $haveAzure) {
 }
 
 $script:SignTool = Find-SignTool
-$common = @('sign', '/v', '/fd', 'SHA256', '/td', 'SHA256', '/d', 'Craft Anything', '/du', 'https://github.com/storytold/craft-anything')
-$tmp = Join-Path ([IO.Path]::GetTempPath()) "craft-anything-sign-$PID"
+$common = @('sign', '/v', '/fd', 'SHA256', '/td', 'SHA256', '/d', 'Pickaxe', '/du', 'https://github.com/goldrusher9009-sketch/pickaxe')
+$tmp = Join-Path ([IO.Path]::GetTempPath()) "pickaxe-sign-$PID"
 New-Item -ItemType Directory -Force -Path $tmp | Out-Null
 
 try {

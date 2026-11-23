@@ -9,7 +9,7 @@ use std::sync::atomic::{AtomicUsize, Ordering};
 /// A fresh folder under the system temp folder, unique to this test process and call.
 pub fn temp_dir() -> PathBuf {
     static N: AtomicUsize = AtomicUsize::new(0);
-    let dir = std::env::temp_dir().join(format!("craft-anything-test-{}-{}", std::process::id(), N.fetch_add(1, Ordering::SeqCst)));
+    let dir = std::env::temp_dir().join(format!("pickaxe-test-{}-{}", std::process::id(), N.fetch_add(1, Ordering::SeqCst)));
     let _ = std::fs::create_dir_all(&dir);
     dir
 }
@@ -35,10 +35,10 @@ pub fn live_session() -> Session {
     s
 }
 
-/// `CRAFT_ANYTHING_TEST_CHROMIUM`, when set, is the browser live tests use (one the usual search
+/// `PICKAXE_TEST_CHROMIUM`, when set, is the browser live tests use (one the usual search
 /// doesn't find, or can't start in a test shell).
 pub fn live_browser(s: &mut Session) {
-    if let Some(exe) = std::env::var_os("CRAFT_ANYTHING_TEST_CHROMIUM") {
+    if let Some(exe) = std::env::var_os("PICKAXE_TEST_CHROMIUM") {
         s.settings.engines.tools.chromium = Some(PathBuf::from(exe));
     }
 }

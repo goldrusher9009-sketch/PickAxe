@@ -147,7 +147,7 @@ mod tests {
     #[test]
     fn zero_name_limit_preserves_root_recognition() {
         let limits = Limits { max_name: 0, ..Limits::default() };
-        let mut file = craft_anything_testkit::firmware::romfs_image();
+        let mut file = pickaxe_testkit::firmware::romfs_image();
         file[32..36].copy_from_slice(&2u32.to_be_bytes());
         file[36..44].fill(0);
         file[48..50].copy_from_slice(b"a\0");
@@ -226,7 +226,7 @@ mod tests {
     /// Names at the configured byte limit fit while longer names stop recovery.
     #[test]
     fn name_limit_counts_name_bytes_without_terminator() {
-        let mut data = craft_anything_testkit::firmware::romfs_image();
+        let mut data = pickaxe_testkit::firmware::romfs_image();
         let limits = Limits { max_name: 12, ..Limits::default() };
         data[80..92].copy_from_slice(b"readme12.txt");
         data[92] = 0;
@@ -240,7 +240,7 @@ mod tests {
 
     #[test]
     fn reads_a_small_image() {
-        let img = read(&craft_anything_testkit::firmware::romfs_image(), &Limits::default());
+        let img = read(&pickaxe_testkit::firmware::romfs_image(), &Limits::default());
         assert!(img.complete, "{:?}", img.warnings);
         let f = img.entries.iter().find(|e| e.path == "etc/hostname").expect("etc/hostname");
         assert_eq!(f.data.as_deref(), Some(b"craft-router\n".as_slice()));
@@ -250,15 +250,15 @@ mod tests {
 
     #[test]
     fn hostile_never_panics() {
-        let base = craft_anything_testkit::firmware::romfs_image();
-        for m in craft_anything_testkit::mutations(&base) {
+        let base = pickaxe_testkit::firmware::romfs_image();
+        for m in pickaxe_testkit::mutations(&base) {
             let _ = read(&m, &Limits::default());
         }
         for len in 0..base.len().min(400) {
             let _ = read(&base[..len], &Limits::default());
         }
         for seed in 0..32 {
-            let _ = read(&craft_anything_testkit::noise(seed, 300), &Limits::default());
+            let _ = read(&pickaxe_testkit::noise(seed, 300), &Limits::default());
         }
     }
 }

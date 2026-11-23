@@ -12,8 +12,8 @@
 //! Replay is read-only. A write answers what was recorded and changes nothing later reads see.
 
 use crate::web_har::{CREDENTIAL_HEADERS, Redactor, contains_ascii_ci, decode_query_name, is_credential_param, is_uuid, replace_needles_with, split_url};
-use craft_anything_formats::har::{self, Har, HarEntry, HarError};
-use craft_anything_formats::sourcemap::base64_decode;
+use pickaxe_formats::har::{self, Har, HarEntry, HarError};
+use pickaxe_formats::sourcemap::base64_decode;
 use serde::{Deserialize, Serialize};
 use serde_json::Value;
 use std::collections::{BTreeMap, BTreeSet};
@@ -596,7 +596,7 @@ pub fn request_key(body: &[u8]) -> Option<String> {
         if let Some(n) = o.get("operationName").and_then(Value::as_str).filter(|n| !n.is_empty()) {
             return Some(n.to_string());
         }
-        let doc = craft_anything_js::api_ops::read_document(o.get("query")?.as_str()?, true)?;
+        let doc = pickaxe_js::api_ops::read_document(o.get("query")?.as_str()?, true)?;
         doc.operations.into_iter().find_map(|d| d.name)
     };
     match &v {

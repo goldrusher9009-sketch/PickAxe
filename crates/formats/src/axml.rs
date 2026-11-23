@@ -261,7 +261,7 @@ pub fn manifest(doc: &Document) -> Manifest {
 #[cfg(test)]
 mod tests {
     use super::*;
-    use craft_anything_testkit::android as fx;
+    use pickaxe_testkit::android as fx;
 
     const XML_START_ELEMENT: u16 = 0x0102;
 
@@ -343,7 +343,7 @@ mod tests {
     #[test]
     fn hostile() {
         let s = fx::manifest_axml();
-        for m in craft_anything_testkit::mutations(&s) {
+        for m in pickaxe_testkit::mutations(&s) {
             if let Ok(d) = parse(&m) {
                 let _ = manifest(&d);
                 let _ = d.to_xml(4096);
@@ -353,7 +353,7 @@ mod tests {
             let _ = parse(&s[..len]);
         }
         for seed in 0..64 {
-            let mut n = craft_anything_testkit::noise(seed, 512);
+            let mut n = pickaxe_testkit::noise(seed, 512);
             n[0] = 3;
             n[1] = 0;
             n[2] = 8;

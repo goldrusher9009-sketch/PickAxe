@@ -1,6 +1,6 @@
 [package]
-name = "craft-anything-js"
-description = "JavaScript, Electron and web-bundle analysis for Craft Anything"
+name = "pickaxe-js"
+description = "JavaScript, Electron and web-bundle analysis for Pickaxe"
 version.workspace = true
 edition.workspace = true
 license.workspace = true
@@ -10,7 +10,7 @@ publish = false
 workspace = true
 
 [dependencies]
-craft-anything-formats = { workspace = true }
+pickaxe-formats = { workspace = true }
 serde = { workspace = true }
 serde_json = { workspace = true }
 thiserror = { workspace = true }
@@ -26,4 +26,4 @@ oxc_codegen = { workspace = true }
 oxc_semantic = { workspace = true }
 
 [dev-dependencies]
-craft-anything-testkit = { workspace = true }
+pickaxe-testkit = { workspace = true }

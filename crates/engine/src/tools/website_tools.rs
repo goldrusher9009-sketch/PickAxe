@@ -13,9 +13,9 @@ use super::native_common::spec;
 use super::site_sign_in;
 use super::web_common::{self, Browser, LaunchOptions, ProfileChoice};
 use crate::tool::{Caller, Ctx, Effects, Requires, ToolOutput, ToolSpec, Toolset, parse_params, schema_of};
-use craft_anything_engines::cdp::{self, CdpClient, CdpEvent, Deadline, Endpoint, PAGE_MAX_MESSAGE};
-use craft_anything_evidence::{Authority, Confidence, Coverage, ErrorCode, EvidenceBuilder, Limitation, Location, Subject, ToolError, sha256_hex};
-use craft_anything_platform::sync::Mutex;
+use pickaxe_engines::cdp::{self, CdpClient, CdpEvent, Deadline, Endpoint, PAGE_MAX_MESSAGE};
+use pickaxe_evidence::{Authority, Confidence, Coverage, ErrorCode, EvidenceBuilder, Limitation, Location, Subject, ToolError, sha256_hex};
+use pickaxe_platform::sync::Mutex;
 use schemars::JsonSchema;
 use serde::Deserialize;
 use serde_json::{Value, json};
@@ -318,7 +318,7 @@ fn open_site(ctx: &mut Ctx<'_>, dl: &Deadline) -> Result<Arc<SiteBrowser>, ToolE
     live_site(ctx, dl).ok_or_else(|| {
         let fix = match ctx.caller {
             Caller::Cli => {
-                "Each CLI command starts its own browser and closes it when it ends, so a site opened by an earlier command isn't open here. Run web_site_open and the tools that use the page in one session: an MCP client (`craft-anything-cli mcp`), the app, or `craft-anything-cli rebuild`."
+                "Each CLI command starts its own browser and closes it when it ends, so a site opened by an earlier command isn't open here. Run web_site_open and the tools that use the page in one session: an MCP client (`pickaxe-cli mcp`), the app, or `pickaxe-cli rebuild`."
             }
             _ => "Open one first with web_site_open.",
         };
@@ -1586,7 +1586,7 @@ mod tests {
             assert!(!out.exists());
             err.remediation.unwrap_or_default()
         };
-        assert!(fix(crate::Caller::Cli).contains("Each CLI command starts its own browser") && fix(crate::Caller::Cli).contains("craft-anything-cli mcp"));
+        assert!(fix(crate::Caller::Cli).contains("Each CLI command starts its own browser") && fix(crate::Caller::Cli).contains("pickaxe-cli mcp"));
         assert_eq!(fix(crate::Caller::Mcp), "Open one first with web_site_open.");
     }
 

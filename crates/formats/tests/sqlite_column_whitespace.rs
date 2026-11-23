@@ -1,5 +1,5 @@
-use craft_anything_formats::sqlite::{CellValue, SqliteDb, parse_create_columns};
-use craft_anything_testkit::sqlite::{Val, table_db};
+use pickaxe_formats::sqlite::{CellValue, SqliteDb, parse_create_columns};
+use pickaxe_testkit::sqlite::{Val, table_db};
 
 /// All five SQLite whitespace characters terminate an unquoted column name.
 #[test]

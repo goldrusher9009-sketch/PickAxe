@@ -2,7 +2,7 @@
 //! engine runs the tools. No real network.
 
 use super::*;
-use craft_anything_platform::sync::Mutex;
+use pickaxe_platform::sync::Mutex;
 use serde_json::{Value, json};
 use std::io::{BufRead, BufReader, Read, Write};
 use std::net::TcpListener;
@@ -39,11 +39,11 @@ fn a_saved_opencode_go_backend_gets_one_stable_session_id_at_startup() {
     let keys = || KeyStore::file_only(dir.path().join("ai-keys.toml"));
     // A hub whose session starts from the settings file, as the app and the CLI do.
     let started = |path: &std::path::Path| {
-        let mut session = craft_anything_engine::testing::session();
-        session.settings = craft_anything_engine::Settings::load_from(path);
+        let mut session = pickaxe_engine::testing::session();
+        session.settings = pickaxe_engine::Settings::load_from(path);
         AiHub::with_stores(Arc::new(Engine::new(session)), path.to_path_buf(), keys())
     };
-    let saved_id = || AiConfig::from_table(&craft_anything_engine::Settings::load_from(&path).ai).unwrap().install_id;
+    let saved_id = || AiConfig::from_table(&pickaxe_engine::Settings::load_from(&path).ai).unwrap().install_id;
 
     // A Go backend saved the way an older version did: no id in the file.
     let first = started(&path);
@@ -64,13 +64,13 @@ fn a_saved_opencode_go_backend_gets_one_stable_session_id_at_startup() {
     let other_dir = tempfile::tempdir().unwrap();
     let other_path = other_dir.path().join("config.toml");
     let plain = AiHub::with_stores(
-        Arc::new(Engine::new(craft_anything_engine::testing::session())),
+        Arc::new(Engine::new(pickaxe_engine::testing::session())),
         other_path.clone(),
         KeyStore::file_only(other_dir.path().join("ai-keys.toml")),
     );
     add(&plain, "Claude", BackendKind::Anthropic, "https://api.anthropic.com", Some("sk-test"));
     assert!(!plain.ensure_session_id().unwrap());
-    assert!(AiConfig::from_table(&craft_anything_engine::Settings::load_from(&other_path).ai).unwrap().install_id.is_none());
+    assert!(AiConfig::from_table(&pickaxe_engine::Settings::load_from(&other_path).ai).unwrap().install_id.is_none());
 }
 
 /// The model list lives at /v1 on the service root, not under the chat path's /openai/v1.
@@ -324,7 +324,7 @@ fn chat_sse(chunks: &[Value]) -> String {
 
 fn hub() -> (AiHub, tempfile::TempDir) {
     let dir = tempfile::tempdir().unwrap();
-    let engine = Arc::new(Engine::new(craft_anything_engine::testing::session()));
+    let engine = Arc::new(Engine::new(pickaxe_engine::testing::session()));
     let h = AiHub::with_stores(engine, dir.path().join("config.toml"), KeyStore::file_only(dir.path().join("ai-keys.toml")));
     (h, dir)
 }
@@ -333,7 +333,7 @@ fn hub() -> (AiHub, tempfile::TempDir) {
 /// deterministic even when the machine has the provider's variable set.
 fn hub_without_env() -> (AiHub, tempfile::TempDir) {
     let dir = tempfile::tempdir().unwrap();
-    let engine = Arc::new(Engine::new(craft_anything_engine::testing::session()));
+    let engine = Arc::new(Engine::new(pickaxe_engine::testing::session()));
     let h = AiHub::with_stores(engine, dir.path().join("config.toml"), KeyStore::file_only_without_env(dir.path().join("ai-keys.toml")));
     (h, dir)
 }
@@ -477,7 +477,7 @@ fn opencode_selection_is_validated_saved_and_run_natively_with_our_mcp_server() 
 /// Contention is an error, while an available session retains its actual optional project and remains saveable.
 #[test]
 fn model_context_distinguishes_a_busy_session_from_no_project() {
-    use craft_anything_engine::project::{Project, Purpose};
+    use pickaxe_engine::project::{Project, Purpose};
     let (h, dir) = hub();
     let backend =
         BackendConfig { name: "OpenCode".into(), kind: BackendKind::AgentCli, model: "opencode".into(), base_url: None, ssh_host: None, enabled: true };
@@ -501,7 +501,7 @@ fn a_failed_save_changes_nothing() {
     let dir = tempfile::tempdir().unwrap();
     // The settings "file" can't be written: its folder is a file.
     std::fs::write(dir.path().join("blocked"), "").unwrap();
-    let engine = Arc::new(Engine::new(craft_anything_engine::testing::session()));
+    let engine = Arc::new(Engine::new(pickaxe_engine::testing::session()));
     let h = AiHub::with_stores(engine, dir.path().join("blocked").join("config.toml"), KeyStore::file_only(dir.path().join("ai-keys.toml")));
     let cfg = BackendConfig { name: "Kimi".into(), kind: BackendKind::Openrouter, model: "m".into(), base_url: None, ssh_host: None, enabled: true };
     assert!(h.add_backend(cfg, None).is_err());
@@ -855,7 +855,7 @@ fn copilot_uses_shared_selection_and_rejects_failed_discovery_without_saving() {
             config,
             options: BackendOptions {
                 cli_model: Some("chosen-copilot-model".into()),
-                command: Some("craft-anything-no-such-test-agent".into()),
+                command: Some("pickaxe-no-such-test-agent".into()),
                 ..Default::default()
             },
         },
@@ -900,7 +900,7 @@ fn copilot_context_is_saved_without_changing_shared_thinking() {
 #[ignore = "requires Copilot CLI and Node.js; uses an isolated CLI home and a loopback model, never a real account"]
 fn copilot_cli_enforces_mcp_only_and_empty_tool_filters() {
     use crate::cli_agents::{Access, AcpConversation, AgentAdapter, ArgsCx, McpCommand};
-    use craft_anything_platform::Process;
+    use pickaxe_platform::Process;
 
     /// Only the child's environment changes: no saved CLI credentials, inherited provider key
     /// or token helper may reach the fixture. The production adapter still supplies its policy.
@@ -937,9 +937,9 @@ fn copilot_cli_enforces_mcp_only_and_empty_tool_filters() {
     }
 
     for (access, mut expected) in [
-        (Access::Analyse, vec!["craft-anything-core_target_triage"]),
-        (Access::Build, vec!["craft-anything-core_target_triage"]),
-        (Access::CleanRoomBuild, vec!["craft-anything-core_target_triage"]),
+        (Access::Analyse, vec!["pickaxe-core_target_triage"]),
+        (Access::Build, vec!["pickaxe-core_target_triage"]),
+        (Access::CleanRoomBuild, vec!["pickaxe-core_target_triage"]),
         (Access::Question, vec!["view", "grep", "glob"]),
         (Access::CleanRoomQuestion, Vec::new()),
     ] {
@@ -1123,7 +1123,7 @@ fn adding_a_slow_server_can_be_stopped() {
         std::thread::sleep(Duration::from_secs(10));
         drop(held);
     });
-    let cancel = craft_anything_engine::CancelToken::default();
+    let cancel = pickaxe_engine::CancelToken::default();
     let later = cancel.clone();
     std::thread::spawn(move || {
         std::thread::sleep(Duration::from_millis(300));
@@ -1253,7 +1253,7 @@ fn anthropic_streaming_tool_loop_through_the_engine() {
     assert_eq!(r1.header("x-api-key"), Some("sk-test-123"));
     assert_eq!(r1.header("anthropic-version"), Some("2023-06-01"));
     assert_eq!(r1.header("anthropic-beta"), Some("thinking-binding-controls-2026-08-01,server-side-fallback-2026-07-01"));
-    assert_eq!(r1.header("user-agent"), Some("CraftAnything-dev"));
+    assert_eq!(r1.header("user-agent"), Some("Pickaxe-dev"));
     let b = &r1.body;
     assert_eq!(b["model"], "claude-opus-5-5");
     assert_eq!(b["stream"], true);

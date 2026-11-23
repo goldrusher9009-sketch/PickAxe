@@ -1,5 +1,5 @@
-use craft_anything_formats::{FormatError, arsc, axml};
-use craft_anything_testkit::android as fx;
+use pickaxe_formats::{FormatError, arsc, axml};
+use pickaxe_testkit::android as fx;
 
 #[test]
 fn axml_rejects_wrong_root_chunk_type_and_short_header() {

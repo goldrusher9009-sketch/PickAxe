@@ -1,5 +1,5 @@
-use craft_anything_formats::tarcpio::{member_data, tar};
-use craft_anything_testkit::firmware as fx;
+use pickaxe_formats::tarcpio::{member_data, tar};
+use pickaxe_testkit::firmware as fx;
 
 fn clear_member_size(archive: &mut [u8], offset: usize) {
     let header = &mut archive[offset..offset + 512];

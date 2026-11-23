@@ -1,8 +1,8 @@
 //! Regression tests for case-insensitive path deduplication in `recover_modules`.
 
-use craft_anything_js::Limits;
-use craft_anything_js::model::BundleModule;
-use craft_anything_js::recover::{RecoveredModule, RewriteLevel, ancestor_dir_keys, module_path_key, recover_modules};
+use pickaxe_js::Limits;
+use pickaxe_js::model::BundleModule;
+use pickaxe_js::recover::{RecoveredModule, RewriteLevel, ancestor_dir_keys, module_path_key, recover_modules};
 use std::collections::HashSet;
 use std::io::Write;
 use std::path::{Path, PathBuf};

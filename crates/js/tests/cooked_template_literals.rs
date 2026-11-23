@@ -1,6 +1,6 @@
 //! Regression tests for cooked template-literal values across JS fact and bundle extraction.
 
-use craft_anything_js::{Limits, analyze};
+use pickaxe_js::{Limits, analyze};
 
 /// `require(...)`, `(require)(...)`, computed member chains, `await import(...)`, and `require("bindings")(...)`
 /// decode escaped no-substitution template literals so module aliases, effects, IPC, and native modules survive.
@@ -113,13 +113,13 @@ fn arg_str_consumers_decode_escaped_templates_for_routes_xhr_ipc_and_exports() {
     assert!(tsx.facts.events.iter().any(|ev| ev.target == "document.getElementById(save-btn)" && ev.event == "click"), "events: {:?}", tsx.facts.events);
     assert_eq!(
         tsx.facts.windows[0].web_preferences.get("defaultEncoding"),
-        Some(&craft_anything_js::PrefValue::Text("utf-8".into())),
+        Some(&pickaxe_js::PrefValue::Text("utf-8".into())),
         "windows: {:?}",
         tsx.facts.windows
     );
     assert_eq!(
         tsx.facts.windows[0].web_preferences.get("broken"),
-        Some(&craft_anything_js::PrefValue::Text("dynamic".into())),
+        Some(&pickaxe_js::PrefValue::Text("dynamic".into())),
         "windows: {:?}",
         tsx.facts.windows
     );

@@ -1,5 +1,5 @@
-use craft_anything_js::lex::{TokKind, tokenize};
-use craft_anything_js::{Limits, ParseMode, admit, analyze};
+use pickaxe_js::lex::{TokKind, tokenize};
+use pickaxe_js::{Limits, ParseMode, admit, analyze};
 
 fn facts_after_comment(separator: &str) {
     let source = format!("// banner{separator}import('./dep.js'); ipcRenderer.invoke('open'); fetch('/data');");

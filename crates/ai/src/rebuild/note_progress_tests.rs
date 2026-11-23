@@ -1,5 +1,5 @@
 use super::*;
-use craft_anything_engine::workspace::progress::BUILD_PROGRESS_FILE;
+use pickaxe_engine::workspace::progress::BUILD_PROGRESS_FILE;
 
 fn consumed_notes(notes: &Mutex<Vec<Note>>, dir: &Path) {
     for (id, text) in [(71, "Keep the header blue"), (72, "Use larger text")] {
@@ -315,12 +315,12 @@ fn what_a_tool_waits_on_joins_the_feed_once_per_change() {
     let d = tempfile::tempdir().unwrap();
     let mut said = HashMap::new();
     assert!(newly_said(d.path(), &mut said).is_empty());
-    let decompile = craft_anything_engine::inbox::Activity::start(d.path());
+    let decompile = pickaxe_engine::inbox::Activity::start(d.path());
     decompile.say("Ghidra is decompiling this function (1 min so far; it gives up at 15 min)");
     assert_eq!(newly_said(d.path(), &mut said), ["Ghidra is decompiling this function (1 min so far; it gives up at 15 min)"]);
     assert!(newly_said(d.path(), &mut said).is_empty(), "said once");
     decompile.say("Ghidra is decompiling this function (2 min so far; it gives up at 15 min)");
-    let queued = craft_anything_engine::inbox::Activity::start(d.path());
+    let queued = pickaxe_engine::inbox::Activity::start(d.path());
     queued.say("Waiting for Ghidra to finish decompiling another function (1 min so far)");
     assert_eq!(newly_said(d.path(), &mut said).len(), 2, "each wait's new line");
 }
@@ -334,7 +334,7 @@ fn what_a_tool_says_reaches_the_feed_while_it_holds_the_session() {
         events: std::sync::mpsc::Receiver<RunEvent>,
         release: Option<std::sync::mpsc::Sender<()>>,
         inbox: PathBuf,
-        waiting: Option<craft_anything_engine::inbox::Activity>,
+        waiting: Option<pickaxe_engine::inbox::Activity>,
         seen: bool,
     }
 
@@ -343,7 +343,7 @@ fn what_a_tool_says_reaches_the_feed_while_it_holds_the_session() {
         fn poll(&mut self) -> Vec<AgentEvent> {
             self.polls += 1;
             if self.polls == 1 {
-                let waiting = craft_anything_engine::inbox::Activity::start(&self.inbox);
+                let waiting = pickaxe_engine::inbox::Activity::start(&self.inbox);
                 waiting.say("Ghidra is decompiling this function (1 min so far; it gives up at 15 min)");
                 self.waiting = Some(waiting);
                 return vec![AgentEvent::ToolFinished {

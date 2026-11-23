@@ -1,4 +1,4 @@
-use craft_anything_js::html::scan_html;
+use pickaxe_js::html::scan_html;
 
 /// An unfinished start tag cannot supply a script, even if a quoted attribute contains '>'.
 #[test]

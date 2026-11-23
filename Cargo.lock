@@ -1318,334 +1318,6 @@ dependencies = [
 ]
 
 [[package]]
-name = "craft-anything"
-version = "0.6.1"
-dependencies = [
- "craft-anything-ai",
- "craft-anything-engine",
- "craft-anything-platform",
- "craft-anything-setup",
- "craft-anything-ui-egui",
- "eframe",
- "log",
- "rfd",
- "tempfile",
- "winresource",
-]
-
-[[package]]
-name = "craft-anything-ai"
-version = "0.6.1"
-dependencies = [
- "base64 0.22.1",
- "craft-anything-engine",
- "craft-anything-engines",
- "craft-anything-evidence",
- "craft-anything-formats",
- "craft-anything-platform",
- "craft-anything-testkit",
- "dirs",
- "keyring",
- "log",
- "regex",
- "schemars",
- "serde",
- "serde_json",
- "tempfile",
- "toml 0.9.12+spec-1.1.0",
- "ureq",
-]
-
-[[package]]
-name = "craft-anything-analysis"
-version = "0.6.1"
-dependencies = [
- "craft-anything-disasm",
- "craft-anything-evidence",
- "craft-anything-formats",
- "craft-anything-js",
- "craft-anything-testkit",
- "serde",
- "serde_json",
-]
-
-[[package]]
-name = "craft-anything-cli"
-version = "0.6.1"
-dependencies = [
- "clap",
- "craft-anything-ai",
- "craft-anything-engine",
- "craft-anything-engines",
- "craft-anything-evidence",
- "craft-anything-mcp",
- "craft-anything-platform",
- "craft-anything-setup",
- "ctrlc",
- "log",
- "serde",
- "serde_json",
- "tempfile",
- "winresource",
-]
-
-[[package]]
-name = "craft-anything-disasm"
-version = "0.6.1"
-dependencies = [
- "craft-anything-formats",
- "craft-anything-testkit",
- "iced-x86",
- "serde",
- "serde_json",
- "thiserror 2.0.21",
- "yaxpeax-arch",
- "yaxpeax-arm",
-]
-
-[[package]]
-name = "craft-anything-engine"
-version = "0.6.1"
-dependencies = [
- "base64 0.22.1",
- "bitflags 2.13.2",
- "craft-anything-analysis",
- "craft-anything-disasm",
- "craft-anything-engines",
- "craft-anything-evidence",
- "craft-anything-formats",
- "craft-anything-js",
- "craft-anything-platform",
- "craft-anything-testkit",
- "craft-sniff",
- "dirs",
- "hex",
- "image",
- "log",
- "png 0.17.16",
- "regex",
- "schemars",
- "serde",
- "serde_json",
- "serde_path_to_error",
- "sha1 0.10.7",
- "sha2 0.10.9",
- "tempfile",
- "thiserror 2.0.21",
- "toml 0.9.12+spec-1.1.0",
-]
-
-[[package]]
-name = "craft-anything-engines"
-version = "0.6.1"
-dependencies = [
- "base64 0.22.1",
- "craft-anything-evidence",
- "craft-anything-formats",
- "craft-anything-platform",
- "craft-anything-testkit",
- "hex",
- "log",
- "rcgen",
- "rustls",
- "serde",
- "serde_json",
- "sha1 0.10.7",
- "sha2 0.10.9",
- "tempfile",
- "thiserror 2.0.21",
- "toml 0.9.12+spec-1.1.0",
- "ureq",
- "wasmtime",
- "winreg 0.55.0",
-]
-
-[[package]]
-name = "craft-anything-evidence"
-version = "0.6.1"
-dependencies = [
- "hex",
- "serde",
- "serde_json",
- "sha2 0.10.9",
- "thiserror 2.0.21",
-]
-
-[[package]]
-name = "craft-anything-formats"
-version = "0.6.1"
-dependencies = [
- "bzip2-rs",
- "craft-android-res",
- "craft-anything-testkit",
- "craft-dds",
- "craft-dex",
- "craft-elf",
- "craft-evm",
- "craft-har",
- "craft-java-class",
- "craft-jsonc",
- "craft-macho",
- "craft-mime",
- "craft-pcap",
- "craft-pe",
- "craft-pkcs7",
- "craft-plist",
- "craft-sourcemap",
- "craft-sqlite",
- "craft-tar",
- "craft-wasm",
- "craft-zip",
- "lzma-rs",
- "miniz_oxide 0.8.9",
- "object 0.36.7",
- "p256 0.13.2",
- "p384 0.13.1",
- "rsa 0.9.10",
- "rustc-demangle",
- "ruzstd",
- "semver",
- "serde",
- "serde_json",
- "sha1 0.10.7",
- "sha2 0.10.9",
- "thiserror 2.0.21",
- "wasmparser 0.261.0",
- "wasmprinter 0.261.0",
-]
-
-[[package]]
-name = "craft-anything-js"
-version = "0.6.1"
-dependencies = [
- "craft-anything-formats",
- "craft-anything-testkit",
- "hex",
- "oxc_allocator",
- "oxc_ast",
- "oxc_ast_visit",
- "oxc_codegen",
- "oxc_parser",
- "oxc_semantic",
- "oxc_span",
- "oxc_syntax",
- "serde",
- "serde_json",
- "sha2 0.10.9",
- "thiserror 2.0.21",
-]
-
-[[package]]
-name = "craft-anything-mcp"
-version = "0.6.1"
-dependencies = [
- "craft-anything-engine",
- "craft-anything-evidence",
- "craft-anything-platform",
- "craft-jsonrpc",
- "craft-mcp-server",
- "log",
- "serde",
- "serde_json",
- "tempfile",
-]
-
-[[package]]
-name = "craft-anything-platform"
-version = "0.6.1"
-dependencies = [
- "craft-anything-evidence",
- "hex",
- "log",
- "nix 0.31.3",
- "objc2-core-graphics",
- "portable-pty",
- "process-wrap",
- "serde",
- "serde_json",
- "sha2 0.10.9",
- "tempfile",
- "vt100",
- "windows",
- "xcap",
-]
-
-[[package]]
-name = "craft-anything-setup"
-version = "0.6.1"
-dependencies = [
- "craft-anything-engine",
- "craft-anything-engines",
- "craft-anything-evidence",
- "craft-anything-formats",
- "craft-anything-platform",
- "log",
- "schemars",
- "serde",
- "serde_json",
- "tempfile",
- "toml 0.9.12+spec-1.1.0",
- "toml_edit",
- "yaml-rust2",
-]
-
-[[package]]
-name = "craft-anything-testkit"
-version = "0.6.1"
-dependencies = [
- "miniz_oxide 0.8.9",
- "p256 0.13.2",
- "rand 0.8.8",
- "rsa 0.9.10",
- "serde_json",
- "sha1 0.10.7",
- "sha2 0.10.9",
-]
-
-[[package]]
-name = "craft-anything-ui-egui"
-version = "0.6.1"
-dependencies = [
- "arboard",
- "craft-anything-ai",
- "craft-anything-engine",
- "craft-anything-engines",
- "craft-anything-platform",
- "craft-anything-setup",
- "craft-anything-testkit",
- "craft-update",
- "eframe",
- "egui",
- "egui_extras",
- "egui_kittest",
- "log",
- "muda",
- "pollster 0.4.0",
- "rfd",
- "serde",
- "serde_json",
- "sys-locale",
- "tempfile",
-]
-
-[[package]]
-name = "craft-anything-web"
-version = "0.6.1"
-dependencies = [
- "craft-anything-analysis",
- "craft-anything-evidence",
- "craft-anything-formats",
- "eframe",
- "egui",
- "log",
- "rfd",
- "serde_json",
- "wasm-bindgen",
- "wasm-bindgen-futures",
- "web-sys",
-]
-
-[[package]]
 name = "craft-codepage"
 version = "0.1.0"
 source = "git+https://github.com/storytold/craft-libs?rev=b9c7b6970382acb1da090d83eb21e51f7006763a#b9c7b6970382acb1da090d83eb21e51f7006763a"
@@ -5658,6 +5330,334 @@ dependencies = [
 ]
 
 [[package]]
+name = "pickaxe"
+version = "0.6.1"
+dependencies = [
+ "eframe",
+ "log",
+ "pickaxe-ai",
+ "pickaxe-engine",
+ "pickaxe-platform",
+ "pickaxe-setup",
+ "pickaxe-ui-egui",
+ "rfd",
+ "tempfile",
+ "winresource",
+]
+
+[[package]]
+name = "pickaxe-ai"
+version = "0.6.1"
+dependencies = [
+ "base64 0.22.1",
+ "dirs",
+ "keyring",
+ "log",
+ "pickaxe-engine",
+ "pickaxe-engines",
+ "pickaxe-evidence",
+ "pickaxe-formats",
+ "pickaxe-platform",
+ "pickaxe-testkit",
+ "regex",
+ "schemars",
+ "serde",
+ "serde_json",
+ "tempfile",
+ "toml 0.9.12+spec-1.1.0",
+ "ureq",
+]
+
+[[package]]
+name = "pickaxe-analysis"
+version = "0.6.1"
+dependencies = [
+ "pickaxe-disasm",
+ "pickaxe-evidence",
+ "pickaxe-formats",
+ "pickaxe-js",
+ "pickaxe-testkit",
+ "serde",
+ "serde_json",
+]
+
+[[package]]
+name = "pickaxe-cli"
+version = "0.6.1"
+dependencies = [
+ "clap",
+ "ctrlc",
+ "log",
+ "pickaxe-ai",
+ "pickaxe-engine",
+ "pickaxe-engines",
+ "pickaxe-evidence",
+ "pickaxe-mcp",
+ "pickaxe-platform",
+ "pickaxe-setup",
+ "serde",
+ "serde_json",
+ "tempfile",
+ "winresource",
+]
+
+[[package]]
+name = "pickaxe-disasm"
+version = "0.6.1"
+dependencies = [
+ "iced-x86",
+ "pickaxe-formats",
+ "pickaxe-testkit",
+ "serde",
+ "serde_json",
+ "thiserror 2.0.21",
+ "yaxpeax-arch",
+ "yaxpeax-arm",
+]
+
+[[package]]
+name = "pickaxe-engine"
+version = "0.6.1"
+dependencies = [
+ "base64 0.22.1",
+ "bitflags 2.13.2",
+ "craft-sniff",
+ "dirs",
+ "hex",
+ "image",
+ "log",
+ "pickaxe-analysis",
+ "pickaxe-disasm",
+ "pickaxe-engines",
+ "pickaxe-evidence",
+ "pickaxe-formats",
+ "pickaxe-js",
+ "pickaxe-platform",
+ "pickaxe-testkit",
+ "png 0.17.16",
+ "regex",
+ "schemars",
+ "serde",
+ "serde_json",
+ "serde_path_to_error",
+ "sha1 0.10.7",
+ "sha2 0.10.9",
+ "tempfile",
+ "thiserror 2.0.21",
+ "toml 0.9.12+spec-1.1.0",
+]
+
+[[package]]
+name = "pickaxe-engines"
+version = "0.6.1"
+dependencies = [
+ "base64 0.22.1",
+ "hex",
+ "log",
+ "pickaxe-evidence",
+ "pickaxe-formats",
+ "pickaxe-platform",
+ "pickaxe-testkit",
+ "rcgen",
+ "rustls",
+ "serde",
+ "serde_json",
+ "sha1 0.10.7",
+ "sha2 0.10.9",
+ "tempfile",
+ "thiserror 2.0.21",
+ "toml 0.9.12+spec-1.1.0",
+ "ureq",
+ "wasmtime",
+ "winreg 0.55.0",
+]
+
+[[package]]
+name = "pickaxe-evidence"
+version = "0.6.1"
+dependencies = [
+ "hex",
+ "serde",
+ "serde_json",
+ "sha2 0.10.9",
+ "thiserror 2.0.21",
+]
+
+[[package]]
+name = "pickaxe-formats"
+version = "0.6.1"
+dependencies = [
+ "bzip2-rs",
+ "craft-android-res",
+ "craft-dds",
+ "craft-dex",
+ "craft-elf",
+ "craft-evm",
+ "craft-har",
+ "craft-java-class",
+ "craft-jsonc",
+ "craft-macho",
+ "craft-mime",
+ "craft-pcap",
+ "craft-pe",
+ "craft-pkcs7",
+ "craft-plist",
+ "craft-sourcemap",
+ "craft-sqlite",
+ "craft-tar",
+ "craft-wasm",
+ "craft-zip",
+ "lzma-rs",
+ "miniz_oxide 0.8.9",
+ "object 0.36.7",
+ "p256 0.13.2",
+ "p384 0.13.1",
+ "pickaxe-testkit",
+ "rsa 0.9.10",
+ "rustc-demangle",
+ "ruzstd",
+ "semver",
+ "serde",
+ "serde_json",
+ "sha1 0.10.7",
+ "sha2 0.10.9",
+ "thiserror 2.0.21",
+ "wasmparser 0.261.0",
+ "wasmprinter 0.261.0",
+]
+
+[[package]]
+name = "pickaxe-js"
+version = "0.6.1"
+dependencies = [
+ "hex",
+ "oxc_allocator",
+ "oxc_ast",
+ "oxc_ast_visit",
+ "oxc_codegen",
+ "oxc_parser",
+ "oxc_semantic",
+ "oxc_span",
+ "oxc_syntax",
+ "pickaxe-formats",
+ "pickaxe-testkit",
+ "serde",
+ "serde_json",
+ "sha2 0.10.9",
+ "thiserror 2.0.21",
+]
+
+[[package]]
+name = "pickaxe-mcp"
+version = "0.6.1"
+dependencies = [
+ "craft-jsonrpc",
+ "craft-mcp-server",
+ "log",
+ "pickaxe-engine",
+ "pickaxe-evidence",
+ "pickaxe-platform",
+ "serde",
+ "serde_json",
+ "tempfile",
+]
+
+[[package]]
+name = "pickaxe-platform"
+version = "0.6.1"
+dependencies = [
+ "hex",
+ "log",
+ "nix 0.31.3",
+ "objc2-core-graphics",
+ "pickaxe-evidence",
+ "portable-pty",
+ "process-wrap",
+ "serde",
+ "serde_json",
+ "sha2 0.10.9",
+ "tempfile",
+ "vt100",
+ "windows",
+ "xcap",
+]
+
+[[package]]
+name = "pickaxe-setup"
+version = "0.6.1"
+dependencies = [
+ "log",
+ "pickaxe-engine",
+ "pickaxe-engines",
+ "pickaxe-evidence",
+ "pickaxe-formats",
+ "pickaxe-platform",
+ "schemars",
+ "serde",
+ "serde_json",
+ "tempfile",
+ "toml 0.9.12+spec-1.1.0",
+ "toml_edit",
+ "yaml-rust2",
+]
+
+[[package]]
+name = "pickaxe-testkit"
+version = "0.6.1"
+dependencies = [
+ "miniz_oxide 0.8.9",
+ "p256 0.13.2",
+ "rand 0.8.8",
+ "rsa 0.9.10",
+ "serde_json",
+ "sha1 0.10.7",
+ "sha2 0.10.9",
+]
+
+[[package]]
+name = "pickaxe-ui-egui"
+version = "0.6.1"
+dependencies = [
+ "arboard",
+ "craft-update",
+ "eframe",
+ "egui",
+ "egui_extras",
+ "egui_kittest",
+ "log",
+ "muda",
+ "pickaxe-ai",
+ "pickaxe-engine",
+ "pickaxe-engines",
+ "pickaxe-platform",
+ "pickaxe-setup",
+ "pickaxe-testkit",
+ "pollster 0.4.0",
+ "rfd",
+ "serde",
+ "serde_json",
+ "sys-locale",
+ "tempfile",
+]
+
+[[package]]
+name = "pickaxe-web"
+version = "0.6.1"
+dependencies = [
+ "eframe",
+ "egui",
+ "log",
+ "pickaxe-analysis",
+ "pickaxe-evidence",
+ "pickaxe-formats",
+ "rfd",
+ "serde_json",
+ "wasm-bindgen",
+ "wasm-bindgen-futures",
+ "web-sys",
+]
+
+[[package]]
 name = "pico-args"
 version = "0.5.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -9246,7 +9246,7 @@ checksum = "ec7a2a501ed189703dba8b08142f057e887dfc4b2cc4db2d343ac6376ba3e0b9"
 name = "xtask"
 version = "0.6.1"
 dependencies = [
- "craft-anything-engine",
+ "pickaxe-engine",
  "proc-macro2",
  "serde_json",
  "syn 2.0.119",

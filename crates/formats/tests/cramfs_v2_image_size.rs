@@ -1,5 +1,5 @@
-use craft_anything_formats::fsread::{Limits, cramfs};
-use craft_anything_testkit::firmware::cramfs_image;
+use pickaxe_formats::fsread::{Limits, cramfs};
+use pickaxe_testkit::firmware::cramfs_image;
 
 fn version_two(size: usize) -> Vec<u8> {
     let mut data = cramfs_image();
@@ -13,7 +13,7 @@ fn appended_bytes_cannot_complete_version_two_file_data() {
     let data = version_two(140);
     let image = cramfs::read(&data, &Limits::default());
     assert!(!image.complete);
-    assert!(image.entries.iter().filter(|e| e.kind == craft_anything_formats::fsread::FsKind::File).all(|e| e.data.is_none()));
+    assert!(image.entries.iter().filter(|e| e.kind == pickaxe_formats::fsread::FsKind::File).all(|e| e.data.is_none()));
 }
 
 #[test]
@@ -73,7 +73,7 @@ fn unavailable_block_pointer_tables_make_declared_extents_incomplete() {
         let image = cramfs::read(&version_two(size), &Limits::default());
         assert!(!image.complete, "declared extent {size}: {:?}", image.warnings);
         assert!(image.warnings.iter().any(|warning| warning.contains("block pointer")));
-        let files: Vec<_> = image.entries.iter().filter(|entry| entry.kind == craft_anything_formats::fsread::FsKind::File).collect();
+        let files: Vec<_> = image.entries.iter().filter(|entry| entry.kind == pickaxe_formats::fsread::FsKind::File).collect();
         assert_eq!(files.len(), 2);
         assert!(files.iter().all(|entry| entry.data.is_none() && entry.size > 0));
         assert_eq!(image.bytes, 0);
@@ -88,7 +88,7 @@ fn physically_truncated_legacy_block_pointer_tables_are_incomplete() {
         let image = cramfs::read(&data, &Limits::default());
         assert!(!image.complete, "physical extent {size}: {:?}", image.warnings);
         assert!(image.warnings.iter().any(|warning| warning.contains("block pointer")));
-        assert_eq!(image.entries.iter().filter(|entry| entry.kind == craft_anything_formats::fsread::FsKind::File).count(), 2);
+        assert_eq!(image.entries.iter().filter(|entry| entry.kind == pickaxe_formats::fsread::FsKind::File).count(), 2);
         assert_eq!(image.bytes, 0);
     }
 }

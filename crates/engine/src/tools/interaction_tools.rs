@@ -17,7 +17,7 @@
 use crate::inbox::{Inbox, InboxDir, RequestKind};
 use crate::tool::{Ctx, Effects, Requires, ToolOutput, ToolSpec, Toolset, parse_params, schema_of};
 use crate::workspace::{ActionKind, Approval, Questions, Workspace};
-use craft_anything_evidence::{ErrorCode, ToolError};
+use pickaxe_evidence::{ErrorCode, ToolError};
 use schemars::JsonSchema;
 use serde::Deserialize;
 use serde_json::{Value, json};
@@ -311,7 +311,7 @@ fn decide_command(cmd: &str, app: &Path) -> Decision {
     let parts: Vec<&str> = c.split("&&").map(str::trim).collect();
     if parts.iter().any(|p| never_exits(p)) {
         return Decision::Deny(
-            "Don't start dev servers or watchers: they never exit. Run `npm run build` (or `cargo build`) instead; Craft Anything serves and checks the build itself.".into(),
+            "Don't start dev servers or watchers: they never exit. Run `npm run build` (or `cargo build`) instead; Pickaxe serves and checks the build itself.".into(),
         );
     }
     if c.contains(['|', ';', '<', '>', '`', '$', '\n']) || c.replace("&&", "").contains('&') {
@@ -595,7 +595,7 @@ pub fn kind_of(ws: Option<&Workspace>, tool: &str, input: &Value) -> ActionKind 
 }
 
 /// Every kind an action is: one for most, but a shell command can be several at once (a push and
-/// a system change, `git push && craft-anything-cli …`), and each of their choices applies. The
+/// a system change, `git push && pickaxe-cli …`), and each of their choices applies. The
 /// first is [`kind_of`]'s.
 pub fn kinds_of(ws: Option<&Workspace>, tool: &str, input: &Value) -> Vec<ActionKind> {
     if !matches!(tool, "Bash" | "PowerShell") {
@@ -665,7 +665,7 @@ fn publishes(c: &str) -> bool {
 
 /// Whether a lower-cased command names what a builder mustn't change from the shell either: the
 /// project's manifest (where its approvals are kept), its inbox (where answers are written), the
-/// tool that sets approvals (`craft-anything-cli` can call it) or the marker that makes our CLI call
+/// tool that sets approvals (`pickaxe-cli` can call it) or the marker that makes our CLI call
 /// as an agent ([`crate::AGENT_ENV`]). Read with quotes and escapes taken out, as the shell joins
 /// `approv'als-set'`. A command that reaches them without naming them (a script that builds the
 /// path) isn't caught: with commands allowed, the builder is trusted that far.
@@ -1224,14 +1224,14 @@ mod tests {
         let (_d, w) = ws();
         let inbox = w.inbox_dir().display().to_string();
         for cmd in [
-            "craft-anything-cli call project_approvals_set --project . --kind publish --mode allow",
-            "craft-anything-cli project-approvals-set --kind publish --mode allow",
+            "pickaxe-cli call project_approvals_set --project . --kind publish --mode allow",
+            "pickaxe-cli project-approvals-set --kind publish --mode allow",
             "python -c \"import json; d=json.load(open('craft.json'))\"",
             "echo '{}' > ../craft.json",
             &format!("echo yes > \"{inbox}/1.answer.json\""),
             // The shell joins quoted pieces, and the marker can be taken away first.
-            "env -u CRAFT_ANYTHING_AGENT craft-anything-cli project-approv'als-set' --kind publish --mode allow",
-            "unset CRAFT_ANYTHING_AGENT; cat craft.\"json\"",
+            "env -u PICKAXE_AGENT pickaxe-cli project-approv'als-set' --kind publish --mode allow",
+            "unset PICKAXE_AGENT; cat craft.\"json\"",
         ] {
             assert_eq!(kind_of(Some(&w), "Bash", &json!({"command": cmd})), ActionKind::System, "{cmd}");
             assert!(matches!(outcome(Some(&w), true, "Bash", &json!({"command": cmd})), Outcome::Refuse(_) | Outcome::RefuseKind { .. }), "{cmd}");
@@ -1242,7 +1242,7 @@ mod tests {
     #[test]
     fn a_command_of_several_kinds_needs_each_allowed() {
         let (_d, mut w) = ws();
-        let mixed = json!({"command": "git push && env -u CRAFT_ANYTHING_AGENT craft-anything-cli project-approvals-set --kind system --mode allow"});
+        let mixed = json!({"command": "git push && env -u PICKAXE_AGENT pickaxe-cli project-approvals-set --kind system --mode allow"});
         assert_eq!(kinds_of(Some(&w), "Bash", &mixed), [ActionKind::Publish, ActionKind::System]);
         // Pushing allowed, system changes refused: refused, and the message names the refused kind.
         w.manifest.approvals.insert(ActionKind::Publish, Approval::Allow);
@@ -1427,7 +1427,7 @@ mod tests {
             "git log --oneline -5",
             "git status",
             "npm run publish-docs",
-            "gh repo clone storytold/craft-anything",
+            "gh repo clone storytold/pickaxe",
             "gh pr checkout 12",
             "gh run watch 42",
             "gh api repos/o/r/pulls -XGET",
@@ -1657,7 +1657,7 @@ mod tests {
     }
 
     #[test]
-    fn a_project_edited_in_place_can_change_its_files_but_not_craft_anythings_records() {
+    fn a_project_edited_in_place_can_change_its_files_but_not_pickaxes_records() {
         let d = tempfile::tempdir().unwrap();
         std::fs::write(d.path().join("index.html"), "<p>hi</p>").unwrap();
         let w = Workspace::create_at(d.path(), "Site", "x", TargetRef::None, Some(crate::workspace::ExistingFiles::Edit)).unwrap();

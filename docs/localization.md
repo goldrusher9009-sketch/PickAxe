@@ -144,9 +144,9 @@ web* is an app, not a website.
 Run:
 
 ```sh
-cargo test -p craft-anything-ui-egui
+cargo test -p pickaxe-ui-egui
 cargo test -p xtask
-cargo clippy -p craft-anything-ui-egui -p xtask --all-targets -- -D warnings
+cargo clippy -p pickaxe-ui-egui -p xtask --all-targets -- -D warnings
 cargo xtask i18n-coverage
 ```
 
@@ -170,7 +170,7 @@ The existing snapshot example accepts any catalog code with `--lang`, such as
 `--lang zh-hant` or `--lang ko`, for example:
 
 ```sh
-cargo run -p craft-anything-ui-egui --example snapshot -- --lang zh-hant --only settings --out-dir target/snapshots/zh-hant
+cargo run -p pickaxe-ui-egui --example snapshot -- --lang zh-hant --only settings --out-dir target/snapshots/zh-hant
 ```
 
 Chinese, Korean and Georgian glyphs use the existing craft-fonts fallback, which release and CI builds

@@ -1,6 +1,6 @@
-use craft_anything_formats::FormatError;
-use craft_anything_formats::node_sea::NodeSea;
-use craft_anything_formats::packed::{MAX_ENTRIES, PackedFormat};
+use pickaxe_formats::FormatError;
+use pickaxe_formats::node_sea::NodeSea;
+use pickaxe_formats::packed::{MAX_ENTRIES, PackedFormat};
 
 const TEXT_BUDGET: usize = 8 * 1024 * 1024;
 

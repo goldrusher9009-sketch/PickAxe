@@ -1,7 +1,7 @@
-use craft_anything_formats::FormatError;
-use craft_anything_formats::pixels::{self, Layout};
-use craft_anything_formats::unreal_texture::{self, MipData};
-use craft_anything_testkit::games::unreal_texture_package;
+use pickaxe_formats::FormatError;
+use pickaxe_formats::pixels::{self, Layout};
+use pickaxe_formats::unreal_texture::{self, MipData};
+use pickaxe_testkit::games::unreal_texture_package;
 
 fn decoded_package(format: &str, width: i32, height: i32, bytes: &[u8]) -> Vec<u8> {
     let (asset, export) = unreal_texture_package("T_Float", format, width, height, bytes, None);

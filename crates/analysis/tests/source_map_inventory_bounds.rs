@@ -1,5 +1,5 @@
-use craft_anything_analysis::js_app::{AppFile, AppGraph, AppInput, AppOptions, analyze_application};
-use craft_anything_analysis::js_source::{SourceGraph, build_source_graph, diff_source_and_bundle};
+use pickaxe_analysis::js_app::{AppFile, AppGraph, AppInput, AppOptions, analyze_application};
+use pickaxe_analysis::js_source::{SourceGraph, build_source_graph, diff_source_and_bundle};
 use serde_json::{Value, json};
 
 fn graph_with_maps(maps: Vec<Value>) -> AppGraph {
@@ -115,7 +115,7 @@ fn missing_sources_without_maps_remain_unmatched() {
 #[test]
 fn a_map_refused_for_too_many_entries_leaves_its_sources_uncertain() {
     // More names than the parser keeps by default: the map is refused, not read as empty.
-    let names = vec!["\"\""; craft_anything_formats::sourcemap::Limits::default().max_entries + 1].join(",");
+    let names = vec!["\"\""; pickaxe_formats::sourcemap::Limits::default().max_entries + 1].join(",");
     let map = format!("{{\"version\":3,\"sources\":[\"a.js\"],\"mappings\":\"\",\"names\":[{names}]}}").into_bytes();
     let files = vec![
         AppFile { path: "script-0.js".into(), bytes: b"//# sourceMappingURL=script-0.js.map\n".to_vec() },
@@ -136,7 +136,7 @@ fn a_map_refused_for_too_many_entries_leaves_its_sources_uncertain() {
 #[test]
 fn a_map_refused_at_another_limit_leaves_its_sources_uncertain() {
     // More generated lines than the parser keeps by default.
-    let lines = ";".repeat(craft_anything_formats::sourcemap::Limits::default().max_lines + 1);
+    let lines = ";".repeat(pickaxe_formats::sourcemap::Limits::default().max_lines + 1);
     let graph = graph_with_maps(vec![json!({"version": 3, "sources": ["a.js"], "mappings": lines})]);
     assert!(graph.source_maps[0].sources_truncated);
     assert!(graph.limitations.iter().any(|(key, message)| key == "source_map_inventory_truncated" && message.contains("generated lines")));

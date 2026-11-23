@@ -29,7 +29,7 @@ impl Given {
 /// What one adapter's builder gets.
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub struct Grants {
-    /// The builder can call Craft Anything's tools.
+    /// The builder can call Pickaxe's tools.
     pub tool_server: Given,
     /// A change it wants to make is decided by our approval policy (the person, or Auto mode)
     /// rather than by the agent alone.
@@ -148,7 +148,7 @@ mod tests {
     /// What a builder run of `adapter` hands the process: its arguments, and the environment
     /// variable that names our server when it goes that way.
     fn builder_run(adapter: &dyn AgentAdapter) -> (Vec<String>, Option<String>) {
-        let mcp = McpCommand { command: "craft-anything-cli".into(), args: vec!["mcp".into()], notes: Some(StdPath::new("notes").to_path_buf()) };
+        let mcp = McpCommand { command: "pickaxe-cli".into(), args: vec!["mcp".into()], notes: Some(StdPath::new("notes").to_path_buf()) };
         let options = BackendOptions::default();
         let cx = ArgsCx {
             options: &options,
@@ -199,7 +199,7 @@ mod tests {
             let (argv, env) = builder_run(a.as_ref());
             match row.path {
                 Path::Argv => {
-                    let carried = carries_server(&argv, env.as_deref(), "craft-anything-cli");
+                    let carried = carries_server(&argv, env.as_deref(), "pickaxe-cli");
                     assert_eq!(
                         row.tool_server.given(),
                         carried,

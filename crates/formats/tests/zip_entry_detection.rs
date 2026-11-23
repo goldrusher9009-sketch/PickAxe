@@ -1,5 +1,5 @@
-use craft_anything_formats::zip_has_entry;
-use craft_anything_testkit::electron::zip_stored;
+use pickaxe_formats::zip_has_entry;
+use pickaxe_testkit::electron::zip_stored;
 
 /// A directory-shaped payload is ordinary file content, not an archive member.
 #[test]

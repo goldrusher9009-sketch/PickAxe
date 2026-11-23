@@ -1,5 +1,5 @@
-use craft_anything_formats::unity_audio::{self, Clip, StreamRef};
-use craft_anything_testkit::games::{fsb5_bank, unity_audioclip};
+use pickaxe_formats::unity_audio::{self, Clip, StreamRef};
+use pickaxe_testkit::games::{fsb5_bank, unity_audioclip};
 
 #[test]
 fn reads_audioclips_from_unity_5_to_unity_6() {

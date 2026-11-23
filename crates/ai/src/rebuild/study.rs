@@ -175,12 +175,12 @@ impl Worker {
                 if !console && runtime && may_start(&program) {
                     notes.push_str(&self.picture_window(ws, &program, &capture)?);
                 }
-                craft_anything_engine::project::write_atomic(&capture.join("README.md"), notes.as_bytes())?;
+                pickaxe_engine::project::write_atomic(&capture.join("README.md"), notes.as_bytes())?;
             }
             TargetRef::None => {
                 let capture = ws.capture_dir();
                 std::fs::create_dir_all(&capture).map_err(|e| ToolError::io(capture.display(), e))?;
-                craft_anything_engine::project::write_atomic(&capture.join("README.md"), b"# No target\n\nBuild from the request alone.\n")?;
+                pickaxe_engine::project::write_atomic(&capture.join("README.md"), b"# No target\n\nBuild from the request alone.\n")?;
             }
         }
         ws.manifest.capture_deep = Some(deep);
@@ -217,7 +217,7 @@ impl Worker {
             Ok(ToolOutput::Evidence(evidence)) => {
                 let requests = evidence.result.pointer("/network/requests").and_then(Value::as_array).cloned().unwrap_or_default();
                 let file = ws.capture_dir().join(RECORDING);
-                match craft_anything_engine::tools::browser_tools::write_recording(&requests, &file) {
+                match pickaxe_engine::tools::browser_tools::write_recording(&requests, &file) {
                     Ok(()) => notes.push_str(&format!(
                         "\n## A recording of its traffic\n\ncapture/{RECORDING} holds {} request(s) and the answers the site gave while we watched: a stand-in backend built from it (web_standin_build) answers your front end the way the original did.\n",
                         requests.len()
@@ -231,7 +231,7 @@ impl Worker {
                 e.message
             )),
         }
-        craft_anything_engine::project::write_atomic(&ws.capture_dir().join(HOW_IT_WORKS), notes.as_bytes())
+        pickaxe_engine::project::write_atomic(&ws.capture_dir().join(HOW_IT_WORKS), notes.as_bytes())
     }
 
     /// Clean room: nothing inside the original is read (no files, folder or code). When Settings
@@ -249,7 +249,7 @@ impl Worker {
         if runtime && may_start(path) {
             notes.push_str(&self.picture_window(ws, path, &capture)?);
         }
-        craft_anything_engine::project::write_atomic(&capture.join("README.md"), notes.as_bytes())
+        pickaxe_engine::project::write_atomic(&capture.join("README.md"), notes.as_bytes())
     }
 
     /// Runtime study (Settings): start the program once and picture its window into capture/, for
@@ -291,7 +291,7 @@ impl Worker {
         }
         if !kept.is_empty() {
             let json = serde_json::to_vec_pretty(&kept).map_err(|e| ToolError::internal(e.to_string()))?;
-            craft_anything_engine::project::write_atomic(&capture.join(kinds::website::ROUTES_FILE), &json)?;
+            pickaxe_engine::project::write_atomic(&capture.join(kinds::website::ROUTES_FILE), &json)?;
         }
         Ok(())
     }
@@ -339,14 +339,14 @@ impl Worker {
             s.settings.clone()
         };
         let program = program.to_path_buf();
-        let record = project.join(craft_anything_engine::workspace::MANIFEST);
+        let record = project.join(pickaxe_engine::workspace::MANIFEST);
         let (tx, rx) = std::sync::mpsc::channel();
         let (feed, events, wake) = (self.feed.clone(), self.tx.clone(), self.wake.clone());
         std::thread::Builder::new()
             .name("ghidra-prepare".into())
             .spawn(move || {
                 let result = std::fs::read(&program).map_err(|e| e.to_string()).and_then(|bytes| {
-                    let sha = craft_anything_evidence::sha256_hex(&bytes);
+                    let sha = pickaxe_evidence::sha256_hex(&bytes);
                     // Said in the feed (once per change), so a wait for an earlier analysis shows.
                     let last = Mutex::new(String::new());
                     let said = |m: &str| {
@@ -356,7 +356,7 @@ impl Worker {
                             emit_event(&feed, &events, &wake, RunEvent::Step { step: Step::Study, text: m.to_string() });
                         }
                     };
-                    craft_anything_engine::tools::deep::prepare(&settings, &bytes, &sha, &said, &|| {
+                    pickaxe_engine::tools::deep::prepare(&settings, &bytes, &sha, &said, &|| {
                         // Only a record known to be gone: a drive that can't be read for a moment isn't a delete.
                         matches!(record.try_exists(), Ok(false))
                     })

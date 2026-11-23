@@ -1,14 +1,14 @@
 //! Regressions for architecture-scoped register filtering (`r13`/`r15` on ARM32/Thumb vs
 //! general-purpose `r13`–`r15` on x86-64) and canonical scratch clobber names on 32-/16-bit x86
-//! in `craft_anything_disasm::dataflow::def_use`.
+//! in `pickaxe_disasm::dataflow::def_use`.
 
-use craft_anything_disasm::dataflow::def_use;
-use craft_anything_disasm::{Image, Limits, NoControl, Program};
-use craft_anything_formats::{Arch, Binary};
+use pickaxe_disasm::dataflow::def_use;
+use pickaxe_disasm::{Image, Limits, NoControl, Program};
+use pickaxe_formats::{Arch, Binary};
 use std::sync::Arc;
 
 /// Build and analyze a raw single-function image at `0x1000` (with optional Thumb entry bit).
-fn raw_def_use(bytes: Vec<u8>, arch: Arch, thumb: bool) -> craft_anything_disasm::dataflow::DefUse {
+fn raw_def_use(bytes: Vec<u8>, arch: Arch, thumb: bool) -> pickaxe_disasm::dataflow::DefUse {
     let mut bin = Binary::raw(arch, 0x1000, bytes.len() as u64, 0);
     if thumb {
         bin.entry = Some(0x1001);

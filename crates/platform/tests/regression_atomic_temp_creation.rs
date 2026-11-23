@@ -1,10 +1,10 @@
-use craft_anything_platform::fs::write_atomic;
+use pickaxe_platform::fs::write_atomic;
 #[cfg(unix)]
-use craft_anything_platform::fs::write_atomic_private;
+use pickaxe_platform::fs::write_atomic_private;
 use std::path::{Path, PathBuf};
 
 fn temporary(dir: &Path, counter: u64) -> PathBuf {
-    dir.join(format!(".craft-anything.tmp-{}-{counter}", std::process::id()))
+    dir.join(format!(".pickaxe.tmp-{}-{counter}", std::process::id()))
 }
 
 #[test]

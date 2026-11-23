@@ -1,8 +1,8 @@
 //! Regression tests for `js_compare::compare_versions` preserving non-empty and distinct
 //! vendor versions instead of letting trailing markers or later entries overwrite them.
 
-use craft_anything_analysis::js_app::{AppFile, AppGraph, AppInput, AppOptions, analyze_application};
-use craft_anything_analysis::js_compare::compare_versions;
+use pickaxe_analysis::js_app::{AppFile, AppGraph, AppInput, AppOptions, analyze_application};
+use pickaxe_analysis::js_compare::compare_versions;
 use serde_json::json;
 
 /// Trailing empty, null, or whitespace-only vendor versions must not overwrite earlier known versions.

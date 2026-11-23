@@ -1,7 +1,7 @@
 //! Regression tests for constant propagation and module alias tracking across reassignments,
 //! compound/update writes, destructuring/loop bindings, and control-flow branches.
 
-use craft_anything_js::{Limits, ParseMode, analyze};
+use pickaxe_js::{Limits, ParseMode, analyze};
 
 /// Helper returning `fetch` endpoint URLs and literality for a source snippet.
 fn fetch_endpoints(src: &str) -> Vec<(String, bool)> {

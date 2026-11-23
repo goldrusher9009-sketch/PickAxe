@@ -42,7 +42,7 @@ pub struct Stack {
     pub program_from: Option<String>,
 }
 
-pub use craft_anything_engine::toolchains::{Toolchain, found_in as toolchain_in};
+pub use pickaxe_engine::toolchains::{Toolchain, found_in as toolchain_in};
 
 /// The stack that leaves the choice to the builder (a website's default); [`used_in`] then
 /// records the one it used.
@@ -118,7 +118,7 @@ pub fn asked_for(words: &str) -> Option<&'static Stack> {
 /// The stack a build in `app` uses, from its package.json dependencies (the first stack in table
 /// order whose `uses` it lists); None when it has none or names no stack in the table.
 pub fn used_in(app: &std::path::Path) -> Option<&'static Stack> {
-    let deps = craft_anything_engine::outputs::npm_dependencies(app);
+    let deps = pickaxe_engine::outputs::npm_dependencies(app);
     catalogue().iter().find(|s| s.uses.iter().any(|d| deps.contains(d)))
 }
 
@@ -126,8 +126,8 @@ pub fn used_in(app: &std::path::Path) -> Option<&'static Stack> {
 /// most, then the dependencies, then the other files that name a stack. None when nothing does.
 pub fn found_in(dir: &std::path::Path) -> Option<&'static Stack> {
     let by_file = |engine: bool| catalogue().iter().filter(|s| s.engine.is_some() == engine).find(|s| s.found_by.iter().any(|f| has_file(dir, f)));
-    let mut deps = craft_anything_engine::outputs::npm_dependencies(dir);
-    deps.extend(craft_anything_engine::outputs::cargo_dependencies(dir));
+    let mut deps = pickaxe_engine::outputs::npm_dependencies(dir);
+    deps.extend(pickaxe_engine::outputs::cargo_dependencies(dir));
     let by_deps = || catalogue().iter().find(|s| s.uses.iter().any(|d| deps.contains(d)) && s.needs.iter().all(|d| deps.contains(d)));
     by_file(true).or_else(by_deps).or_else(|| by_file(false))
 }
@@ -162,7 +162,7 @@ pub fn steps(stack: &str, editor: Option<&std::path::Path>) -> String {
         ("StandaloneLinux64", "x86_64")
     };
     let editor = editor.map(|e| e.display().to_string()).unwrap_or_default();
-    craft_anything_platform::text::fill(text, &[("editor", &editor), ("player", player), ("ext", ext)])
+    pickaxe_platform::text::fill(text, &[("editor", &editor), ("player", player), ("ext", ext)])
 }
 
 #[cfg(test)]
@@ -224,7 +224,7 @@ mod tests {
         assert_eq!(tool("build.gradle.kts"), Some("Gradle"));
         assert_eq!(tool("Makefile"), Some("Make"));
         assert_eq!(tool("notes.md"), None);
-        for t in craft_anything_engine::toolchains::catalogue() {
+        for t in pickaxe_engine::toolchains::catalogue() {
             assert!(!t.found_by.is_empty() && !t.build.is_empty() && !t.test.is_empty(), "{}", t.name);
         }
     }
@@ -233,7 +233,7 @@ mod tests {
     fn the_table_parses_and_covers_every_engine() {
         let names: Vec<&str> = catalogue().iter().map(|s| s.name.as_str()).collect();
         assert!(names.len() >= 7, "{names:?}");
-        for b in craft_anything_engines::game::Builder::ALL {
+        for b in pickaxe_engines::game::Builder::ALL {
             assert!(get(b.stack()).is_some(), "no stack in stacks.toml for {}", b.stack());
         }
         assert_eq!(get("Unity").and_then(|s| s.engine.as_deref()), Some("unity"));

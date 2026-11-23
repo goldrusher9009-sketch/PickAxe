@@ -1,6 +1,6 @@
 [package]
-name = "craft-anything-mcp"
-description = "The Craft Anything MCP server"
+name = "pickaxe-mcp"
+description = "The Pickaxe MCP server"
 version.workspace = true
 edition.workspace = true
 license.workspace = true
@@ -10,9 +10,9 @@ publish = false
 workspace = true
 
 [dependencies]
-craft-anything-evidence = { workspace = true }
-craft-anything-engine = { workspace = true }
-craft-anything-platform = { workspace = true }
+pickaxe-evidence = { workspace = true }
+pickaxe-engine = { workspace = true }
+pickaxe-platform = { workspace = true }
 craft-jsonrpc = { workspace = true }
 craft-mcp-server = { workspace = true }
 serde = { workspace = true }

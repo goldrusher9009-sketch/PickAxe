@@ -1,4 +1,4 @@
-use craft_anything_formats::ai_model::{self, ModelReport};
+use pickaxe_formats::ai_model::{self, ModelReport};
 
 /// Emit integers in either byte order supported by GGUF version 3.
 fn integer(bytes: &mut Vec<u8>, value: u64, width: usize, big: bool) {

@@ -1,9 +1,9 @@
 //! Regression tests for trailing-dot segment stripping and case-insensitive extension detection in
 //! `recover::safe_module_path` and `recover::recover_modules`.
 
-use craft_anything_js::Limits;
-use craft_anything_js::model::BundleModule;
-use craft_anything_js::recover::{RecoveredModule, RewriteLevel, module_path_key, recover_modules, safe_module_path};
+use pickaxe_js::Limits;
+use pickaxe_js::model::BundleModule;
+use pickaxe_js::recover::{RecoveredModule, RewriteLevel, module_path_key, recover_modules, safe_module_path};
 use std::collections::HashSet;
 use std::io::Write;
 use std::path::{Path, PathBuf};

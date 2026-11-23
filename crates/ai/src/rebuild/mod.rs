@@ -19,17 +19,17 @@
 
 use crate::cli_agents::{Builder, CliSpec};
 use crate::{AgentEvent, AiHub, BackendKind, Conversation, Role};
-use craft_anything_engine::inbox::{Answer, Inbox, InboxDir, Request};
-use craft_anything_engine::project::{Project, Purpose};
-use craft_anything_engine::questions::AskedQuestion;
-use craft_anything_engine::workspace::progress::{AppFingerprintCache, BuildProgress};
-use craft_anything_engine::workspace::{CheckResult, ProjectUsage, Status, TargetRef, Workspace};
-use craft_anything_engine::{CallOptions, Caller, CancelToken, Engine, ToolOutput};
-use craft_anything_engines::game;
-use craft_anything_evidence::{ErrorCode, ToolError};
-pub use craft_anything_platform::serve::StaticServer;
-use craft_anything_platform::serve::serve_dir;
-use craft_anything_platform::sync::Mutex;
+use pickaxe_engine::inbox::{Answer, Inbox, InboxDir, Request};
+use pickaxe_engine::project::{Project, Purpose};
+use pickaxe_engine::questions::AskedQuestion;
+use pickaxe_engine::workspace::progress::{AppFingerprintCache, BuildProgress};
+use pickaxe_engine::workspace::{CheckResult, ProjectUsage, Status, TargetRef, Workspace};
+use pickaxe_engine::{CallOptions, Caller, CancelToken, Engine, ToolOutput};
+use pickaxe_engines::game;
+use pickaxe_evidence::{ErrorCode, ToolError};
+pub use pickaxe_platform::serve::StaticServer;
+use pickaxe_platform::serve::serve_dir;
+use pickaxe_platform::sync::Mutex;
 use serde_json::{Value, json};
 use std::collections::{HashMap, HashSet};
 use std::path::{Path, PathBuf};
@@ -70,7 +70,7 @@ pub use output::{built_program, launch, site_dir};
 pub use runs::{RunSet, Started, Stopped, keep_queue_moving};
 pub use stand_in::StandIns;
 
-pub use craft_anything_engine::workspace::Step;
+pub use pickaxe_engine::workspace::Step;
 
 /// What the UI shows, in order.
 #[derive(Debug, Clone, PartialEq)]
@@ -194,7 +194,7 @@ pub struct Note {
 /// earlier waiting note already carries, so two notes don't repeat the same ones.
 fn note_with_just_asked(text: String, ws: &Workspace, clean_room: bool, skip: &[AskedQuestion]) -> (String, Vec<AskedQuestion>) {
     let asked: Vec<AskedQuestion> =
-        craft_anything_engine::questions::untold(ws, !clean_room).into_iter().filter(|q| !skip.iter().any(|s| same_question(s, q))).collect();
+        pickaxe_engine::questions::untold(ws, !clean_room).into_iter().filter(|q| !skip.iter().any(|s| same_question(s, q))).collect();
     if asked.is_empty() {
         return (text, asked);
     }
@@ -235,7 +235,7 @@ pub(super) fn run_deep_mode(hub: &AiHub, opts: &RunOptions) -> bool {
         .try_session()
         .map(|s| s.clean_room())
         .or(opts.clean_room)
-        .unwrap_or_else(|| !craft_anything_engine::Settings::load_from(&hub.settings_path()).deep_mode)
+        .unwrap_or_else(|| !pickaxe_engine::Settings::load_from(&hub.settings_path()).deep_mode)
 }
 
 /// Whether a run starts by studying: its capture isn't from this mode, or the project's kept
@@ -320,7 +320,7 @@ impl RebuildRun {
         // Notes an earlier run never handed over (the app closed while they waited, #1620) wait for
         // this run's builder; their old files go before the app can add any to this one.
         let left = notes::take_left(&notes::notes_dir(&ws.inbox_dir()), opts.message.is_none());
-        craft_anything_engine::inbox::clear_activity(&ws.inbox_dir());
+        pickaxe_engine::inbox::clear_activity(&ws.inbox_dir());
         if !left.is_empty() {
             left_notes_are_a_request(&mut ws);
         }
@@ -356,7 +356,7 @@ impl RebuildRun {
                 let mut ctx = ctx;
                 let mut ws = ws;
                 // A clone can run for hours: keep the computer from sleeping until it ends.
-                let awake = craft_anything_platform::keep_awake();
+                let awake = pickaxe_platform::keep_awake();
                 let _here = self_check::BuildingHere::new(&ws.root);
                 let result = std::panic::catch_unwind(std::panic::AssertUnwindSafe(|| {
                     ctx.load_asset_keys(&key_store);
@@ -502,7 +502,7 @@ impl RebuildRun {
 
     /// The file with all of it.
     pub fn activity_log(&self) -> PathBuf {
-        self.root.join(craft_anything_engine::workspace::ACTIVITY_LOG)
+        self.root.join(pickaxe_engine::workspace::ACTIVITY_LOG)
     }
 
     pub fn preview_url(&self) -> Option<String> {
@@ -527,7 +527,7 @@ pub fn preview(ws: &Workspace) -> Result<StaticServer, ToolError> {
 /// Deep mode on a program requires decompiling, so a build turn that ends without the builder
 /// ever having decompiled in this project gets [`DECOMPILE_FIRST`] (once per run). A decompile in
 /// an earlier run counts: each request from the person starts a new run.
-fn needs_decompile_reminder(deep: bool, manifest: &craft_anything_engine::workspace::Manifest) -> bool {
+fn needs_decompile_reminder(deep: bool, manifest: &pickaxe_engine::workspace::Manifest) -> bool {
     deep && matches!(manifest.target, TargetRef::Local { .. }) && !manifest.decompiled
 }
 
@@ -660,7 +660,7 @@ impl Worker {
     fn call(&self, tool: &str, params: Value) -> Result<ToolOutput, ToolError> {
         self.stop.check()?;
         // The person started this run for this target, which is the consent for opening it.
-        let opts = CallOptions::new(Caller::Ui).with_consent(craft_anything_engine::Consent::Granted).with_cancel(self.stop.clone());
+        let opts = CallOptions::new(Caller::Ui).with_consent(pickaxe_engine::Consent::Granted).with_cancel(self.stop.clone());
         // Said as it happens, so a long step shows what it's doing and the feed counts it.
         let call_id = format!("run-{tool}");
         self.emit(RunEvent::Agent(AgentEvent::ToolStarted { call_id: call_id.clone(), tool: tool.to_string(), input: Value::Null }));
@@ -677,10 +677,10 @@ impl Worker {
     fn load_asset_keys(&mut self, store: &crate::KeyStore) {
         let mut session = self.engine.session();
         session.label("Load the asset keys");
-        let providers = session.ext.get::<craft_anything_engines::assets::AssetProviders>().map(|p| p.as_ref().clone()).unwrap_or_default();
+        let providers = session.ext.get::<pickaxe_engines::assets::AssetProviders>().map(|p| p.as_ref().clone()).unwrap_or_default();
         let keys = crate::keys::asset_keys(store, &providers);
         // The brief offers the built-in models, so a key for another provider doesn't count.
-        self.assets = craft_anything_engines::assets::AssetProviders::built_in().ids().into_iter().any(|id| keys.get(id).is_some());
+        self.assets = pickaxe_engines::assets::AssetProviders::built_in().ids().into_iter().any(|id| keys.get(id).is_some());
         session.ext.insert(Arc::new(keys));
     }
 
@@ -719,7 +719,7 @@ impl Worker {
         // A note taken before the person asked something carries no answer for it; put the
         // remaining ones before the notes so the builder has both in this turn.
         let extra: Vec<AskedQuestion> =
-            craft_anything_engine::questions::untold(ws, deep).into_iter().filter(|q| !attached.iter().any(|a| same_question(a, q))).collect();
+            pickaxe_engine::questions::untold(ws, deep).into_iter().filter(|q| !attached.iter().any(|a| same_question(a, q))).collect();
         let mut questions = attached;
         questions.extend(extra);
         let context = just_asked(&questions);
@@ -737,7 +737,7 @@ impl Worker {
         };
         let stop = self.stop.clone();
         Arc::new(move |tool: &str, input: &Value| {
-            let r = craft_anything_engine::tools::interaction_tools::approve_with(
+            let r = pickaxe_engine::tools::interaction_tools::approve_with(
                 Some(Inbox::new(inbox.clone())),
                 auto_mode,
                 clean_room,
@@ -782,7 +782,7 @@ impl Worker {
             cost_totals: Some(crate::cli_agents::claude_cost::path_in(&config_dir)),
             resume: ws.manifest.agent_session_for_mode(&entry.config.model, deep).map(str::to_string),
             preamble: Some(
-                "You work inside Craft Anything for a person who doesn't code. The message below is your task.
+                "You work inside Pickaxe for a person who doesn't code. The message below is your task.
 
 "
                 .into(),
@@ -861,7 +861,7 @@ impl Worker {
         // have moved it to another stack, which the recorded one doesn't show. An API builder over
         // SSH builds here, so only a coding agent on the other computer skips it.
         if !study::tools_run_remotely(remote, api.is_some()) && stacks::toolchain_in(&ws.app_dir()).is_none() {
-            missing_program_stop(&ws.manifest.stack, |p| craft_anything_platform::which(p).is_some())?;
+            missing_program_stop(&ws.manifest.stack, |p| pickaxe_platform::which(p).is_some())?;
         }
         let api_resumed = api.as_ref().is_some_and(crate::agent::ApiConversation::resumed);
         let kept = KeptHistory { in_mode: kept_without_api.in_mode || api_resumed, elsewhere: kept_without_api.elsewhere };
@@ -942,7 +942,7 @@ impl Worker {
         });
         // "Just ask" runs apart from the builder's session, and the person's message may follow on from it (#857).
         let new_request = opts.message.as_deref().is_some_and(|m| !m.trim().is_empty());
-        let mut asked = if new_request { craft_anything_engine::questions::untold(ws, deep) } else { Vec::new() };
+        let mut asked = if new_request { pickaxe_engine::questions::untold(ws, deep) } else { Vec::new() };
         let just_asked = just_asked(&asked);
         prompt.insert_str(0, &just_asked);
         fresh = fresh.map(|f| format!("{just_asked}{f}"));
@@ -1005,7 +1005,7 @@ impl Worker {
                 // failed may not have told it at all.
                 let told = std::mem::take(&mut asked);
                 if !told.is_empty()
-                    && let Err(e) = craft_anything_engine::questions::mark_told(ws, &told)
+                    && let Err(e) = pickaxe_engine::questions::mark_told(ws, &told)
                 {
                     log::warn!("couldn't record which questions the builder was told: {}", e.message);
                 }
@@ -1220,7 +1220,7 @@ impl Worker {
             Ok(m) if m.len() > MAX_KEPT_SESSION => Err(format!("it's over {} MB", MAX_KEPT_SESSION / 1_000_000)),
             Ok(_) => std::fs::read(&from)
                 .map_err(|e| e.to_string())
-                .and_then(|b| craft_anything_platform::fs::write_atomic_private(&ws.agent_session_path(), &b).map_err(|e| e.message)),
+                .and_then(|b| pickaxe_platform::fs::write_atomic_private(&ws.agent_session_path(), &b).map_err(|e| e.message)),
             Err(e) => Err(e.to_string()),
         };
         if let Err(why) = kept {
@@ -1359,7 +1359,7 @@ impl Worker {
                     // Our own loop asks before tools that need consent. The Build tools are the
                     // builder's job (they apply the approval policy themselves); nothing else runs.
                     AgentEvent::ConsentNeeded { call_id, tool, .. } => {
-                        if self.engine.registry().get(tool).is_some_and(|s| s.toolset == craft_anything_engine::Toolset::Build) {
+                        if self.engine.registry().get(tool).is_some_and(|s| s.toolset == pickaxe_engine::Toolset::Build) {
                             agent.answer_consent(call_id, true);
                         } else {
                             // Nobody was asked: say so, or the model invents a reason (#1938).
@@ -1368,7 +1368,7 @@ impl Worker {
                     }
                     // Decided on the tool's own id (its CLI and `mcp__…__` names included).
                     AgentEvent::ToolStarted { tool, .. }
-                        if self.engine.registry().canonical(tool) == Some(craft_anything_engine::tools::native_function::PSEUDOCODE_TOOL) =>
+                        if self.engine.registry().canonical(tool) == Some(pickaxe_engine::tools::native_function::PSEUDOCODE_TOOL) =>
                     {
                         ws.manifest.decompiled = true
                     }
@@ -1429,7 +1429,7 @@ impl Worker {
         for n in read {
             // The agent's hook took the note, so the Just-ask answers in its text were told.
             if !n.questions.is_empty()
-                && let Err(e) = craft_anything_engine::questions::mark_told(ws, &n.questions)
+                && let Err(e) = pickaxe_engine::questions::mark_told(ws, &n.questions)
             {
                 log::warn!("couldn't record which questions the builder was told: {}", e.message);
             }
@@ -1474,7 +1474,7 @@ fn left_notes_are_a_request(ws: &mut Workspace) {
 
 /// Read the investigation again after the builder's tools changed it; a view refresh, so a failure
 /// is only logged.
-fn refresh_investigation(session: &mut craft_anything_engine::Session, ws: &Workspace) {
+fn refresh_investigation(session: &mut pickaxe_engine::Session, ws: &Workspace) {
     let project = session.project.clone().filter(|project| project.root == ws.investigation_dir());
     if let Some(project) = project
         && let Err(error) = session.open_project(project)
@@ -1487,7 +1487,7 @@ fn refresh_investigation(session: &mut craft_anything_engine::Session, ws: &Work
 /// on Ghidra, #1714): each wait's line once per change, as the one-time analysis is shown.
 fn newly_said(inbox: &Path, said: &mut HashMap<String, String>) -> Vec<String> {
     let mut lines = Vec::new();
-    for (wait, line) in craft_anything_engine::inbox::activity(inbox) {
+    for (wait, line) in pickaxe_engine::inbox::activity(inbox) {
         if said.get(&wait) != Some(&line) {
             said.insert(wait, line.clone());
             lines.push(line);
@@ -1594,7 +1594,7 @@ fn kept_session(ws: &Workspace) -> Option<String> {
 }
 
 /// What an API-backend builder is told first: its tools differ from an agent app's.
-const API_BUILDER: &str = "Your tools: build_files_list, build_file_read, build_file_write and build_file_edit for the project's files (paths relative to the project folder, e.g. app/src/main.rs), and build_command_run for commands, which run in app/ (never start dev servers or watchers). Where the steps below mention Read, Write, Edit or Bash, use these. For the checklist step use build_checklist (the same shape as TodoWrite: todos with content, activeForm and status) and call it again as you go. Ask the person with core_person_ask only when a choice really changes the result. Other Craft Anything tools are available too; enable a toolset with enable_toolset when you need it. rebuild_check isn't available in this loop: Craft Anything checks your build after each turn instead.";
+const API_BUILDER: &str = "Your tools: build_files_list, build_file_read, build_file_write and build_file_edit for the project's files (paths relative to the project folder, e.g. app/src/main.rs), and build_command_run for commands, which run in app/ (never start dev servers or watchers). Where the steps below mention Read, Write, Edit or Bash, use these. For the checklist step use build_checklist (the same shape as TodoWrite: todos with content, activeForm and status) and call it again as you go. Ask the person with core_person_ask only when a choice really changes the result. Other Pickaxe tools are available too; enable a toolset with enable_toolset when you need it. rebuild_check isn't available in this loop: Pickaxe checks your build after each turn instead.";
 
 /// Added to the API loop's note for a builder that can't look at pictures.
 const BLIND_BUILDER: &str = " You can't look at pictures: use capture/README.md, capture/capture.json and the evidence instead.";
@@ -1644,7 +1644,7 @@ pub fn builder_backend(cfg: &crate::AiConfig, named: Option<&str>) -> Result<cra
     if let Some(n) = named {
         let Some(entry) = cfg.get(n) else {
             return Err(
-                ToolError::invalid(format!("No AI backend named {n:?}")).with_remediation("See `craft-anything-cli ai list`, or add one in Settings → AI.")
+                ToolError::invalid(format!("No AI backend named {n:?}")).with_remediation("See `pickaxe-cli ai list`, or add one in Settings → AI.")
             );
         };
         if !entry.config.enabled {

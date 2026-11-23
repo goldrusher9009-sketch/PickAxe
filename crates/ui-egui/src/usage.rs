@@ -6,7 +6,7 @@
 use std::path::Path;
 use std::time::{Duration, Instant};
 
-use craft_anything_engine::workspace::ProjectUsage;
+use pickaxe_engine::workspace::ProjectUsage;
 
 use crate::i18n::{tr, trf};
 
@@ -169,7 +169,7 @@ pub fn duration_words(d: Duration) -> String {
 }
 
 /// The tooltip for usage: what each number is, and what it counts (`counts`, e.g. "Every build
-/// of this project." or "Since Craft Anything opened.").
+/// of this project." or "Since Pickaxe opened.").
 pub fn explain(u: &ProjectUsage, counts: &str) -> String {
     let input = reported_tokens(u.input_tokens, u.tokens_incomplete, true);
     let output = reported_tokens(u.output_tokens, u.tokens_incomplete, true);
@@ -207,7 +207,7 @@ mod tests {
         let c = ProjectClock::load(dir.path());
         assert!(!c.unreadable && !c.shown() && c.cost().is_none() && c.tokens().is_none(), "no file: nothing to show");
 
-        std::fs::write(dir.path().join(craft_anything_engine::workspace::USAGE_FILE), b"{ not json").unwrap();
+        std::fs::write(dir.path().join(pickaxe_engine::workspace::USAGE_FILE), b"{ not json").unwrap();
         let mut c = ProjectClock::load(dir.path());
         assert!(c.unreadable && c.shown());
         let cost = c.cost().unwrap();
@@ -221,7 +221,7 @@ mod tests {
 
         // Fixed: read again, it's known.
         ProjectUsage::update(dir.path(), |_| {}).unwrap_err();
-        std::fs::write(dir.path().join(craft_anything_engine::workspace::USAGE_FILE), br#"{"version":1,"cost_usd":1.5,"priced":true}"#).unwrap();
+        std::fs::write(dir.path().join(pickaxe_engine::workspace::USAGE_FILE), br#"{"version":1,"cost_usd":1.5,"priced":true}"#).unwrap();
         c.saved_again(dir.path(), false);
         assert!(!c.unreadable);
         assert_eq!(c.cost().unwrap().value, "about $1.50");
@@ -254,7 +254,7 @@ mod tests {
     fn a_saved_cost_from_before_the_split_counts_as_an_estimate() {
         let dir = tempfile::tempdir().unwrap();
         std::fs::write(
-            dir.path().join(craft_anything_engine::workspace::USAGE_FILE),
+            dir.path().join(pickaxe_engine::workspace::USAGE_FILE),
             r#"{"version":1,"work_ms":5,"input_tokens":1,"output_tokens":1,"cost_usd":3.12,"priced":true}"#,
         )
         .unwrap();

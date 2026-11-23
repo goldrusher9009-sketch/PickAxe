@@ -1,7 +1,7 @@
 //! Regression tests for integer-typed boolean attributes and unnamespaced `package` in AXML manifests.
 
-use craft_anything_formats::axml::{Attribute, Document, Node, ResValue, manifest, parse};
-use craft_anything_testkit::android::{AxAttr, AxNode, AxVal, a, axml};
+use pickaxe_formats::axml::{Attribute, Document, Node, ResValue, manifest, parse};
+use pickaxe_testkit::android::{AxAttr, AxNode, AxVal, a, axml};
 
 /// Standard `0x12` (`TYPE_INT_BOOLEAN`) attributes continue to decode as expected.
 #[test]

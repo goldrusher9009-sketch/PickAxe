@@ -1,4 +1,4 @@
-use craft_anything_formats::dex::{self, ClassDef, Code};
+use pickaxe_formats::dex::{self, ClassDef, Code};
 
 const MEMBER_CAP: usize = 65_536;
 const HANDLER_CAP: usize = 256;

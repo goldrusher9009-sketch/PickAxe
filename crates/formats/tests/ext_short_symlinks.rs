@@ -1,4 +1,4 @@
-use craft_anything_formats::fsread::{FsKind, Limits, extfs};
+use pickaxe_formats::fsread::{FsKind, Limits, extfs};
 
 const INODE: usize = 6400;
 
@@ -7,7 +7,7 @@ fn put32(bytes: &mut [u8], offset: usize, value: u32) {
 }
 
 fn link(extents: bool, target: &[u8], inline: bool) -> Vec<u8> {
-    let mut bytes = craft_anything_testkit::firmware::ext_image(extents);
+    let mut bytes = pickaxe_testkit::firmware::ext_image(extents);
     bytes[INODE..INODE + 2].copy_from_slice(&0xa1ffu16.to_le_bytes());
     put32(&mut bytes, INODE + 4, target.len() as u32);
     if inline {

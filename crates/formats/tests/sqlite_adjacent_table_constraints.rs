@@ -1,5 +1,5 @@
-use craft_anything_formats::sqlite::{CellValue, SqliteDb};
-use craft_anything_testkit::sqlite::{Val, table_db, without_rowid_db};
+use pickaxe_formats::sqlite::{CellValue, SqliteDb};
+use pickaxe_testkit::sqlite::{Val, table_db, without_rowid_db};
 
 /// Verify a rowid-alias table reads the B-tree rowid into its INTEGER primary key column.
 fn assert_rowid_alias(sql: &str) {

@@ -1,4 +1,4 @@
-use craft_anything_formats::pe_is_managed;
+use pickaxe_formats::pe_is_managed;
 
 /// Build a PE whose CLR directory bytes exist, independently of the declared header size.
 fn pe(plus: bool, size: u16, count: u32) -> Vec<u8> {

@@ -1,7 +1,7 @@
 //! The analyzer's sourceMappingURL reader is the formats one: the standard gap after the marker,
 //! the legacy `//@` and block forms, and no URL containing whitespace.
 
-use craft_anything_js::{Limits, analyze};
+use pickaxe_js::{Limits, analyze};
 
 fn url_at_end(source: &str) -> Option<String> {
     analyze("app.js", source, &Limits::default()).facts.source_map_url

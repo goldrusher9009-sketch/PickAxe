@@ -1,4 +1,4 @@
-use craft_anything_formats::{FormatError, unity_texture};
+use pickaxe_formats::{FormatError, unity_texture};
 
 fn packed(red: u32, green: u32, blue: u32, exponent: u32) -> [u8; 4] {
     (red | (green << 9) | (blue << 18) | (exponent << 27)).to_le_bytes()
@@ -51,7 +51,7 @@ fn rgb9e5_uses_existing_truncation_and_rgba_budget_checks() {
 fn serialized_texture_reaches_the_shared_exponent_decoder() {
     let pixel = packed(256, 128, 64, 15);
     let version = "2022.3.12f1";
-    let object = craft_anything_testkit::games::unity_texture2d(version, "SharedLight", 1, 1, 22, Some(&pixel), None);
+    let object = pickaxe_testkit::games::unity_texture2d(version, "SharedLight", 1, 1, 22, Some(&pixel), None);
     let texture = unity_texture::parse(&object, version, false).unwrap();
     let (start, length) = texture.inline.unwrap();
     assert_eq!(unity_texture::mip0_size(texture.format, texture.width, texture.height), Some(length));

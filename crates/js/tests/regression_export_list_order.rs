@@ -2,7 +2,7 @@
 //! functions seen so far, by name, so a list before the declaration marked nothing and one after it
 //! also marked nested functions that only shared the name.
 
-use craft_anything_js::{Analysis, Limits, ParseMode, analyze};
+use pickaxe_js::{Analysis, Limits, ParseMode, analyze};
 
 fn parsed(src: &str) -> Analysis {
     let analysis = analyze("app.mjs", src, &Limits::default());

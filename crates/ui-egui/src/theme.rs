@@ -6,7 +6,7 @@
 //! Widgets read [`Tokens::get`] instead of hard-coding colours, so a theme switch applies everywhere.
 //! Confidence has its own fixed palette so "how sure are we" reads the same in both themes.
 
-use craft_anything_engine::evidence::Confidence;
+use pickaxe_engine::evidence::Confidence;
 use egui::epaint::text::VariationCoords;
 use egui::{Color32, CornerRadius, FontData, FontDefinitions, FontFamily, FontId, FontTweak, Stroke, TextStyle, Visuals};
 use serde::{Deserialize, Serialize};
@@ -224,7 +224,7 @@ const RADIUS: f32 = 6.0;
 const RADIUS_LG: f32 = 8.0;
 
 fn tokens_id() -> egui::Id {
-    egui::Id::new("craft-anything-theme")
+    egui::Id::new("pickaxe-theme")
 }
 
 // ---- fonts -------------------------------------------------------------------------------------

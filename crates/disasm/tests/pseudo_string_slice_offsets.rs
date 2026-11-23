@@ -1,8 +1,8 @@
 //! Regression tests for byte-accurate UTF-8 and UTF-16LE string literal slicing in `pseudo::lift`.
 
-use craft_anything_disasm::pseudo::lift;
-use craft_anything_disasm::{Image, Limits, NoControl, Program};
-use craft_anything_testkit as tk;
+use pickaxe_disasm::pseudo::lift;
+use pickaxe_disasm::{Image, Limits, NoControl, Program};
+use pickaxe_testkit as tk;
 use std::sync::Arc;
 
 /// Build an ELF64 x86-64 sample whose `.rodata` holds `rodata` and whose `main` passes `rodata_va + disp_off` to `puts`.

@@ -1,5 +1,5 @@
-use craft_anything_formats::sqlite::{CellValue, SqliteDb};
-use craft_anything_testkit::sqlite::{PAGE_SIZE as PAGE, Val, table_db};
+use pickaxe_formats::sqlite::{CellValue, SqliteDb};
+use pickaxe_testkit::sqlite::{PAGE_SIZE as PAGE, Val, table_db};
 
 fn tree(left: u32, right: u32) -> Vec<u8> {
     let mut data = table_db("CREATE TABLE t(value TEXT)", &[(1, vec![Val::Text("kept".into())])]);
@@ -70,7 +70,7 @@ fn missing_and_wrong_kind_children_are_incomplete() {
 
 #[test]
 fn without_rowid_trees_disclose_null_and_cyclic_children() {
-    use craft_anything_testkit::sqlite::without_rowid_db;
+    use pickaxe_testkit::sqlite::without_rowid_db;
 
     for child in [0u32, 2] {
         let mut data = without_rowid_db("CREATE TABLE t(value TEXT PRIMARY KEY) WITHOUT ROWID", &[]);

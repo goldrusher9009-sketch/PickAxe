@@ -170,7 +170,7 @@ mod tests {
     /// Contradictory size fields are reported as problems while the rest of the header still reads.
     #[test]
     fn contradictory_mz_size_declarations_are_reported() {
-        let base = craft_anything_testkit::dos_mz();
+        let base = pickaxe_testkit::dos_mz();
         let cases = [
             (2, 513u16, "the last page declares 513 bytes, more than 512"),
             (4, 0, "the header declares zero 512-byte pages"),
@@ -212,7 +212,7 @@ mod tests {
 
     #[test]
     fn mz_header_and_relocations() {
-        let d = craft_anything_testkit::dos_mz();
+        let d = pickaxe_testkit::dos_mz();
         let mz = parse_mz(&d).unwrap();
         assert_eq!(mz.relocations.len(), 2);
         assert_eq!(mz.header_bytes, 64);
@@ -225,7 +225,7 @@ mod tests {
 
     #[test]
     fn com_image() {
-        let d = craft_anything_testkit::dos_com();
+        let d = pickaxe_testkit::dos_com();
         let b = com_binary(&d).unwrap();
         assert_eq!(b.entry, Some(0x100));
         assert_eq!(b.read(&d, 0x10c, 3), Some(&b"Hi$"[..]));
@@ -233,7 +233,7 @@ mod tests {
 
     #[test]
     fn damaged_mz_never_panics() {
-        for m in craft_anything_testkit::mutations(&craft_anything_testkit::dos_mz()) {
+        for m in pickaxe_testkit::mutations(&pickaxe_testkit::dos_mz()) {
             let _ = parse_mz(&m);
             let _ = crate::parse_binary(&m);
         }

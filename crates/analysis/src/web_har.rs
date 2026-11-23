@@ -7,8 +7,8 @@
 //! they appear in kept text, in raw, percent-encoded and JSON-escaped spellings; a sensitive value
 //! used as a JSON property name drops that property.
 
-use craft_anything_formats::har::{self, HarEntry};
-use craft_anything_formats::sourcemap::base64_decode;
+use pickaxe_formats::har::{self, HarEntry};
+use pickaxe_formats::sourcemap::base64_decode;
 use serde_json::{Map, Value, json};
 use std::collections::{BTreeMap, BTreeSet};
 
@@ -661,7 +661,7 @@ pub fn har_from_network(requests: &[Value], started: &str) -> Value {
     json!({
         "log": {
             "version": "1.2",
-            "creator": {"name": "Craft Anything", "version": env!("CARGO_PKG_VERSION")},
+            "creator": {"name": "Pickaxe", "version": env!("CARGO_PKG_VERSION")},
             "entries": entries,
         }
     })

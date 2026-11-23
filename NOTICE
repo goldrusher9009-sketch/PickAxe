@@ -1,6 +1,9 @@
-Craft Anything
+Pickaxe
+Copyright (c) 2026 the Pickaxe contributors.
+
+Pickaxe is a fork of Craft Anything (https://github.com/storytold/craft-anything),
 Copyright (c) 2026 ArtCraft Team and the Craft Anything contributors.
-Licensed under the MIT License or the Apache License, Version 2.0, at your option
+Both are licensed under the MIT License or the Apache License, Version 2.0, at your option
 (LICENSE-MIT, LICENSE-APACHE).
 
 The ArtCraft name, wordmark and logos in docs/brand/ are trademarks of the ArtCraft Team. They are
@@ -29,3 +32,9 @@ Rust crates are listed with their licences in the third-party licence bundle shi
 release (see docs/licences.md).
 
 Builds made with craft-fonts (CRAFT_FONTS_DIR) also embed the fonts listed in ATTRIBUTION.md.
+
+Companion software (installed separately, not bundled)
+
+- REA, "Reverse Engineer Anything" (https://github.com/morluto/rea), Copyright (c) 2026 morluto,
+  MIT License. Pickaxe's installers fetch it from npm (`rea-agents`) and connect it to your
+  coding agents. Its responsible-use terms are in its DISCLAIMER.md and apply when you use it.

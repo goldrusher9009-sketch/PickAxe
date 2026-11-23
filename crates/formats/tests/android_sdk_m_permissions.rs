@@ -1,5 +1,5 @@
-use craft_anything_formats::axml::{manifest, parse};
-use craft_anything_testkit::android::{AxNode, AxVal, a, axml};
+use pickaxe_formats::axml::{manifest, parse};
+use pickaxe_testkit::android::{AxNode, AxVal, a, axml};
 
 /// All platform-recognized permission declarations go into the manifest inventory.
 #[test]

@@ -1,5 +1,5 @@
-use craft_anything_formats::tarcpio::{MemberKind, member_data, tar};
-use craft_anything_testkit::firmware::tar_entries;
+use pickaxe_formats::tarcpio::{MemberKind, member_data, tar};
+use pickaxe_testkit::firmware::tar_entries;
 
 /// Build an old GNU sparse header followed by the requested number of extension blocks.
 fn archive(extension_blocks: usize) -> Vec<u8> {

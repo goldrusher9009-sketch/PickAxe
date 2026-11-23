@@ -1,4 +1,4 @@
-use craft_anything_analysis::js_app::{AppFile, AppInput, AppOptions, analyze_application};
+use pickaxe_analysis::js_app::{AppFile, AppInput, AppOptions, analyze_application};
 
 #[test]
 fn application_graph_does_not_link_calls_to_shadowed_loader_parameters() {

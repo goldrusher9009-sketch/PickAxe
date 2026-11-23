@@ -1,7 +1,7 @@
 //! Regression tests for GraphQL documents mixing SDL definitions or descriptions with operations.
 
-use craft_anything_js::api_ops::{may_be_document, read_document};
-use craft_anything_js::{Limits, analyze};
+use pickaxe_js::api_ops::{may_be_document, read_document};
+use pickaxe_js::{Limits, analyze};
 
 /// Documents with braced `type` or `fragment` definitions before operations continue to extract operations.
 #[test]

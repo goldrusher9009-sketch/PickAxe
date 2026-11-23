@@ -1,13 +1,13 @@
-use craft_anything_engine::Target;
-use craft_anything_engine::evidence::ErrorCode;
-use craft_anything_engine::tools::static_input;
+use pickaxe_engine::Target;
+use pickaxe_engine::evidence::ErrorCode;
+use pickaxe_engine::tools::static_input;
 #[cfg(unix)]
-use craft_anything_engine::{Caller, CancelToken, Ctx};
+use pickaxe_engine::{Caller, CancelToken, Ctx};
 
 #[cfg(target_os = "linux")]
 #[test]
 fn text_tool_refuses_a_pipe_without_waiting_for_its_writer() {
-    use craft_anything_engine::{CallOptions, Engine};
+    use pickaxe_engine::{CallOptions, Engine};
     use std::os::fd::AsRawFd;
     use std::sync::mpsc;
     use std::time::Duration;
@@ -16,7 +16,7 @@ fn text_tool_refuses_a_pipe_without_waiting_for_its_writer() {
     let path = format!("/proc/self/fd/{}", reader.as_raw_fd());
     let (sender, receiver) = mpsc::channel();
     let worker = std::thread::spawn(move || {
-        let engine = Engine::new(craft_anything_engine::testing::session());
+        let engine = Engine::new(pickaxe_engine::testing::session());
         let result = engine.call("core_text_read", serde_json::json!({"path": path}), CallOptions::new(Caller::Cli));
         drop(reader);
         sender.send(result).ok();
@@ -47,7 +47,7 @@ fn load_path_checks_actual_bytes_when_metadata_reports_zero() {
 #[cfg(target_os = "linux")]
 #[test]
 fn prefix_reader_checks_eof_before_hashing_zero_size_metadata() {
-    let mut session = craft_anything_engine::testing::session();
+    let mut session = pickaxe_engine::testing::session();
     let ctx = Ctx { tool: "test", session: &mut session, cancel: CancelToken::default(), progress: &|_| {}, caller: Caller::Cli };
     for cap in [1, 0] {
         let prefix = static_input::load_prefix(&ctx, Some("/proc/self/stat"), cap).unwrap();
@@ -59,14 +59,14 @@ fn prefix_reader_checks_eof_before_hashing_zero_size_metadata() {
     let whole = static_input::load_prefix(&ctx, Some("/proc/self/stat"), 16 * 1024).unwrap();
     assert!(!whole.bytes.is_empty());
     assert!(whole.whole);
-    assert_eq!(whole.subject.sha256, Some(craft_anything_engine::evidence::sha256_hex(&whole.bytes)));
+    assert_eq!(whole.subject.sha256, Some(pickaxe_engine::evidence::sha256_hex(&whole.bytes)));
 }
 
 #[cfg(target_os = "linux")]
 #[test]
 fn archive_input_checks_actual_bytes_when_metadata_reports_zero() {
-    use craft_anything_engine::{CallOptions, Engine};
-    let engine = Engine::new(craft_anything_engine::testing::session());
+    use pickaxe_engine::{CallOptions, Engine};
+    let engine = Engine::new(pickaxe_engine::testing::session());
     let result = engine.call("core_archive_show", serde_json::json!({"path": "/proc/self/stat", "max_total_bytes": 1}), CallOptions::new(Caller::Cli));
     assert!(result.is_err(), "archive input read beyond its one-byte cap");
     assert_eq!(result.unwrap_err().code, ErrorCode::OverLimit);
@@ -83,7 +83,7 @@ fn load_path_refuses_a_non_regular_file() {
 #[cfg(unix)]
 #[test]
 fn prefix_reader_refuses_a_non_regular_file() {
-    let mut session = craft_anything_engine::testing::session();
+    let mut session = pickaxe_engine::testing::session();
     let ctx = Ctx { tool: "test", session: &mut session, cancel: CancelToken::default(), progress: &|_| {}, caller: Caller::Cli };
     let result = static_input::load_prefix(&ctx, Some("/dev/null"), 16);
     assert!(result.is_err(), "a character device was accepted as a prefix input");
@@ -100,7 +100,7 @@ fn targets_refuse_a_non_regular_file() {
 
 #[test]
 fn ordinary_files_keep_exact_cap_and_empty_input_support() {
-    let directory = craft_anything_engine::testing::temp_dir();
+    let directory = pickaxe_engine::testing::temp_dir();
     let path = directory.join("input.bin");
     std::fs::write(&path, b"four").unwrap();
     let path = path.to_str().unwrap();
@@ -116,7 +116,7 @@ fn ordinary_files_keep_exact_cap_and_empty_input_support() {
 #[cfg(unix)]
 #[test]
 fn regular_file_symlinks_and_prefix_reads_keep_working() {
-    let directory = craft_anything_engine::testing::temp_dir();
+    let directory = pickaxe_engine::testing::temp_dir();
     let path = directory.join("file.bin");
     let link = directory.join("link.bin");
     std::fs::write(&path, b"hello").unwrap();
@@ -124,7 +124,7 @@ fn regular_file_symlinks_and_prefix_reads_keep_working() {
     let link_name = link.to_str().unwrap();
     assert_eq!(&*static_input::load_path(link_name, 5).unwrap().bytes, b"hello");
     assert_eq!(&*Target::load(&link).unwrap().bytes, b"hello");
-    let mut session = craft_anything_engine::testing::session();
+    let mut session = pickaxe_engine::testing::session();
     let ctx = Ctx { tool: "test", session: &mut session, cancel: CancelToken::default(), progress: &|_| {}, caller: Caller::Cli };
     let prefix = static_input::load_prefix(&ctx, Some(link_name), 3).unwrap();
     assert_eq!(prefix.bytes, b"hel");

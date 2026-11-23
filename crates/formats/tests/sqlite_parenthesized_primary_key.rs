@@ -1,5 +1,5 @@
-use craft_anything_formats::sqlite::{CellValue, SqliteDb};
-use craft_anything_testkit::sqlite::{Val, without_rowid_db};
+use pickaxe_formats::sqlite::{CellValue, SqliteDb};
+use pickaxe_testkit::sqlite::{Val, without_rowid_db};
 
 /// Read a row with the key slots followed by its remaining field.
 fn assert_layout(terms: &str, repeated_key: bool) {

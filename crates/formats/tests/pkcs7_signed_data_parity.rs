@@ -1,6 +1,6 @@
 //! Read-only CMS SignedData/SignerInfo framing parity tests. No trust policy changes.
-use craft_anything_formats::{der, pkcs7, verify};
-use craft_anything_testkit::{android, crypto, program_facts};
+use pickaxe_formats::{der, pkcs7, verify};
+use pickaxe_testkit::{android, crypto, program_facts};
 
 fn attribute(oid: &str, values: &[Vec<u8>]) -> Vec<u8> {
     android::der(0x30, &[android::der_oid(oid), android::der(0x31, &values.concat())].concat())

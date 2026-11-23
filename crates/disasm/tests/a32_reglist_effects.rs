@@ -1,5 +1,5 @@
-use craft_anything_disasm::{Image, Insn, Limits, Mode, NoControl, Program, dataflow, decode};
-use craft_anything_formats::{Arch, Binary};
+use pickaxe_disasm::{Image, Insn, Limits, Mode, NoControl, Program, dataflow, decode};
+use pickaxe_formats::{Arch, Binary};
 use std::sync::Arc;
 
 fn registers(i: &Insn, reads: &[&str], writes: &[&str]) {

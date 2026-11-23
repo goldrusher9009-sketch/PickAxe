@@ -1,6 +1,6 @@
-use craft_anything_analysis::js_app::{AppFile, AppInput, AppOptions, analyze_application};
+use pickaxe_analysis::js_app::{AppFile, AppInput, AppOptions, analyze_application};
 
-fn graph_of(files: Vec<(&str, String)>) -> craft_anything_analysis::js_app::AppGraph {
+fn graph_of(files: Vec<(&str, String)>) -> pickaxe_analysis::js_app::AppGraph {
     let files: Vec<_> = files.into_iter().map(|(path, source)| AppFile { path: path.into(), bytes: source.into_bytes() }).collect();
     let listing = files.iter().map(|file| (file.path.clone(), file.bytes.len() as u64)).collect();
     let input = AppInput { label: "role-fixture".into(), format: "directory".into(), files, listing, notes: vec![] };

@@ -1,7 +1,7 @@
-Craft Anything portable mode
+Pickaxe portable mode
 
-While this file sits next to craft-anything.exe, Craft Anything keeps its settings, logs, projects
-index and engine store in the CraftAnythingData folder beside it, and writes nothing to %APPDATA%.
-Copy the whole folder to move Craft Anything with its settings.
+While this file sits next to pickaxe.exe, Pickaxe keeps its settings, logs, projects
+index and engine store in the PickaxeData folder beside it, and writes nothing to %APPDATA%.
+Copy the whole folder to move Pickaxe with its settings.
 
-Delete this file to use the normal per-user settings folder (%APPDATA%\craft-anything) instead.
+Delete this file to use the normal per-user settings folder (%APPDATA%\pickaxe) instead.

@@ -1,5 +1,5 @@
-use craft_anything_engine::{CallOptions, Caller, Engine, ToolOutput};
-use craft_anything_testkit::{android as fx, electron::zip_stored};
+use pickaxe_engine::{CallOptions, Caller, Engine, ToolOutput};
+use pickaxe_testkit::{android as fx, electron::zip_stored};
 use serde_json::{Value, json};
 
 fn manifest(partial: bool) -> Vec<u8> {
@@ -22,9 +22,9 @@ fn manifest(partial: bool) -> Vec<u8> {
         let size = data.len() as u32;
         data[4..8].copy_from_slice(&size.to_le_bytes());
     }
-    let doc = craft_anything_formats::axml::parse(&data).unwrap();
+    let doc = pickaxe_formats::axml::parse(&data).unwrap();
     assert_eq!(doc.truncated, partial);
-    assert_eq!(craft_anything_formats::axml::manifest(&doc).components.len(), 2);
+    assert_eq!(pickaxe_formats::axml::manifest(&doc).components.len(), 2);
     data
 }
 
@@ -33,7 +33,7 @@ fn apk(manifest: Option<&[u8]>) -> std::path::PathBuf {
         Some(data) => vec![("AndroidManifest.xml", data)],
         None => vec![("assets/note.txt", b"fixture".as_slice())],
     };
-    craft_anything_testkit::temp_file("coverage.apk", &zip_stored(&entries))
+    pickaxe_testkit::temp_file("coverage.apk", &zip_stored(&entries))
 }
 
 fn call(engine: &Engine, id: &str, params: Value) -> Value {
@@ -45,7 +45,7 @@ fn call(engine: &Engine, id: &str, params: Value) -> Value {
 
 #[test]
 fn package_coverage_discloses_a_recovered_partial_manifest() {
-    let engine = Engine::new(craft_anything_engine::testing::session());
+    let engine = Engine::new(pickaxe_engine::testing::session());
     let path = apk(Some(&manifest(true)));
     let record = call(&engine, "android_package_show", json!({"path": path}));
     assert_eq!(record["coverage"]["status"], "partial", "{}", record["coverage"]);
@@ -58,7 +58,7 @@ fn package_coverage_discloses_a_recovered_partial_manifest() {
 
 #[test]
 fn package_coverage_is_partial_without_a_readable_manifest() {
-    let engine = Engine::new(craft_anything_engine::testing::session());
+    let engine = Engine::new(pickaxe_engine::testing::session());
     for manifest in [None, Some(b"unreadable binary XML".as_slice())] {
         let record = call(&engine, "android_package_show", json!({"path": apk(manifest)}));
         assert_eq!(record["coverage"]["status"], "partial", "{}", record["coverage"]);
@@ -69,7 +69,7 @@ fn package_coverage_is_partial_without_a_readable_manifest() {
 
 #[test]
 fn component_coverage_stays_partial_on_last_and_empty_pages() {
-    let engine = Engine::new(craft_anything_engine::testing::session());
+    let engine = Engine::new(pickaxe_engine::testing::session());
     let path = apk(Some(&manifest(true)));
     for offset in [1, 2, 0] {
         let record = call(&engine, "android_components_list", json!({"path": path, "offset": offset, "limit": 1}));
@@ -83,7 +83,7 @@ fn component_coverage_stays_partial_on_last_and_empty_pages() {
 
 #[test]
 fn complete_manifests_keep_existing_page_coverage() {
-    let engine = Engine::new(craft_anything_engine::testing::session());
+    let engine = Engine::new(pickaxe_engine::testing::session());
     let path = apk(Some(&manifest(false)));
     let record = call(&engine, "android_package_show", json!({"path": path}));
     assert_eq!(record["coverage"]["status"], "complete");

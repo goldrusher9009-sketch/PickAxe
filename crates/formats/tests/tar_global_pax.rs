@@ -1,5 +1,5 @@
-use craft_anything_formats::tarcpio::{MemberKind, member_data, tar};
-use craft_anything_testkit::firmware as fx;
+use pickaxe_formats::tarcpio::{MemberKind, member_data, tar};
+use pickaxe_testkit::firmware as fx;
 
 fn record(key: &str, value: &str) -> String {
     let tail = format!(" {key}={value}\n");

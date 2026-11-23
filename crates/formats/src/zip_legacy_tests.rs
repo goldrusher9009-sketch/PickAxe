@@ -530,7 +530,7 @@ mod tests {
 
     #[test]
     fn bzip2_and_xz_zip_entries_keep_size_crc_and_output_checks() {
-        use craft_anything_testkit::firmware::{BZIP2_FIXTURE, BZIP2_PLAIN, XZ_FIXTURE, XZ_PLAIN};
+        use pickaxe_testkit::firmware::{BZIP2_FIXTURE, BZIP2_PLAIN, XZ_FIXTURE, XZ_PLAIN};
         for (method, compressed, plain) in [(12, BZIP2_FIXTURE, BZIP2_PLAIN), (95, XZ_FIXTURE, XZ_PLAIN)] {
             let file = build_codec_entry(method, compressed, plain);
             let original = parse(&file, 1).unwrap().entries.remove(0);

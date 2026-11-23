@@ -1,5 +1,5 @@
-use craft_anything_formats::bytes::Reader;
-use craft_anything_formats::dex::{self, Code, Handler, sleb128};
+use pickaxe_formats::bytes::Reader;
+use pickaxe_formats::dex::{self, Code, Handler, sleb128};
 
 #[test]
 fn rejects_invalid_fifth_byte_sign_extensions() {

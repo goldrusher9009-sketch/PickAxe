@@ -1,5 +1,5 @@
-use craft_anything_formats::java_class::parse;
-use craft_anything_testkit::java::hello_class;
+use pickaxe_formats::java_class::parse;
+use pickaxe_testkit::java::hello_class;
 
 /// The fixture ends in a class attribute count and a single two-byte SourceFile attribute.
 const ATTRIBUTE_TABLE_BYTES: usize = 10;

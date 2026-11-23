@@ -59,12 +59,12 @@ pub fn building_here(root: &Path) -> bool {
 /// The questions the builder recorded (`core_unknown_add`, kept in the project's investigation
 /// folder) that aren't resolved yet, most severe first. Read from disk: the builder's tool server
 /// writes them while this run works.
-pub fn open_questions(ws: &Workspace) -> Vec<craft_anything_evidence::Unknown> {
+pub fn open_questions(ws: &Workspace) -> Vec<pickaxe_evidence::Unknown> {
     let mut open: Vec<_> = Project::open(&ws.investigation_dir())
         .and_then(|p| p.load_unknowns())
         .unwrap_or_default()
         .into_iter()
-        .filter(|u| u.status != craft_anything_evidence::UnknownStatus::Resolved)
+        .filter(|u| u.status != pickaxe_evidence::UnknownStatus::Resolved)
         .collect();
     open.sort_by(|a, b| b.severity.cmp(&a.severity).then_with(|| a.question.cmp(&b.question)));
     open
@@ -95,7 +95,7 @@ pub fn summary(checks: &[CheckResult], good_enough: f64) -> String {
 /// What the builder is told about its own check: each result with its likeness and the bar,
 /// what's still unknown (the checks' and its own open questions), where its pictures are, and
 /// whether it would pass.
-pub fn report(checks: &[CheckResult], good_enough: f64, open: &[craft_anything_evidence::Unknown], can_refine: impl Fn(&CheckResult) -> bool) -> String {
+pub fn report(checks: &[CheckResult], good_enough: f64, open: &[pickaxe_evidence::Unknown], can_refine: impl Fn(&CheckResult) -> bool) -> String {
     if checks.is_empty() {
         return "There was nothing to check yet.".into();
     }
@@ -197,7 +197,7 @@ impl Worker {
 mod tests {
     use super::*;
 
-    fn report(checks: &[CheckResult], good_enough: f64, open: &[craft_anything_evidence::Unknown]) -> String {
+    fn report(checks: &[CheckResult], good_enough: f64, open: &[pickaxe_evidence::Unknown]) -> String {
         super::report(checks, good_enough, open, |_| true)
     }
 
@@ -217,7 +217,7 @@ mod tests {
         let r = report(&[build], 90.0, &[]);
         assert!(r.starts_with("build: failed — Build failed") && r.contains("Not good enough yet"), "{r}");
         assert_eq!(report(&[], 90.0, &[]), "There was nothing to check yet.");
-        let claim = |passed| craft_anything_engine::workspace::Claim::new("In play, the player moves", passed, "it doesn't");
+        let claim = |passed| pickaxe_engine::workspace::Claim::new("In play, the player moves", passed, "it doesn't");
         let game = [
             CheckResult::new(CheckResult::BUILD, 1, true, "Build succeeded."),
             CheckResult { claims: vec![claim(true), claim(true)], ..CheckResult::new("game-self-test", 1, true, "") },
@@ -230,7 +230,7 @@ mod tests {
         assert_eq!(summary(&site, 90.0), "about 93% like the original");
         let alike_but_broken = CheckResult {
             similarity: Some(96.0),
-            claims: vec![craft_anything_engine::workspace::Claim::new("The start page loads every file it asks for", false, "/logo.png (404)")],
+            claims: vec![pickaxe_engine::workspace::Claim::new("The start page loads every file it asks for", false, "/logo.png (404)")],
             ..CheckResult::new(CheckResult::WEB_VISUAL, 0, true, "")
         };
         let r = report(&[alike_but_broken], 90.0, &[]);
@@ -275,7 +275,7 @@ mod tests {
 
     #[test]
     fn the_builders_open_questions_are_read_from_the_project_and_reported() {
-        use craft_anything_evidence::{Severity, Unknown, UnknownStatus};
+        use pickaxe_evidence::{Severity, Unknown, UnknownStatus};
         let d = tempfile::tempdir().unwrap();
         let ws = Workspace::create(d.path(), "Arena", "Recreate this game", TargetRef::None).unwrap();
         assert!(open_questions(&ws).is_empty(), "no investigation folder yet");

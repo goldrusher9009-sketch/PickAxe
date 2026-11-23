@@ -20,7 +20,7 @@ Owner: maintainers · Status: done (branch `chore/r0.2-release-pipeline`, supers
 The PR branches from the initial commit, about 35 commits behind `main`. CI isn't a priority, but
 its packaging, `cargo xtask version` and web viewer are worth keeping.
 - [x] **decision**: rebase completely onto `main` (all six commits kept, `ci-release` untouched)
-- [x] Port `apps/craft-anything-web` (wasm viewer) and `cargo xtask version`
+- [x] Port `apps/pickaxe-web` (wasm viewer) and `cargo xtask version`
 - [x] Port the platform fixes: capture is Linux and macOS only (FreeBSD loses output); the spawn
       lock was reverted inside the PR itself
 - [x] Keep workflows parked until M4: manual-only (`workflow_dispatch`); `release.yml` unchanged
@@ -110,7 +110,7 @@ or download into them.
 
 ### R0.6 Tool naming
 Owner: maintainers · Status: done
-Craft Anything's own ids, grouped by what a person does (`native_functions_list`,
+Pickaxe's own ids, grouped by what a person does (`native_functions_list`,
 `web_page_capture`…). Each tool answers to its id (and CLI spelling) only.
 - [x] Id scheme in `docs/tool-ids.md`: `<area>_<object>_<action>` (no dots: MCP and model APIs
       allow only letters, digits, `_` and `-` in tool names)
@@ -133,14 +133,14 @@ Craft Anything's own ids, grouped by what a person does (`native_functions_list`
 
 ### R0.7 One live end-to-end rebuild, kept as an opt-in test
 Owner: maintainers · Status: done (branch `test/r0.7-live-e2e`; runs on 2026-10-18, Windows 10)
-- [x] `craft-anything-cli rebuild https://example.com "Clone this website" --rounds 1` completes:
+- [x] `pickaxe-cli rebuild https://example.com "Clone this website" --rounds 1` completes:
       Ready in 1.5 min, 96% alike (98% at 1440 px, 94% at 390 px)
 - [x] App target: a small desktop app → Rust + egui, Ready in 9 min (checked by "does it build" only)
 - [x] Game target: Muck → Rust reached Build (game written and compiled, the builder screenshotting
       its own result) and was stopped on purpose before Check; a polished game isn't the goal.
       It first failed at once because "in Rust" was ignored (fixed in #4)
 - [x] Opt-in test (`CRAFT_E2E=1`) that runs the website case
-      (`apps/craft-anything-cli/tests/live_rebuild.rs`)
+      (`apps/pickaxe-cli/tests/live_rebuild.rs`)
 
 ---
 
@@ -272,7 +272,7 @@ Pending changes:
       as the GitHub digests); macOS archives are stripped to `Contents/Home`, so Ghidra's setup
       (`ghidra::get::can_install`) now works there too
 - [x] Rizin 0.9.1 pinned for Windows x64 (the static zip; GitHub asset digest), installed for real
-      by the opt-in `a_pinned_engine_installs_for_real` (`CRAFT_ANYTHING_TEST_INSTALL`)
+      by the opt-in `a_pinned_engine_installs_for_real` (`PICKAXE_TEST_INSTALL`)
 
 ### R1.6 Headless first: the GUI stops being the glue
 Owner: maintainers · Status: done
@@ -300,14 +300,14 @@ Pending changes:
       `rebuild_note`, `rebuild_note_withdraw`, `rebuild_stop`), registered from the AI layer (R1.7);
       the CLI's `rebuild` and the tool share `rebuild::project::new_project`
 - [x] A note sent while Claude Code builds reaches it at its next step, not after the turn: the run
-      leaves it in `inbox/notes/`, a PostToolUse hook (`--settings`, `craft-anything-cli
+      leaves it in `inbox/notes/`, a PostToolUse hook (`--settings`, `pickaxe-cli
       builder-notes`) claims it and hands it to the model as context, and the run shows it as read;
       unclaimed notes still go in after the turn (`rebuild::notes`)
 - [x] Engines and settings as tools (`Setup` toolset): `engines_list` (external engines, Ghidra,
       game engines and readiness), `engines_install` (Ghidra, Godot, pinned engines, with
       progress; Unity/Unreal get their download page), `settings_show`, `settings_set`
 - [x] Find registered Linux Unreal installations and their bundled Clang toolchain; support an
-      explicit `UE_ROOT` ([PR #191](https://github.com/storytold/craft-anything/pull/191))
+      explicit `UE_ROOT` ([PR #191](https://github.com/goldrusher9009-sketch/pickaxe/pull/191))
       — claimed: one-bit, branch `bugfix/r1.6-linux-unreal-detection`
 - [x] The app's Godot, Unity/Unreal installer and Ghidra flows, and its play, preview and
       open-folder buttons, call the tools (`CraftApp::act`); inventory reads stay in the UI
@@ -339,7 +339,7 @@ Owner: maintainers · Status: done
 `ToolSpec` is `&'static` with fn pointers and the registry is fixed at build time.
 - [x] Higher layers register their own (static) tools: `Engine::shared(session, extra)`, with an
       `EngineRef` in the session so those tools can reach the engine; the apps pass
-      `craft_anything_ai::tools()`
+      `pickaxe_ai::tools()`
 - [x] Tools defined at run time: `registry::RuntimeTool` (owned names, a JSON schema, a function
       that tells its tools apart by `Ctx::tool`), via `Engine::shared_with`;
       `Registry::input_schema` serves every client the right schema
@@ -360,13 +360,13 @@ Owner: maintainers · Status: done
       added this way always asks before each call; the app re-reads the list after the tool runs
 - [x] **decision**: wasmtime with a WIT interface, behind the off-by-default `wasm-plugins` build
       feature (it's a large build)
-- [x] Phase 2, tools: `[[plugins.wasm]]` components exporting `craft-anything:plugin/tools`
+- [x] Phase 2, tools: `[[plugins.wasm]]` components exporting `pickaxe:plugin/tools`
       (`crates/engines/wit/plugin.wit`: `describe`, `call`, JSON strings). They import nothing (no
       files, network, environment); each call is a fresh instance with a fuel and 256 MiB memory
       limit, so their tools run without asking
 - [x] **decision**: plugin checks get the build as JSON (every file's path and size, plus the text
       of the extensions they ask for); asset providers stay out of plugins (they'd need the network)
-- [x] Phase 2, checks: `craft-anything:plugin/checks` (`describe` with kinds and extensions, `run`
+- [x] Phase 2, checks: `pickaxe:plugin/checks` (`describe` with kinds and extensions, `run`
       on the build JSON → passed, similarity, summary), run after a kind's own checks; a plugin that
       fails to run passes with a note instead of failing the build
 - [x] WASM plugins: Settings → Plugins lists, adds (a `.wasm` path), turns on or off and removes
@@ -374,12 +374,12 @@ Owner: maintainers · Status: done
       `cargo xtask ci` lints and tests the engine with `--features wasm-plugins`
 - [x] WASM plugins: `examples/wasm-plugin-wordcount` (Rust, wit-bindgen 0.63,
       `wasm32-unknown-unknown`, `wasm-tools component new`), built and loaded through the host
-      (opt-in test `CRAFT_ANYTHING_TEST_WASM_PLUGIN`)
-- [x] Plugin API versions: semver for `package craft-anything:plugin@…`; the host finds a plugin's
+      (opt-in test `PICKAXE_TEST_WASM_PLUGIN`)
+- [x] Plugin API versions: semver for `package pickaxe:plugin@…`; the host finds a plugin's
       interfaces by name and accepts any compatible version (same major, and same minor while 0.x),
       refusing others by name; patch versions only add optional JSON fields (docs/extending.md)
 - [x] A check plugin in Rust: `examples/wasm-plugin-readme-check` (does the build's README say how
-      to run it), built and loaded for real (opt-in test `CRAFT_ANYTHING_TEST_WASM_CHECK`)
+      to run it), built and loaded for real (opt-in test `PICKAXE_TEST_WASM_CHECK`)
 - [x] `docs/extending.md`: how to add a tool, a target kind, a check, a builder or a plugin
 
 ### R1.9 Versioned files
@@ -640,7 +640,7 @@ Gaps found while using the app for real projects.
 - [x] Simple mode keeps the Project screen in Advanced mode too, so builds and approvals stay in sight
       (the workbench is a screen beside the projects: a Workbench row in the sidebar, a Projects
       button on the workbench)
-- [x] One answer to "can it build?" (`craft_anything_ai::default_builder`: Make's warning and
+- [x] One answer to "can it build?" (`pickaxe_ai::default_builder`: Make's warning and
       the builder chosen agree), and a setup dialog with what was found, Look again and API keys
       instead of "Got it"
 - [x] "Built by" on Make: every AI that can build, by name, even when one is set up and builds
@@ -929,7 +929,7 @@ should give away more of how it is set up.
       connection whose client is Claude Code (`clientInfo.name` = `claude-code`, checked against
       Claude Code 2.1.305) gets an 80 KB response budget instead of 8 MiB, so a bigger evidence
       record collapses to its summary with `core_evidence_browse` to page it;
-      `CRAFT_ANYTHING_MCP_MAX_RESPONSE_BYTES` still sets it explicitly
+      `PICKAXE_MCP_MAX_RESPONSE_BYTES` still sets it explicitly
 
 ### R3.11 Single-file apps, game files and stand-in backends
 Owner: open · Status: in progress

@@ -425,7 +425,7 @@ pub fn parse(data: &[u8]) -> Result<AssetCatalog, FormatError> {
 #[cfg(test)]
 mod tests {
     use super::*;
-    use craft_anything_testkit::apple as fx;
+    use pickaxe_testkit::apple as fx;
 
     #[test]
     fn bom_directories_cannot_read_past_their_declared_sizes() {
@@ -469,7 +469,7 @@ mod tests {
     /// KEYFORMAT holds the placeholder attribute (5) where display gamut (24) belongs, and
     /// KEYFORMATWORKAROUND holds 24 for that slot. `workaround_len` cuts the workaround block.
     fn catalog_with_key_workaround(workaround_len: usize) -> Vec<u8> {
-        use craft_anything_testkit::Buf;
+        use pickaxe_testkit::Buf;
         let mut w = fx::BomWriter::new();
         let mut kf = Buf::with_len(24);
         kf.put(0, b"tmfk");
@@ -504,7 +504,7 @@ mod tests {
     /// `kCRThemeGlyphSizeName` after `kCRThemeDeploymentTargetName`).
     #[test]
     fn glyph_weight_and_size_attributes_are_named() {
-        use craft_anything_testkit::Buf;
+        use pickaxe_testkit::Buf;
         let mut w = fx::BomWriter::new();
         let mut kf = Buf::with_len(28);
         kf.put(0, b"tmfk");
@@ -542,7 +542,7 @@ mod tests {
     #[test]
     fn hostile_inputs() {
         for s in [fx::assets_car(), catalog_with_key_workaround(12)] {
-            for m in craft_anything_testkit::mutations(&s) {
+            for m in pickaxe_testkit::mutations(&s) {
                 let _ = parse(&m);
             }
             for i in (0..s.len()).step_by(7) {
@@ -551,7 +551,7 @@ mod tests {
         }
         for seed in 0..100 {
             let mut n = b"BOMStore".to_vec();
-            n.extend(craft_anything_testkit::noise(seed, 256));
+            n.extend(pickaxe_testkit::noise(seed, 256));
             let _ = parse(&n);
         }
     }

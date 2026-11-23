@@ -1,5 +1,5 @@
-use craft_anything_formats::FormatError;
-use craft_anything_formats::sqlite::{CellValue, MAX_ROWS, SqliteDb};
+use pickaxe_formats::FormatError;
+use pickaxe_formats::sqlite::{CellValue, MAX_ROWS, SqliteDb};
 
 fn varint(mut value: u64) -> Vec<u8> {
     let mut out = vec![u8::try_from(value & 0x7f).unwrap_or(0)];
@@ -166,7 +166,7 @@ fn cross_app_parity_text_blob_null_overflow_and_ordering() {
         vec![
             CellValue::Int(2),
             CellValue::Int(0),
-            // Column `r` has REAL affinity: Craft Anything promotes integer-stored 1 to Real(1.0).
+            // Column `r` has REAL affinity: Pickaxe promotes integer-stored 1 to Real(1.0).
             CellValue::Real(1.0),
             CellValue::Null,
             CellValue::Text { text: String::new(), truncated: false },

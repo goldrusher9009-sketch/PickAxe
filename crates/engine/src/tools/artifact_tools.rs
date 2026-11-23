@@ -3,12 +3,12 @@
 //! application tool modules share.
 
 use crate::tool::{CancelToken, Ctx, Effects, Requires, ToolOutput, ToolSpec, Toolset, parse_params, schema_of};
-use craft_anything_analysis::js_inventory::{InvLimits, Inventorier, Inventory, compare_inventories};
-use craft_anything_analysis::js_source::Ignore;
-use craft_anything_evidence::{
+use pickaxe_analysis::js_inventory::{InvLimits, Inventorier, Inventory, compare_inventories};
+use pickaxe_analysis::js_source::Ignore;
+use pickaxe_evidence::{
     Authority, Confidence, Coverage, Environment, ErrorCode, Evidence, EvidenceBuilder, Limitation, Location, Subject, ToolError, sha256_hex,
 };
-use craft_anything_formats::{asar, zip};
+use pickaxe_formats::{asar, zip};
 use schemars::JsonSchema;
 use serde::Deserialize;
 use serde_json::{Value, json};
@@ -31,7 +31,7 @@ pub fn specs() -> Vec<ToolSpec> {
         ToolSpec {
             id: "core_archive_extract",
             title: "Extract an archive",
-            summary: "Extract every regular file of a ZIP/APK/IPA/JAR or ASAR (plus its .asar.unpacked files) into a fresh private temporary folder chosen by Craft Anything, and return its path. Bounded size and count; entries that would escape the folder are refused.",
+            summary: "Extract every regular file of a ZIP/APK/IPA/JAR or ASAR (plus its .asar.unpacked files) into a fresh private temporary folder chosen by Pickaxe, and return its path. Bounded size and count; entries that would escape the folder are refused.",
             beginner: "Unpack an app or archive into a new folder so you can look at the files.",
             toolset: Toolset::Core,
             effects: Effects::MUTATES_SESSION.union(Effects::WRITES_FILESYSTEM),
@@ -74,7 +74,7 @@ pub(crate) fn abs_path(p: &str, what: &str) -> Result<PathBuf, ToolError> {
 
 /// Read a whole file, refusing ones larger than `max`.
 pub(crate) fn read_capped(path: &Path, max: u64) -> Result<Vec<u8>, ToolError> {
-    craft_anything_platform::fs::read_file_capped(path, max)
+    pickaxe_platform::fs::read_file_capped(path, max)
 }
 
 /// Most bytes of a `.gitignore` that [`walk_dir`] reads. A larger file is skipped and reported,
@@ -387,7 +387,7 @@ fn walk_dir_reading<I: Iterator<Item = std::io::Result<std::ffi::OsString>>>(
     mut read_dir: impl FnMut(&Path) -> std::io::Result<I>,
 ) -> Result<Walked, ToolError> {
     let mut out = Walked::default();
-    let mut ignore = craft_anything_analysis::js_source::Ignore::default();
+    let mut ignore = pickaxe_analysis::js_source::Ignore::default();
     let (mut entries_left, mut path_bytes_left) = (limits.max_entries, limits.max_path_bytes);
     // The folders open along the current path, outermost first. A subfolder is opened where its
     // name sorts in its parent, before the parent's later entries, so the walk meets the tree in
@@ -519,7 +519,7 @@ pub(crate) fn resolve_evidence_input(ctx: &Ctx<'_>, v: &Value, expected: &[&str]
 
 /// True when a value names a path rather than evidence.
 pub(crate) fn is_path_input(v: &Value) -> Option<&str> {
-    v.as_str().filter(|s| !craft_anything_evidence::is_evidence_id(s))
+    v.as_str().filter(|s| !pickaxe_evidence::is_evidence_id(s))
 }
 
 /// A unique id for a fresh folder name.
@@ -776,7 +776,7 @@ fn inventory_path_unlisted(path: &Path, limits: InvLimits, cancel: &CancelToken)
         return Ok((out, subject, walked.unlisted));
     }
     let bytes = read_capped(path, limits.max_total_bytes.min(crate::target::MAX_TARGET_BYTES))?;
-    let kind = craft_anything_analysis::js_inventory::sniff_kind(&bytes, &name);
+    let kind = pickaxe_analysis::js_inventory::sniff_kind(&bytes, &name);
     let mut inv = Inventorier::new(&name, kind, limits, &check);
     let mut unlisted = Vec::new();
     match kind {
@@ -870,7 +870,7 @@ fn core_archive_show(ctx: &mut Ctx<'_>, params: Value) -> Result<ToolOutput, Too
     }
     let total = inv.entries.len();
     let limit = p.limit.clamp(1, 20_000);
-    let page: Vec<&craft_anything_analysis::js_inventory::InvEntry> = inv.entries.iter().skip(p.offset).take(limit).collect();
+    let page: Vec<&pickaxe_analysis::js_inventory::InvEntry> = inv.entries.iter().skip(p.offset).take(limit).collect();
     let files = inv.entries.iter().filter(|e| e.sha256.is_some()).count();
     let summary = format!(
         "{} ({}) holds {} files in {} entries{}; {} nested container(s){}.",
@@ -902,7 +902,7 @@ fn core_archive_show(ctx: &mut Ctx<'_>, params: Value) -> Result<ToolOutput, Too
     lims.push(Limitation::new("no_disk_images", "Disk images (DMG), installers (PKG/MSI) and compressed tarballs are listed as single files, not opened."));
     let mut coverage = Coverage::page(page.len() as u64, total as u64, p.offset as u64);
     if !unlisted.is_empty() || inv.unopened_nested > 0 {
-        coverage.status = craft_anything_evidence::CoverageStatus::Partial;
+        coverage.status = pickaxe_evidence::CoverageStatus::Partial;
     }
     let ev = EvidenceBuilder::new("core_archive_show", subject, env(ctx))
         .params(json!({"path": path, "if_tampered": p.if_tampered == IntegrityPolicy::Fail, "offset": p.offset, "limit": limit, "max_depth": limits.max_depth, "max_entries": limits.max_entries, "max_total_bytes": limits.max_total_bytes}))
@@ -958,7 +958,7 @@ fn core_archive_extract(ctx: &mut Ctx<'_>, params: Value) -> Result<ToolOutput, 
     }
     let bytes = read_capped(&path, crate::target::MAX_TARGET_BYTES)?;
     let name = path.file_name().map(|n| n.to_string_lossy().into_owned()).unwrap_or_default();
-    let kind = craft_anything_analysis::js_inventory::sniff_kind(&bytes, &name);
+    let kind = pickaxe_analysis::js_inventory::sniff_kind(&bytes, &name);
     // Collect (name, bytes-or-error) without touching the disk first.
     enum Member<'a> {
         Data(&'a [u8]),
@@ -1043,7 +1043,7 @@ fn core_archive_extract(ctx: &mut Ctx<'_>, params: Value) -> Result<ToolOutput, 
             .with_remediation("Pass if_tampered=continue to extract anyway.")
             .with_details(json!({"contradictions": contradictions})));
     }
-    let out = fresh_temp_dir("craft-anything-extract")?;
+    let out = fresh_temp_dir("pickaxe-extract")?;
     let mut written = 0usize;
     let mut total = 0u64;
     let mut skipped = Vec::new();
@@ -1094,7 +1094,7 @@ fn core_archive_extract(ctx: &mut Ctx<'_>, params: Value) -> Result<ToolOutput, 
         .summary(summary)
         .confidence(Confidence::Observed)
         .limitations(limitations)
-        .coverage(Coverage { status: if skipped.is_empty() && !listing_truncated { craft_anything_evidence::CoverageStatus::Complete } else { craft_anything_evidence::CoverageStatus::Partial }, examined: Some(written as u64), total: (!listing_truncated).then_some(members.len() as u64), next_offset: None })
+        .coverage(Coverage { status: if skipped.is_empty() && !listing_truncated { pickaxe_evidence::CoverageStatus::Complete } else { pickaxe_evidence::CoverageStatus::Partial }, examined: Some(written as u64), total: (!listing_truncated).then_some(members.len() as u64), next_offset: None })
         .location(Location::new("path", out.display().to_string()).with_label("output folder"))
         .build()?;
     Ok(ToolOutput::evidence(ev))
@@ -1160,7 +1160,7 @@ fn core_archives_compare(ctx: &mut Ctx<'_>, params: Value) -> Result<ToolOutput,
     if rows_capped {
         b = b
             .limitation(Limitation::new("rows_capped", format!("lists are capped at max_rows={max_rows}; counts are complete")))
-            .coverage(Coverage { status: craft_anything_evidence::CoverageStatus::Partial, ..Default::default() });
+            .coverage(Coverage { status: pickaxe_evidence::CoverageStatus::Partial, ..Default::default() });
     }
     for id in [lid, rid].into_iter().flatten() {
         b = b.link(id);
@@ -1231,7 +1231,7 @@ pub(crate) mod walk_testing {
 mod tests {
     use super::*;
     use crate::{CallOptions, Caller, Engine};
-    use craft_anything_testkit::electron as fx;
+    use pickaxe_testkit::electron as fx;
 
     fn call(e: &Engine, id: &str, p: Value) -> Result<Value, ToolError> {
         e.call(id, p, CallOptions::new(Caller::Cli)).map(|o| o.to_json())

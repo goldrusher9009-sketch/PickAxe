@@ -1,4 +1,4 @@
-use craft_anything_formats::java_class::{parse, references};
+use pickaxe_formats::java_class::{parse, references};
 
 /// A method with a chosen load or call, plus a dynamic call site and a dynamic constant with distinct bootstrap signatures.
 fn class(code: &[u8]) -> Vec<u8> {

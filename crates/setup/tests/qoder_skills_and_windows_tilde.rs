@@ -1,7 +1,7 @@
 //! Regressions for `QODER_CONFIG_DIR` skill-directory overrides and Windows `~\` tilde-prefix
-//! path expansion in `craft_anything_setup::clients`.
+//! path expansion in `pickaxe_setup::clients`.
 
-use craft_anything_setup::{CheckStatus, DoctorRequest, Host, Os, PlanRequest, apply, clients, doctor, plan, uninstall};
+use pickaxe_setup::{CheckStatus, DoctorRequest, Host, Os, PlanRequest, apply, clients, doctor, plan, uninstall};
 use std::collections::BTreeMap;
 use std::path::Path;
 
@@ -16,7 +16,7 @@ fn qoder_config_dir_override_moves_skills_with_settings() {
     std::fs::create_dir_all(&home).unwrap();
     std::fs::create_dir_all(&custom_qoder).unwrap();
 
-    let cli = dir.path().join(if cfg!(windows) { "craft-anything-cli.exe" } else { "craft-anything-cli" });
+    let cli = dir.path().join(if cfg!(windows) { "pickaxe-cli.exe" } else { "pickaxe-cli" });
     std::fs::write(&cli, "").unwrap();
 
     let mut host = Host::with_home(&home);
@@ -34,7 +34,7 @@ fn qoder_config_dir_override_moves_skills_with_settings() {
 
     let rep = apply(&p);
     assert_eq!(rep.status, "configured");
-    assert!(custom_qoder.join("skills").join("craft-anything").join("SKILL.md").is_file());
+    assert!(custom_qoder.join("skills").join("pickaxe").join("SKILL.md").is_file());
     assert!(!home.join(".qoder").exists(), "default ~/.qoder must not be created when QODER_CONFIG_DIR is set");
 
     let doc = doctor(&host, &DoctorRequest { clients: vec!["qoder".into()], cli_path: Some(cli), extra: Vec::new(), self_test: false, engines: false });
@@ -48,7 +48,7 @@ fn qoder_config_dir_override_moves_skills_with_settings() {
 
     let un = uninstall(&host);
     assert_eq!(un.status, "removed");
-    assert!(!custom_qoder.join("skills").join("craft-anything").exists());
+    assert!(!custom_qoder.join("skills").join("pickaxe").exists());
 }
 
 /// On Windows (`Os::Windows`), `Host::var` expands leading `~\` backslash home prefixes (including

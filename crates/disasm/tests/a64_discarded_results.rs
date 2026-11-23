@@ -1,6 +1,6 @@
-use craft_anything_disasm::{Image, Insn, Limits, Mode, NoControl, Program, dataflow, decode};
-use craft_anything_formats::Arch;
-use craft_anything_testkit as tk;
+use pickaxe_disasm::{Image, Insn, Limits, Mode, NoControl, Program, dataflow, decode};
+use pickaxe_formats::Arch;
+use pickaxe_testkit as tk;
 
 fn instruction(word: u32) -> Insn {
     decode(Mode::A64, &word.to_le_bytes(), 0x1000, true).unwrap()

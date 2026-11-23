@@ -3,7 +3,7 @@
 
 use super::*;
 use crate::BackendEntry;
-use craft_anything_engine::Engine;
+use pickaxe_engine::Engine;
 use std::sync::mpsc::RecvTimeoutError;
 
 enum Command {
@@ -197,7 +197,7 @@ impl Drop for SharedConversation {
 mod tests {
     use super::*;
     use crate::{BackendConfig, BackendKind};
-    use craft_anything_engine::target::Target;
+    use pickaxe_engine::target::Target;
 
     #[test]
     fn a_clean_room_chat_does_not_continue_a_deep_one() {
@@ -214,7 +214,7 @@ mod tests {
     #[test]
     fn preparation_shares_the_project_and_keeps_the_active_target_last() {
         let directory = tempfile::tempdir().unwrap();
-        let engine = Engine::new(craft_anything_engine::Session::isolated(directory.path()));
+        let engine = Engine::new(pickaxe_engine::Session::isolated(directory.path()));
         let first = directory.path().join("first.bin");
         let second = directory.path().join("second.bin");
         std::fs::write(&first, b"first").unwrap();

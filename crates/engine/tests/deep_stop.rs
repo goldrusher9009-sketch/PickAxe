@@ -1,7 +1,7 @@
 //! A test program of its own: stopping analyses is process-wide.
 
-use craft_anything_engine::tools::deep;
-use craft_anything_engines::ghidra;
+use pickaxe_engine::tools::deep;
+use pickaxe_engines::ghidra;
 use std::time::{Duration, Instant};
 
 /// #946: closing the app ends an analysis, here one waiting for another's lock, within moments.
@@ -11,13 +11,13 @@ fn closing_stops_an_analysis() {
     let launcher = d.path().join("analyzeHeadless");
     std::fs::write(&launcher, "").unwrap();
     let store = d.path().join("store");
-    let mut settings = craft_anything_engine::testing::session().settings.clone();
+    let mut settings = pickaxe_engine::testing::session().settings.clone();
     settings.engines.store_dir = Some(store.clone());
     settings.engines.ghidra.install_dir = Some(launcher);
     settings.engines.ghidra.startup_timeout_secs = Some(120);
     let bytes = b"not really a program";
-    let sha = craft_anything_evidence::sha256_hex(bytes);
-    let digest = craft_anything_evidence::sha256_hex(b"craft-anything-ghidra-fast-profile-v2|lang=");
+    let sha = pickaxe_evidence::sha256_hex(bytes);
+    let digest = pickaxe_evidence::sha256_hex(b"pickaxe-ghidra-fast-profile-v2|lang=");
     let project = ghidra::project_cache_dir(&store, &sha, &digest);
     std::fs::create_dir_all(project.parent().unwrap()).unwrap();
     std::fs::write(project.with_extension("analysing"), "").unwrap();

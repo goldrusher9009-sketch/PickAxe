@@ -57,7 +57,7 @@ mod tests {
     use super::*;
 
     fn args(builder: bool, options: &BackendOptions) -> Vec<String> {
-        let mcp = McpCommand { command: "craft-anything-cli".into(), args: vec!["mcp".into()], notes: None };
+        let mcp = McpCommand { command: "pickaxe-cli".into(), args: vec!["mcp".into()], notes: None };
         Maki.args(&ArgsCx {
             options,
             prompt: "make a game",

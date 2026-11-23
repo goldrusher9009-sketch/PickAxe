@@ -1,4 +1,4 @@
-use craft_anything_js::{Limits, ParseMode, analyze};
+use pickaxe_js::{Limits, ParseMode, analyze};
 
 fn dependencies(source: &str, id: &str) -> Vec<String> {
     let analysis = analyze("bundle.js", source, &Limits::default());

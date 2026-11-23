@@ -5,8 +5,8 @@ use crate::i18n::tr;
 use crate::state::{ChatItem, ConsentAnswer};
 use crate::theme::{self, Tokens};
 use crate::{CraftApp, evidence_ui, glossary, icons, widgets};
-use craft_anything_ai::AgentEvent;
-use craft_anything_engine::TargetKind;
+use pickaxe_ai::AgentEvent;
+use pickaxe_engine::TargetKind;
 use egui::{Margin, RichText, Ui, Vec2};
 use serde_json::Value;
 
@@ -114,7 +114,7 @@ pub fn describe_value(v: &Value) -> String {
 pub fn suggestions(kind: Option<TargetKind>) -> Vec<&'static str> {
     use TargetKind::*;
     match kind {
-        None => vec!["What can Craft Anything do?", "How do I open an app?", "Is it safe to look inside programs?"],
+        None => vec!["What can Pickaxe do?", "How do I open an app?", "Is it safe to look inside programs?"],
         Some(Elf | Pe | MachO | MachOFat | DosCom | RawBinary) => {
             vec!["What does this program do?", "What does it send over the internet?", "Is it safe to run?", "Which files does it read or write?"]
         }

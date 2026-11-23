@@ -1,19 +1,19 @@
 #!/usr/bin/env bash
-# Regenerate every app icon from assets/app-icon/craft-anything.svg (the canonical artwork).
+# Regenerate every app icon from assets/app-icon/pickaxe.svg (the canonical artwork).
 #
-# Needs: resvg (brew install resvg / cargo install resvg). On macOS, iconutil also writes the
+# Needs: resvg or rsvg-convert. On macOS, iconutil also writes the
 # .icns. The outputs are committed, so building and packaging never need these tools.
 #
 #   packaging/icons.sh
 set -euo pipefail
 ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 DIR="$ROOT/assets/app-icon"
-SVG="$DIR/craft-anything.svg"
-ID="ai.storyteller.craft-anything"
+SVG="$DIR/pickaxe.svg"
+ID="ai.goldrusher.pickaxe"
 TMP="$(mktemp -d)"
 trap 'rm -rf "$TMP"' EXIT
 
-command -v resvg >/dev/null || { echo "error: resvg not found (brew install resvg)" >&2; exit 1; }
+if command -v resvg >/dev/null; then R=resvg; elif command -v rsvg-convert >/dev/null; then R=rsvg; else echo "error: resvg or rsvg-convert not found" >&2; exit 1; fi
 
 # The SVG is a full-bleed 512 tile, used as-is on Windows and Linux. macOS icons follow Apple's grid:
 # the tile is 824/1024 of the canvas with a transparent margin, so widen the viewBox around it.
@@ -21,9 +21,9 @@ MAC="$TMP/mac.svg"
 sed 's/viewBox="0 0 512 512"/viewBox="-62.136 -62.136 636.272 636.272"/' "$SVG" >"$MAC"
 grep -q 'viewBox="-62.136' "$MAC" || { echo "error: $SVG has no 512 viewBox" >&2; exit 1; }
 
-render() { resvg -w "$2" -h "$2" "$1" "$3" </dev/null; }
+render() { if [ "$R" = resvg ]; then resvg -w "$2" -h "$2" "$1" "$3" </dev/null; else rsvg-convert -w "$2" -h "$2" "$1" -o "$3" </dev/null; fi; }
 
-render "$SVG" 1024 "$DIR/craft-anything-1024.png"
+render "$SVG" 1024 "$DIR/pickaxe-1024.png"
 
 # Linux hicolor theme (the 256 one is also the runtime icon on Windows and Linux).
 for s in 16 24 32 48 64 128 256 512; do
@@ -39,18 +39,18 @@ for s in 16 20 24 32 40 48 64 128 256; do
   render "$SVG" "$s" "$TMP/ico-$s.png"
   ICO_PNGS+=("$TMP/ico-$s.png")
 done
-(cd "$ROOT" && cargo run -q -p xtask -- ico "$DIR/craft-anything.ico" "${ICO_PNGS[@]}")
+(cd "$ROOT" && cargo run -q -p xtask -- ico "$DIR/pickaxe.ico" "${ICO_PNGS[@]}")
 
 # macOS .icns.
 if command -v iconutil >/dev/null; then
-  SET="$TMP/craft-anything.iconset"
+  SET="$TMP/pickaxe.iconset"
   mkdir -p "$SET"
   for s in 16 32 128 256 512; do
     render "$MAC" "$s" "$SET/icon_${s}x${s}.png"
     render "$MAC" $((s * 2)) "$SET/icon_${s}x${s}@2x.png"
   done
-  iconutil -c icns -o "$DIR/craft-anything.icns" "$SET"
+  iconutil -c icns -o "$DIR/pickaxe.icns" "$SET"
 else
-  echo "warning: iconutil not found (macOS only); craft-anything.icns not regenerated" >&2
+  echo "warning: iconutil not found (macOS only); pickaxe.icns not regenerated" >&2
 fi
 echo "icons written to $DIR"

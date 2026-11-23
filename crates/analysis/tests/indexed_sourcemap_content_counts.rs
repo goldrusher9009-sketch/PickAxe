@@ -1,7 +1,7 @@
 //! Regression tests for `js_app` source-map `sources_with_content` accumulation across
 //! indexed `sections` and exact `.map` suffix stripping on stand-alone map entries.
 
-use craft_anything_analysis::js_app::{AppFile, AppGraph, AppInput, AppOptions, analyze_application};
+use pickaxe_analysis::js_app::{AppFile, AppGraph, AppInput, AppOptions, analyze_application};
 use serde_json::{Value, json};
 
 fn analyze_files(files: Vec<(&str, Vec<u8>)>, extra_listing: &[(&str, u64)]) -> AppGraph {

@@ -1,4 +1,4 @@
-use craft_anything_formats::dotnet::cil;
+use pickaxe_formats::dotnet::cil;
 
 fn method(section: &[u8]) -> Vec<u8> {
     let mut data = vec![0x0b, 0x30, 8, 0, 4, 0, 0, 0, 0, 0, 0, 0];

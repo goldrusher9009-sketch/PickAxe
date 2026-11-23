@@ -1,5 +1,5 @@
-use craft_anything_formats::il2cpp::{self, Literal, Reading};
-use craft_anything_testkit::games::{Il2cppSample, il2cpp_metadata};
+use pickaxe_formats::il2cpp::{self, Literal, Reading};
+use pickaxe_testkit::games::{Il2cppSample, il2cpp_metadata};
 
 fn literal(bytes: &[u8], cap: usize) -> Literal {
     let mut data = il2cpp_metadata(&Il2cppSample { version: 29, header_size: 256, type_size: 88, method_size: 32 });

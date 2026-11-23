@@ -1,4 +1,4 @@
-use craft_anything_js::{Limits, ParseMode, analyze};
+use pickaxe_js::{Limits, ParseMode, analyze};
 use std::fmt::Write;
 
 #[test]

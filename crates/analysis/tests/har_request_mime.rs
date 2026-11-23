@@ -1,9 +1,9 @@
-use craft_anything_analysis::web_har::har_from_network;
-use craft_anything_formats::har::parse;
+use pickaxe_analysis::web_har::har_from_network;
+use pickaxe_formats::har::parse;
 use serde_json::{Value, json};
 
 /// Round-trip one captured request through the HAR writer and reader.
-fn archived(headers: Value) -> craft_anything_formats::har::HarEntry {
+fn archived(headers: Value) -> pickaxe_formats::har::HarEntry {
     let requests = [json!({
         "method": "POST",
         "url": "https://example.test/form",

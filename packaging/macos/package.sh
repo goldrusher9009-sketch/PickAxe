@@ -1,8 +1,8 @@
 #!/usr/bin/env bash
 # Build, sign and (optionally) notarize the macOS release artifacts:
 #
-#   $DIST/craft-anything-<version>-macos-<arch>.dmg          Craft Anything.app on a drag-to-Applications DMG
-#   $DIST/craft-anything-cli-<version>-macos-<arch>.zip      the headless CLI (when apps/craft-anything-cli exists)
+#   $DIST/pickaxe-<version>-macos-<arch>.dmg          Pickaxe.app on a drag-to-Applications DMG
+#   $DIST/pickaxe-cli-<version>-macos-<arch>.zip      the headless CLI (when apps/pickaxe-cli exists)
 #
 # Usage: packaging/macos/package.sh [--arch universal|aarch64|x86_64] [--skip-build]
 #
@@ -39,9 +39,9 @@ export MACOSX_DEPLOYMENT_TARGET=11.0
 IDENTITY="${MACOS_SIGN_IDENTITY:--}"
 SHORT_VERSION="${VERSION%%-*}"
 WORK="$CARGO_TARGET_DIR/macos-package"
-APP="$WORK/Craft Anything.app"
-DMG="$DIST/craft-anything-$VERSION-macos-$ARCH.dmg"
-CLI_ZIP="$DIST/craft-anything-cli-$VERSION-macos-$ARCH.zip"
+APP="$WORK/Pickaxe.app"
+DMG="$DIST/pickaxe-$VERSION-macos-$ARCH.dmg"
+CLI_ZIP="$DIST/pickaxe-cli-$VERSION-macos-$ARCH.zip"
 
 NOTARIZE=0
 if [[ "$IDENTITY" = "-" ]]; then
@@ -52,7 +52,7 @@ else
   warn "macOS: APPLE_ID / APPLE_PASSWORD / APPLE_TEAM_ID incomplete; signed but not notarized"
 fi
 
-echo "==> Craft Anything $VERSION for macOS ($ARCH; ${BINS[*]}), identity: $IDENTITY, notarize: $NOTARIZE"
+echo "==> Pickaxe $VERSION for macOS ($ARCH; ${BINS[*]}), identity: $IDENTITY, notarize: $NOTARIZE"
 
 # ---- build -------------------------------------------------------------------------------------
 if [[ "$SKIP_BUILD" = 0 ]]; then
@@ -98,23 +98,23 @@ notarize() {
 }
 
 # ---- icon --------------------------------------------------------------------------------------
-# The committed .icns (assets/app-icon/craft-anything.icns, rendered from the icon source).
-ICNS="$ROOT/assets/app-icon/craft-anything.icns"
+# The committed .icns (assets/app-icon/pickaxe.icns, rendered from the icon source).
+ICNS="$ROOT/assets/app-icon/pickaxe.icns"
 
-# ---- Craft Anything.app ----------------------------------------------------------------------
+# ---- Pickaxe.app ----------------------------------------------------------------------
 echo "==> assembling $APP"
 mkdir -p "$APP/Contents/MacOS" "$APP/Contents/Resources"
 # The executable keeps the machine name (CFBundleExecutable); the bundle carries the display name.
-cp "$WORK/bin/craft-anything" "$APP/Contents/MacOS/craft-anything"
+cp "$WORK/bin/pickaxe" "$APP/Contents/MacOS/pickaxe"
 # The CLI goes beside it: the app starts it as the MCP server its coding agents use, and finds it
 # next to its own executable (`self_cli_path`). Without it every Claude Code build fails (#91).
-if [[ "$HAS_CLI" = 1 ]]; then cp "$WORK/bin/craft-anything-cli" "$APP/Contents/MacOS/craft-anything-cli"; fi
-cp "$ICNS" "$APP/Contents/Resources/craft-anything.icns"
+if [[ "$HAS_CLI" = 1 ]]; then cp "$WORK/bin/pickaxe-cli" "$APP/Contents/MacOS/pickaxe-cli"; fi
+cp "$ICNS" "$APP/Contents/Resources/pickaxe.icns"
 # Licences of the embedded fonts (assets/fonts, OFL-1.1).
 mkdir -p "$APP/Contents/Resources/Licenses"
 copy_font_licences "$APP/Contents/Resources/Licenses"
 sed -e "s/@VERSION@/$VERSION/g" -e "s/@SHORT_VERSION@/$SHORT_VERSION/g" \
-  -e "s/@BUILD_SHA@/${CRAFT_ANYTHING_BUILD_SHA:-unknown}/g" \
+  -e "s/@BUILD_SHA@/${PICKAXE_BUILD_SHA:-unknown}/g" \
   "$HERE/Info.plist.in" >"$APP/Contents/Info.plist"
 plutil -lint "$APP/Contents/Info.plist"
 printf 'APPL????' >"$APP/Contents/PkgInfo"
@@ -123,15 +123,15 @@ printf 'APPL????' >"$APP/Contents/PkgInfo"
 # The nested code is the main executable and the CLI; frameworks/helpers would be signed here too.
 # The CLI keeps the identifier its zip has.
 if [[ "$HAS_CLI" = 1 ]]; then
-  sign --options runtime --identifier ai.storyteller.craft-anything-cli "$APP/Contents/MacOS/craft-anything-cli"
+  sign --options runtime --identifier ai.goldrusher.pickaxe-cli "$APP/Contents/MacOS/pickaxe-cli"
 fi
-sign --options runtime --entitlements "$HERE/entitlements.plist" "$APP/Contents/MacOS/craft-anything"
+sign --options runtime --entitlements "$HERE/entitlements.plist" "$APP/Contents/MacOS/pickaxe"
 sign --options runtime --entitlements "$HERE/entitlements.plist" "$APP"
 codesign --verify --strict --deep --verbose=2 "$APP"
 
 if [[ "$NOTARIZE" = 1 ]]; then
-  ditto -c -k --keepParent "$APP" "$WORK/craft-anything-notarize.zip"
-  notarize "$WORK/craft-anything-notarize.zip"
+  ditto -c -k --keepParent "$APP" "$WORK/pickaxe-notarize.zip"
+  notarize "$WORK/pickaxe-notarize.zip"
   retry xcrun stapler staple "$APP"
   retry xcrun stapler validate "$APP"
   spctl --assess --type execute -vvv "$APP"
@@ -141,7 +141,7 @@ fi
 echo "==> building $DMG"
 STAGE="$WORK/dmg"
 mkdir -p "$STAGE"
-ditto "$APP" "$STAGE/Craft Anything.app"
+ditto "$APP" "$STAGE/Pickaxe.app"
 ln -s /Applications "$STAGE/Applications"
 # Finder window layout: background, icon size and positions (packaging/macos/dmg/README.md).
 mkdir -p "$STAGE/.background"
@@ -167,7 +167,7 @@ hdiutil_retry() {
     sleep $((attempt * 10))
   done
 }
-hdiutil_retry create create -srcfolder "$STAGE" -volname "Craft Anything" -fs HFS+ -format UDZO -imagekey zlib-level=9 -ov "$DMG"
+hdiutil_retry create create -srcfolder "$STAGE" -volname "Pickaxe" -fs HFS+ -format UDZO -imagekey zlib-level=9 -ov "$DMG"
 sign "$DMG"
 codesign --verify --strict --verbose=2 "$DMG"
 # The app inside the image must still pass --strict, so a makehybrid-style regression can't ship.
@@ -175,12 +175,12 @@ MOUNT="$WORK/dmg-check"
 rm -rf "$MOUNT"
 mkdir -p "$MOUNT"
 hdiutil_retry attach attach -nobrowse -readonly -mountpoint "$MOUNT" "$DMG" >/dev/null
-if ! codesign --verify --strict --deep --verbose=2 "$MOUNT/Craft Anything.app"; then
+if ! codesign --verify --strict --deep --verbose=2 "$MOUNT/Pickaxe.app"; then
   hdiutil_retry detach detach "$MOUNT" >/dev/null || true
   exit 1
 fi
-if [[ "$HAS_CLI" = 1 ]] && ! "$MOUNT/Craft Anything.app/Contents/MacOS/craft-anything-cli" --version; then
-  echo "error: the app in the DMG has no working craft-anything-cli beside its executable" >&2
+if [[ "$HAS_CLI" = 1 ]] && ! "$MOUNT/Pickaxe.app/Contents/MacOS/pickaxe-cli" --version; then
+  echo "error: the app in the DMG has no working pickaxe-cli beside its executable" >&2
   hdiutil_retry detach detach "$MOUNT" >/dev/null || true
   exit 1
 fi
@@ -195,25 +195,25 @@ fi
 # ---- CLI ---------------------------------------------------------------------------------------
 if [[ "$HAS_CLI" = 1 ]]; then
   echo "==> building $CLI_ZIP"
-  CLI_DIR="$WORK/craft-anything-cli-$VERSION-macos-$ARCH"
+  CLI_DIR="$WORK/pickaxe-cli-$VERSION-macos-$ARCH"
   mkdir -p "$CLI_DIR"
-  cp "$WORK/bin/craft-anything-cli" "$CLI_DIR/"
+  cp "$WORK/bin/pickaxe-cli" "$CLI_DIR/"
   copy_docs "$CLI_DIR"
   # Same Developer ID and hardened runtime as the app, with an explicit reverse-DNS identifier
   # (codesign would otherwise use the bare file name).
-  sign --options runtime --identifier ai.storyteller.craft-anything-cli "$CLI_DIR/craft-anything-cli"
-  codesign --verify --strict --verbose=2 "$CLI_DIR/craft-anything-cli"
+  sign --options runtime --identifier ai.goldrusher.pickaxe-cli "$CLI_DIR/pickaxe-cli"
+  codesign --verify --strict --verbose=2 "$CLI_DIR/pickaxe-cli"
   rm -f "$CLI_ZIP"
   ditto -c -k --keepParent "$CLI_DIR" "$CLI_ZIP"
   # notarytool accepts a zip of the bare binary. A bare Mach-O can't carry a stapled ticket, so
   # Gatekeeper looks the notarization up online when a quarantined copy first runs.
   if [[ "$NOTARIZE" = 1 ]]; then notarize "$CLI_ZIP"; fi
-  "$WORK/bin/craft-anything-cli" --version
+  "$WORK/bin/pickaxe-cli" --version
 else
-  warn "apps/craft-anything-cli is not in this workspace: no CLI zip"
+  warn "apps/pickaxe-cli is not in this workspace: no CLI zip"
   rm -f "$CLI_ZIP"
 fi
 
-"$WORK/bin/craft-anything" --version
+"$WORK/bin/pickaxe" --version
 echo "==> done (check the artifacts as shipped with packaging/macos/verify.sh --arch $ARCH)"
-ls -lh "$DIST"/craft-anything*-"$VERSION"-macos-"$ARCH".*
+ls -lh "$DIST"/pickaxe*-"$VERSION"-macos-"$ARCH".*

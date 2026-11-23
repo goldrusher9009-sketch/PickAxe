@@ -1,4 +1,4 @@
-use craft_anything_formats::sourcemap::find_source_mapping_url;
+use pickaxe_formats::sourcemap::find_source_mapping_url;
 
 /// A JavaScript comment stops on CR, Unicode LS, or Unicode PS as well as LF.
 #[test]

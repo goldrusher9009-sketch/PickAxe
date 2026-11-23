@@ -1,6 +1,6 @@
-use craft_anything_formats::godot_pck::{self, GodotPck};
-use craft_anything_formats::packed::{Compression, PackedFormat};
-use craft_anything_testkit::games::{GodotFile, godot_embedded, godot_pck, godot_pck_at};
+use pickaxe_formats::godot_pck::{self, GodotPck};
+use pickaxe_formats::packed::{Compression, PackedFormat};
+use pickaxe_testkit::games::{GodotFile, godot_embedded, godot_pck, godot_pck_at};
 
 fn sample(format: u32) -> Vec<u8> {
     let files = [GodotFile { path: "a", data: b"payload", flags: 0, md5: [0; 16] }];

@@ -1,7 +1,7 @@
 //! Regression tests for form-encoded and mixed-case percent-escaped secret redaction in HAR inspection.
 
-use craft_anything_analysis::standin::{BuildOptions, build_from_bytes};
-use craft_anything_analysis::web_har::{HarOptions, all_strings, contains_ascii_ci, encode_query, inspect_har, replace_needles_with};
+use pickaxe_analysis::standin::{BuildOptions, build_from_bytes};
+use pickaxe_analysis::web_har::{HarOptions, all_strings, contains_ascii_ci, encode_query, inspect_har, replace_needles_with};
 use serde_json::json;
 use std::collections::BTreeSet;
 

@@ -1,5 +1,5 @@
-use craft_anything_formats::dos::parse_mz;
-use craft_anything_testkit::dos_mz;
+use pickaxe_formats::dos::parse_mz;
+use pickaxe_testkit::dos_mz;
 
 /// Add a newer-format marker at the offset named by the DOS stub.
 fn with_extension(marker: &[u8]) -> Vec<u8> {
@@ -28,7 +28,7 @@ fn recognizes_a_complete_signature_inside_the_dos_header() {
         let signature = offset as usize;
         stub[signature..signature + 4].copy_from_slice(b"PE\0\0");
         stub[0x3c..0x40].copy_from_slice(&offset.to_le_bytes());
-        assert!(craft_anything_formats::pe::has_pe_header(&stub));
+        assert!(pickaxe_formats::pe::has_pe_header(&stub));
         assert_eq!(parse_mz(&stub).unwrap().extended_header.as_deref(), Some("PE (32/64-bit Windows)"), "offset {offset:#x}");
     }
 }

@@ -7,7 +7,7 @@
 use crate::decode::{ArmConsts, Cond, Flow, Insn, Kind, MemOp, Mode, Op, Shift, canonical_reg};
 use crate::image::Image;
 use crate::program::{Function, Program};
-use craft_anything_formats::Format;
+use pickaxe_formats::Format;
 use serde::Serialize;
 use std::collections::{BTreeMap, BTreeSet};
 
@@ -359,14 +359,14 @@ impl Lifter<'_> {
         let s = self.prog.string_at(a)?;
         let off = usize::try_from(a.checked_sub(s.addr)?).ok()?;
         let text = match s.encoding {
-            craft_anything_formats::strings::Encoding::Ascii | craft_anything_formats::strings::Encoding::Utf8 => {
+            pickaxe_formats::strings::Encoding::Ascii | pickaxe_formats::strings::Encoding::Utf8 => {
                 let tail = s.text.get(off..)?;
                 if off > 0 && tail.is_empty() {
                     return None;
                 }
                 tail.to_string()
             }
-            craft_anything_formats::strings::Encoding::Utf16le => {
+            pickaxe_formats::strings::Encoding::Utf16le => {
                 if off == 0 {
                     s.text.clone()
                 } else {
@@ -1752,7 +1752,7 @@ mod tests {
     use super::*;
     use crate::NoControl;
     use crate::program::Limits;
-    use craft_anything_testkit as tk;
+    use pickaxe_testkit as tk;
     use std::sync::Arc;
 
     /// The eight-byte slots straddling the write are the only ones that lose their values.
@@ -1796,7 +1796,7 @@ mod tests {
         // add x3, x1, w2, sxtw #2; add x4, x1, w2, uxtw; orr x5, x1, x2, ror #8; ret
         let words = [0x0b49_7d49u32, 0x4b09_0d29, 0x8b82_1020, 0x8b22_c823, 0x8b22_4024, 0xaac2_2025, 0xd65f_03c0];
         let bytes: Vec<u8> = words.iter().flat_map(|w| w.to_le_bytes()).collect();
-        let image = Image::raw(Arc::from(bytes), craft_anything_formats::Arch::Aarch64, 0x1000);
+        let image = Image::raw(Arc::from(bytes), pickaxe_formats::Arch::Aarch64, 0x1000);
         let program = Program::analyze(&image, &Limits::default(), &NoControl).unwrap();
         let p = lift(&image, &program, program.functions.get(&0x1000).unwrap(), &|_| None);
         for want in [
@@ -1874,7 +1874,7 @@ mod tests {
 
     fn lift_a64(words: &[u32]) -> Pseudo {
         let bytes: Vec<u8> = words.iter().flat_map(|w| w.to_le_bytes()).collect();
-        let image = Image::raw(Arc::from(bytes), craft_anything_formats::Arch::Aarch64, 0x1000);
+        let image = Image::raw(Arc::from(bytes), pickaxe_formats::Arch::Aarch64, 0x1000);
         let program = Program::analyze(&image, &Limits::default(), &NoControl).unwrap();
         let f = program.functions.get(&0x1000).unwrap();
         lift(&image, &program, f, &|_| None)
@@ -1954,7 +1954,7 @@ mod tests {
             }
         }
         for seed in 0..12 {
-            let raw = Image::raw(Arc::from(tk::noise(seed, 2048)), craft_anything_formats::Arch::X86_64, 0x1000);
+            let raw = Image::raw(Arc::from(tk::noise(seed, 2048)), pickaxe_formats::Arch::X86_64, 0x1000);
             if let Ok(p) = Program::analyze(&raw, &Limits::default(), &NoControl) {
                 for f in p.functions.values().take(50) {
                     let _ = lift(&raw, &p, f, &|_| None);
@@ -1965,7 +1965,7 @@ mod tests {
 
     #[test]
     fn arm32_calls_keep_their_return_value_in_r0() {
-        use craft_anything_formats::Arch;
+        use pickaxe_formats::Arch;
         fn words(ws: &[u32]) -> Vec<u8> {
             ws.iter().flat_map(|w| w.to_le_bytes()).collect()
         }
@@ -2011,7 +2011,7 @@ mod tests {
     /// #277: ARM32 loads and stores came out as `r0 = 0;` and `0 = r0;`.
     #[test]
     fn arm32_loads_and_stores_keep_their_addresses() {
-        use craft_anything_formats::Arch;
+        use pickaxe_formats::Arch;
         let lift_words = |ws: &[u32]| {
             let bytes: Vec<u8> = ws.iter().flat_map(|w| w.to_le_bytes()).collect();
             let image = Image::raw(Arc::from(bytes), Arch::Arm, 0x1000);
@@ -2039,7 +2039,7 @@ mod tests {
     fn aarch64_move_wide_immediates_keep_their_value() {
         // mov w9, #0x2493; movk w9, #0x9249, lsl #16; mov w0, #-1; ret
         let bytes: Vec<u8> = [0x5284_9269u32, 0x72b2_4929, 0x1280_0000, 0xd65f_03c0].iter().flat_map(|w| w.to_le_bytes()).collect();
-        let image = Image::raw(Arc::from(bytes), craft_anything_formats::Arch::Aarch64, 0x1000);
+        let image = Image::raw(Arc::from(bytes), pickaxe_formats::Arch::Aarch64, 0x1000);
         let program = Program::analyze(&image, &Limits::default(), &NoControl).unwrap();
         let p = lift(&image, &program, program.functions.get(&0x1000).unwrap(), &|_| None);
         // The pair folds into one constant, whose low half is the MOVZ's

@@ -63,12 +63,12 @@ The key words MUST, MUST NOT, SHOULD, SHOULD NOT and MAY are used as in RFC 2119
 ## This repository
 <!-- craft-agents:end -->
 
-Craft Anything is a native, pure-Rust app that shows anyone how a piece of software works (programs, apps, files, websites, phones) with evidence-backed answers, then helps them rebuild it. It ships a desktop app (egui), a CLI and an MCP server, all driven by one engine. Display name **Craft Anything**; machine names `craft-anything-*`; bundle id `ai.storyteller.craft-anything`.
+Pickaxe is a native, pure-Rust app that shows anyone how a piece of software works (programs, apps, files, websites, phones) with evidence-backed answers, then helps them rebuild it. It ships a desktop app (egui), a CLI and an MCP server, all driven by one engine. Display name **Pickaxe**; machine names `pickaxe-*`; bundle id `ai.goldrusher.pickaxe`.
 
 ## Layout
 
 - `crates/`: layers L0-L6, lowest first: evidence and formats (L0), disasm and js (L1), analysis and platform (L2), engines (L3), engine (L4), ai, mcp and setup (L5), ui-egui (L6, the only crate that uses egui, eframe, winit or rfd); testkit has test helpers. `cargo xtask layers` enforces the layering, and new crates are registered in `xtask/src/main.rs`. The full map is in [docs/extending.md](docs/extending.md).
-- `apps/`: `craft-anything` (desktop), `craft-anything-cli` (CLI and `mcp`), `craft-anything-web` (browser viewer).
+- `apps/`: `pickaxe` (desktop), `pickaxe-cli` (CLI and `mcp`), `pickaxe-web` (browser viewer).
 - User-visible behaviour is a `ToolSpec` in `crates/engine/src/tools/<area>.rs`; the UI, CLI, MCP and the AI agent dispatch by id. Where each kind of addition goes: [docs/extending.md](docs/extending.md).
 - The plan is `docs/ROADMAP.md` (open work: `cargo xtask pending`; items have ids `R<milestone>.<n>`, an owner role and `- [ ]` pending changes). Status: `docs/STATUS.md`, `docs/tool-status.md`. Past mistakes and their fixes: [docs/pitfalls.md](docs/pitfalls.md). Private plans may live in `plan/` (gitignored).
 
@@ -76,11 +76,11 @@ Craft Anything is a native, pure-Rust app that shows anyone how a piece of softw
 
 - Branches are named `feature/`, `bugfix/`, `hotfix/`, `refactor/`, `docs/`, `test/` or `chore/`, then the roadmap id (`feature/r1.1-target-kind`). PRs are squash-merged, so the title is the commit message.
 - `unsafe_code = "forbid"` workspace-wide; no module allows `unsafe`.
-- External programs run through `craft_anything_platform::process`, and locks use `craft_anything_platform::sync::Mutex` (clippy refuses `std::sync::Mutex`; `cargo xtask locks` checks session reads).
+- External programs run through `pickaxe_platform::process`, and locks use `pickaxe_platform::sync::Mutex` (clippy refuses `std::sync::Mutex`; `cargo xtask locks` checks session reads).
 - Clean room mode: `session.clean_room()` is true unless Deep mode is on; the tools it allows are listed in `crates/engine/src/clean_room.rs`.
 - `cargo xtask secrets` checks what git would commit; `git config core.hooksPath .githooks` enables its hook.
 - `log/` is gitignored (local scratch).
 
 ## Checks
 
-For the crates you changed: `cargo xtask fmt`, `cargo test -p <crates>`, `cargo clippy -p <crates> --all-targets -- -D warnings`. Also, when they apply: `cargo build -p craft-anything-cli` (two `crates/ai` tests start it), `cargo xtask layers`, `cargo xtask locks`, `cargo xtask secrets`, `cargo xtask wasm` (L0-L2) and `cargo xtask tools` (after adding tools; commit `docs/tools.md`).
+For the crates you changed: `cargo xtask fmt`, `cargo test -p <crates>`, `cargo clippy -p <crates> --all-targets -- -D warnings`. Also, when they apply: `cargo build -p pickaxe-cli` (two `crates/ai` tests start it), `cargo xtask layers`, `cargo xtask locks`, `cargo xtask secrets`, `cargo xtask wasm` (L0-L2) and `cargo xtask tools` (after adding tools; commit `docs/tools.md`).

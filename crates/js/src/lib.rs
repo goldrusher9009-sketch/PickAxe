@@ -1,4 +1,4 @@
-//! JavaScript, Electron and web-bundle analysis for Craft Anything.
+//! JavaScript, Electron and web-bundle analysis for Pickaxe.
 //!
 //! Everything here is static and runs nothing: sources are parsed (with oxc, a pure-Rust
 //! parser) or, when parsing is refused or fails, tokenized; facts are read from the result.
@@ -159,7 +159,7 @@ pub fn analyze(path: &str, src: &str, limits: &Limits) -> Analysis {
     if f.source_map_url.is_none() {
         // One reader for every path: the formats one accepts the standard spacing after the
         // marker and rejects a URL containing whitespace.
-        f.source_map_url = craft_anything_formats::sourcemap::find_source_mapping_url(src);
+        f.source_map_url = pickaxe_formats::sourcemap::find_source_mapping_url(src);
     }
     for v in vendor::marker_vendors(&f.strings) {
         if !f.vendors.iter().any(|x| x.name == v.name) {

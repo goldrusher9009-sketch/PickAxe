@@ -16,22 +16,22 @@ mod status;
 /// Workspace crates and their layer. A crate may depend only on strictly lower layers
 /// (L0 format crates depend on nothing in the workspace).
 const LAYERS: &[(&str, u8)] = &[
-    ("craft-anything-evidence", 0),
-    ("craft-anything-formats", 0),
-    ("craft-anything-disasm", 1),
-    ("craft-anything-js", 1),
-    ("craft-anything-analysis", 2),
-    ("craft-anything-platform", 2),
-    ("craft-anything-engines", 3),
-    ("craft-anything-engine", 4),
-    ("craft-anything-ai", 5),
-    ("craft-anything-mcp", 5),
-    ("craft-anything-setup", 5),
-    ("craft-anything-ui-egui", 6),
+    ("pickaxe-evidence", 0),
+    ("pickaxe-formats", 0),
+    ("pickaxe-disasm", 1),
+    ("pickaxe-js", 1),
+    ("pickaxe-analysis", 2),
+    ("pickaxe-platform", 2),
+    ("pickaxe-engines", 3),
+    ("pickaxe-engine", 4),
+    ("pickaxe-ai", 5),
+    ("pickaxe-mcp", 5),
+    ("pickaxe-setup", 5),
+    ("pickaxe-ui-egui", 6),
 ];
 
 /// Crates that must build for wasm32-unknown-unknown (static analysis in the browser).
-const WASM_CRATES: &[&str] = &["craft-anything-evidence", "craft-anything-formats", "craft-anything-disasm", "craft-anything-js", "craft-anything-analysis"];
+const WASM_CRATES: &[&str] = &["pickaxe-evidence", "pickaxe-formats", "pickaxe-disasm", "pickaxe-js", "pickaxe-analysis"];
 
 /// UI toolkits only the UI layer may use.
 const UI_ONLY: &[&str] = &["egui", "eframe", "winit", "rfd", "egui_extras", "egui_kittest"];
@@ -66,8 +66,8 @@ fn main() -> ExitCode {
                 && run("cargo", &["clippy", "--workspace", "--all-targets", "--", "-D", "warnings"])
                 && run("cargo", &["test", "--workspace"])
                 // The off-by-default WASM plugin host, built and tested on its own.
-                && run("cargo", &["clippy", "-p", "craft-anything-engine", "--features", "wasm-plugins", "--all-targets", "--", "-D", "warnings"])
-                && run("cargo", &["test", "-p", "craft-anything-engine", "--features", "wasm-plugins"])
+                && run("cargo", &["clippy", "-p", "pickaxe-engine", "--features", "wasm-plugins", "--all-targets", "--", "-D", "warnings"])
+                && run("cargo", &["test", "-p", "pickaxe-engine", "--features", "wasm-plugins"])
                 && tools(&root, true)
                 && schemas(&root, true)
                 && wasm()
@@ -179,8 +179,8 @@ const APP_LAYER: u8 = 7;
 /// Apps that are user interfaces of their own. The browser viewer can't build on the UI crate
 /// (it pulls in native-only crates), so it draws with egui directly and may use only the
 /// wasm-safe crates.
-const UI_APPS: &[&str] = &["craft-anything", "craft-anything-web"];
-const WASM_APPS: &[&str] = &["craft-anything-web"];
+const UI_APPS: &[&str] = &["pickaxe", "pickaxe-web"];
+const WASM_APPS: &[&str] = &["pickaxe-web"];
 
 fn layers(root: &Path) -> bool {
     let layer: BTreeMap<&str, u8> = LAYERS.iter().copied().collect();
@@ -195,7 +195,7 @@ fn layers(root: &Path) -> bool {
     }
     for (is_app, manifest) in manifests {
         let (name, deps) = manifest_deps(&manifest);
-        if name == "craft-anything-testkit" {
+        if name == "pickaxe-testkit" {
             continue;
         }
         let mine = if is_app {
@@ -207,7 +207,7 @@ fn layers(root: &Path) -> bool {
             ok = false;
             continue;
         };
-        let ui_allowed = mine == 6 || (is_app && (UI_APPS.contains(&name.as_str()) || deps.iter().any(|d| d == "craft-anything-ui-egui")));
+        let ui_allowed = mine == 6 || (is_app && (UI_APPS.contains(&name.as_str()) || deps.iter().any(|d| d == "pickaxe-ui-egui")));
         for d in &deps {
             if let Some(&theirs) = layer.get(d.as_str())
                 && theirs >= mine
@@ -223,8 +223,8 @@ fn layers(root: &Path) -> bool {
                 eprintln!("layers: browser app {name} depends on {d}, which doesn't build for wasm");
                 ok = false;
             }
-            if is_app && d == "craft-anything-testkit" {
-                eprintln!("layers: app {name} depends on craft-anything-testkit; use it as a dev-dependency only");
+            if is_app && d == "pickaxe-testkit" {
+                eprintln!("layers: app {name} depends on pickaxe-testkit; use it as a dev-dependency only");
                 ok = false;
             }
         }
@@ -246,7 +246,7 @@ fn process_calls_only_in_platform(root: &Path) -> bool {
         &["crates", "apps"],
         &["target", "tests", "platform", "xtask"],
         source_policy::Policy::Process,
-        "runs a program with std::process::Command; use craft_anything_platform::process (golden rule 10)",
+        "runs a program with std::process::Command; use pickaxe_platform::process (golden rule 10)",
     )
 }
 
@@ -303,8 +303,8 @@ fn check_source_policy(root: &Path, dirs: &[&str], skip: &[&str], policy: source
 }
 
 fn tools(root: &Path, check: bool) -> bool {
-    let registry = craft_anything_engine::Registry::with_all_tools();
-    let report = craft_anything_engine::tool_list::report(&registry);
+    let registry = pickaxe_engine::Registry::with_all_tools();
+    let report = pickaxe_engine::tool_list::report(&registry);
     let n = registry.all().len();
     let path = root.join("docs").join("tools.md");
     if check {
@@ -334,10 +334,10 @@ fn tools(root: &Path, check: bool) -> bool {
 fn schemas(root: &Path, check: bool) -> bool {
     let dir = root.join("docs").join("schemas");
     let files = [
-        ("craft.schema.json", craft_anything_engine::workspace::manifest_schema()),
-        ("build-progress.schema.json", craft_anything_engine::workspace::progress::build_progress_schema()),
-        ("mechanics.schema.json", craft_anything_engine::mechanics::mechanics_schema()),
-        ("self-test.schema.json", craft_anything_engine::self_test::self_test_schema()),
+        ("craft.schema.json", pickaxe_engine::workspace::manifest_schema()),
+        ("build-progress.schema.json", pickaxe_engine::workspace::progress::build_progress_schema()),
+        ("mechanics.schema.json", pickaxe_engine::mechanics::mechanics_schema()),
+        ("self-test.schema.json", pickaxe_engine::self_test::self_test_schema()),
     ];
     let mut ok = true;
     for (name, schema) in files {
@@ -565,7 +565,7 @@ mod policy_tests {
             "use std::fs::write as save; fn f() { save(\"out\", b\"x\"); }",
             "use std::fs as files; fn f() { files::write(\"out\", b\"x\"); }",
             "use std::fs::{File as Output}; fn f() { Output::create(\"out\"); }",
-            "use craft_anything_platform::process::Process as Child; fn f() { Child::new(\"app\"); }",
+            "use pickaxe_platform::process::Process as Child; fn f() { Child::new(\"app\"); }",
         ] {
             let d = fixture("crates/ui-egui/src/main.rs", source);
             assert!(!ui_has_no_side_effects(d.path()), "{source}");

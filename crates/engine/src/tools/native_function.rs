@@ -4,10 +4,10 @@
 
 use super::native_common::{ev, hex, name_of, native, params_json, resolve_function, select_document, spec, user_names};
 use crate::tool::{Ctx, Effects, Requires, ToolOutput, ToolSpec, Toolset, parse_params, schema_of};
-use craft_anything_analysis::native as an;
-use craft_anything_disasm::pseudo::lift;
-use craft_anything_disasm::{Flow, XrefKind};
-use craft_anything_evidence::{Confidence, Coverage, Limitation, Location, ToolError};
+use pickaxe_analysis::native as an;
+use pickaxe_disasm::pseudo::lift;
+use pickaxe_disasm::{Flow, XrefKind};
+use pickaxe_evidence::{Confidence, Coverage, Limitation, Location, ToolError};
 use schemars::JsonSchema;
 use serde::{Deserialize, Serialize};
 use serde_json::{Value, json};
@@ -459,7 +459,7 @@ fn native_function_address_show(ctx: &mut Ctx<'_>, params: Value) -> Result<Tool
     })
 }
 
-fn insn_json(st: &super::native_common::NativeState, t: &crate::session::OpenTarget, i: &craft_anything_disasm::Insn) -> Value {
+fn insn_json(st: &super::native_common::NativeState, t: &crate::session::OpenTarget, i: &pickaxe_disasm::Insn) -> Value {
     json!({
         "address": hex(i.addr),
         "bytes": st.img.read(i.addr, usize::from(i.len)).map(hex::encode).unwrap_or_default(),
@@ -550,8 +550,8 @@ fn native_instruction_show(ctx: &mut Ctx<'_>, params: Value) -> Result<ToolOutpu
     let (result, summary, conf) = if st.img.is_exec(a) {
         // Decode with the AArch64 constant tracker primed from the block start.
         let insn = match f.and_then(|f| f.block_at(a)) {
-            Some(b) if st.prog.mode == craft_anything_disasm::Mode::A64 => {
-                let mut consts = craft_anything_disasm::ArmConsts::default();
+            Some(b) if st.prog.mode == pickaxe_disasm::Mode::A64 => {
+                let mut consts = pickaxe_disasm::ArmConsts::default();
                 let mut cur = b.start;
                 let mut found = None;
                 while cur <= a {
@@ -742,7 +742,7 @@ fn native_data_show(ctx: &mut Ctx<'_>, params: Value) -> Result<ToolOutput, Tool
 #[cfg(test)]
 mod tests {
     use super::super::native_common::test_support::*;
-    use craft_anything_testkit as tk;
+    use pickaxe_testkit as tk;
     use serde_json::json;
 
     #[test]

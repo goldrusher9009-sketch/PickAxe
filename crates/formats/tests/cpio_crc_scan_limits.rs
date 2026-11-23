@@ -1,8 +1,8 @@
 use std::cell::Cell;
 
-use craft_anything_formats::firmware::{ScanOptions, scan};
-use craft_anything_formats::tarcpio::cpio;
-use craft_anything_testkit::firmware as fx;
+use pickaxe_formats::firmware::{ScanOptions, scan};
+use pickaxe_formats::tarcpio::cpio;
+use pickaxe_testkit::firmware as fx;
 
 const DATA_OFFSET: usize = 112; // 110-byte newc header plus the two-byte name "x\0".
 

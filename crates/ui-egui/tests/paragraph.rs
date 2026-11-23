@@ -1,6 +1,6 @@
 //! Inline glossary hints survive shaping a whole paragraph, including Unicode before the term.
-use craft_anything_engine::{Mode, feed::FeedItem};
-use craft_anything_ui_egui::{CraftApp, demo};
+use pickaxe_engine::{Mode, feed::FeedItem};
+use pickaxe_ui_egui::{CraftApp, demo};
 use egui_kittest::{Harness, kittest::Queryable};
 
 #[test]

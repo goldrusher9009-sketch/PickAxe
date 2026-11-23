@@ -1,11 +1,11 @@
-//! A small client for external MCP servers, so their tools can be offered as Craft Anything
+//! A small client for external MCP servers, so their tools can be offered as Pickaxe
 //! tools. Two transports implement [`Transport`]: a local server over stdio (newline-delimited
-//! JSON-RPC 2.0), run through `craft_anything_platform::process` like every external program and
+//! JSON-RPC 2.0), run through `pickaxe_platform::process` like every external program and
 //! killed when the client is dropped; and a remote server over Streamable HTTP (JSON or
 //! server-sent events in reply to each POST).
 
-use craft_anything_evidence::{ErrorCode, ToolError};
-use craft_anything_platform::process::{Process, RunningProcess, StdinMode};
+use pickaxe_evidence::{ErrorCode, ToolError};
+use pickaxe_platform::process::{Process, RunningProcess, StdinMode};
 use serde_json::{Value, json};
 use std::collections::BTreeMap;
 use std::io::{BufRead, Write};
@@ -100,7 +100,7 @@ impl McpClient {
         let started = client
             .request(
                 "initialize",
-                json!({"protocolVersion": PROTOCOL, "capabilities": {}, "clientInfo": {"name": "craft-anything", "version": env!("CARGO_PKG_VERSION")}}),
+                json!({"protocolVersion": PROTOCOL, "capabilities": {}, "clientInfo": {"name": "pickaxe", "version": env!("CARGO_PKG_VERSION")}}),
                 timeout,
                 &|| false,
             )
@@ -235,7 +235,7 @@ impl Stdio {
             return ToolError::new(ErrorCode::EngineMissing, format!("The {} plugin exited.", self.name)).with_remediation(fix);
         };
         let code = out.code.map(|c| format!(" with exit code {c}")).unwrap_or_default();
-        let printed = craft_anything_platform::process::output_excerpt(&out.end_text());
+        let printed = pickaxe_platform::process::output_excerpt(&out.end_text());
         let said = if printed.is_empty() { format!("It printed nothing. {fix}") } else { format!("What it printed last:\n{printed}\n\n{fix}") };
         ToolError::new(ErrorCode::EngineMissing, format!("The {} plugin exited{code}.", self.name))
             .with_remediation(said)
@@ -251,7 +251,7 @@ impl Transport for Stdio {
             // A stopped run keeps what it had printed in `details.partial`.
             Err(e) => e.details.as_ref()?.pointer("/partial/stderr_tail")?.as_str()?.to_string(),
         };
-        Some(craft_anything_platform::process::output_excerpt(&printed))
+        Some(pickaxe_platform::process::output_excerpt(&printed))
     }
 
     fn notify(&mut self, msg: &Value) -> Result<(), ToolError> {
@@ -348,7 +348,7 @@ impl Http {
             .https_only(self.https)
             .http_status_as_error(false)
             .max_redirects(0)
-            .user_agent("CraftAnything")
+            .user_agent("Pickaxe")
             .timeout_connect(Some(Duration::from_secs(20)));
         if !self.https {
             // Plain HTTP is allowed only to loopback, so no proxy may carry it off this computer.
@@ -656,7 +656,7 @@ pub fn url_allowed(url: &str) -> bool {
             !host.is_empty() && !host.contains(['[', ']']) && port.is_none_or(valid_port)
         }
     } else if scheme.eq_ignore_ascii_case("http") {
-        !auth.contains('+') && craft_anything_platform::standin_server::host_is_loopback(auth, None)
+        !auth.contains('+') && pickaxe_platform::standin_server::host_is_loopback(auth, None)
     } else {
         false
     }
@@ -705,7 +705,7 @@ mod tests {
 
     #[test]
     fn a_missing_server_is_a_clear_error() {
-        let cmd = ServerCommand { command: "craft-anything-no-such-server".into(), args: vec![], env: BTreeMap::new(), cwd: None };
+        let cmd = ServerCommand { command: "pickaxe-no-such-server".into(), args: vec![], env: BTreeMap::new(), cwd: None };
         let err = McpClient::start("demo", &cmd, Duration::from_secs(5)).err().unwrap();
         assert!(err.remediation.unwrap_or_default().contains("plugins.mcp"));
     }

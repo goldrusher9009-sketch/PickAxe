@@ -2,7 +2,7 @@
 //! rejection of undefined `BPF_X` jump/exit encodings (`0x0d`, `0x0e`, and `V1` `0x9d`), and
 //! preservation of Solana `V2` `return` (`0x9d`).
 
-use craft_anything_disasm::sbpf::{Flow, SbpfVersion, analyze, decode, decode_one, pseudo};
+use pickaxe_disasm::sbpf::{Flow, SbpfVersion, analyze, decode, decode_one, pseudo};
 
 /// Encode one 8-byte little-endian eBPF/sBPF instruction slot.
 fn slot(opcode: u8, dst: u8, src: u8, off: i16, imm: i32) -> [u8; 8] {

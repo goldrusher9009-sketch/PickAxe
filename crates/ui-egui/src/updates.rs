@@ -5,7 +5,7 @@ use craft_update::pins::{Choice, Pins};
 use craft_update::{App, Http, Paths, Platform, Release, Stop, self_update};
 use std::sync::mpsc::{Receiver, TryRecvError, channel};
 
-pub const APP: App = App::new("craft-anything", "Craft Anything", "Build and investigate apps", "storytold/craft-anything");
+pub const APP: App = App::new("pickaxe", "Pickaxe", "Build and investigate apps", "storytold/pickaxe");
 const VERSION: &str = env!("CARGO_PKG_VERSION");
 
 /// A pinned, nightly, or unknown launcher choice must never be replaced by a stable update.
@@ -13,7 +13,7 @@ fn stable_choice() -> Result<(), String> {
     if Pins::load_default().choice(APP.id) == Choice::Stable {
         Ok(())
     } else {
-        Err(tr("ArtCraft Launcher manages this app's version. Change its version there."))
+        Err(tr("the launcher manages this app's version. Change its version there."))
     }
 }
 
@@ -42,7 +42,7 @@ impl Updates {
     pub fn check(&mut self, ctx: &egui::Context) {
         self.check_using(ctx, || {
             let result = stable_choice()
-                .and_then(|()| Http::new(concat!("Craft Anything/", env!("CARGO_PKG_VERSION"))))
+                .and_then(|()| Http::new(concat!("Pickaxe/", env!("CARGO_PKG_VERSION"))))
                 .and_then(|http| craft_update::check_for_update(&APP, &http, VERSION));
             let installable = result
                 .as_ref()
@@ -79,7 +79,7 @@ impl Updates {
             let install =
                 self_update::current(&APP).ok_or(tr("This installation is managed externally. Update it with its package manager or open Releases."))?;
             let platform = Platform::current().ok_or(tr("No installer is available for this platform."))?;
-            let http = Http::new(concat!("Craft Anything/", env!("CARGO_PKG_VERSION")))?;
+            let http = Http::new(concat!("Pickaxe/", env!("CARGO_PKG_VERSION")))?;
             let paths = Paths::for_app(&APP)?;
             self_update::prepare_update(&APP, &install, &release, platform, &http, &paths, &Stop::default(), &mut |_| {}, &stable_choice, Some(VERSION))
         });
@@ -157,7 +157,7 @@ impl Updates {
                 .default_width(440.0)
                 .max_width((ctx.content_rect().width() - 32.0).max(160.0))
                 .show(ctx, |ui| {
-                    ui.label(format!("Craft Anything {VERSION}"));
+                    ui.label(format!("Pickaxe {VERSION}"));
                     ui.label(&self.message);
                     if !safe_to_install && self.release.is_some() {
                         ui.label(tr("Save your work and stop running tasks before installing an update."));
@@ -265,7 +265,7 @@ mod tests {
             tx.send(reply).expect("receiver");
             updates.worker = Some(rx);
             draw(&mut updates, true, false);
-            assert!(updates.message.contains("ArtCraft Launcher"));
+            assert!(updates.message.contains("the launcher"));
             assert!(updates.release.is_none());
             assert!(!updates.installable);
             assert!(finish_helper().is_none());

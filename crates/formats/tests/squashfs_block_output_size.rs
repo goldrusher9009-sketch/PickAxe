@@ -1,4 +1,4 @@
-use craft_anything_formats::fsread::{Limits, squashfs};
+use pickaxe_formats::fsread::{Limits, squashfs};
 
 fn put16(data: &mut [u8], at: usize, value: u16) {
     data[at..at + 2].copy_from_slice(&value.to_le_bytes());
@@ -74,20 +74,20 @@ fn unreadable(data: &[u8]) {
 #[test]
 fn short_first_blocks_cannot_shift_later_file_contents() {
     unreadable(&image(&[(vec![b'a'; 4095], true), (b"tail".to_vec(), true)], 4099));
-    unreadable(&image(&[(craft_anything_testkit::firmware::zlib(&vec![b'a'; 4095]), false), (b"tail".to_vec(), true)], 4099));
+    unreadable(&image(&[(pickaxe_testkit::firmware::zlib(&vec![b'a'; 4095]), false), (b"tail".to_vec(), true)], 4099));
 }
 
 #[test]
 fn short_or_long_final_blocks_are_not_reported_as_complete() {
     for length in [2, 4] {
         unreadable(&image(&[(vec![b'x'; length], true)], 3));
-        unreadable(&image(&[(craft_anything_testkit::firmware::zlib(&vec![b'x'; length]), false)], 3));
+        unreadable(&image(&[(pickaxe_testkit::firmware::zlib(&vec![b'x'; length]), false)], 3));
     }
 }
 
 #[test]
 fn exact_data_blocks_and_partial_sparse_tails_keep_their_offsets() {
-    for (first, raw) in [(vec![b'a'; 4096], true), (craft_anything_testkit::firmware::zlib(&vec![b'a'; 4096]), false)] {
+    for (first, raw) in [(vec![b'a'; 4096], true), (pickaxe_testkit::firmware::zlib(&vec![b'a'; 4096]), false)] {
         let result = squashfs::read(&image(&[(first, raw), (b"end".to_vec(), true)], 4099), &Limits::default());
         assert!(result.complete, "{:?}", result.warnings);
         let content = result.entries.iter().find(|e| e.path == "file").unwrap().data.as_ref().unwrap();

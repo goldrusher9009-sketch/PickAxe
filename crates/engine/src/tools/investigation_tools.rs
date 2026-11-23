@@ -10,8 +10,8 @@ use crate::journal;
 use crate::project::write_atomic;
 use crate::session::Session;
 use crate::tool::{Ctx, Effects, Requires, ToolOutput, ToolSpec, Toolset, empty_schema, parse_params, schema_of};
-use craft_anything_evidence::{Confidence, ErrorCode, ToolError};
-use craft_anything_platform::sync::Mutex;
+use pickaxe_evidence::{Confidence, ErrorCode, ToolError};
+use pickaxe_platform::sync::Mutex;
 use schemars::JsonSchema;
 use serde::{Deserialize, Serialize};
 use serde_json::{Value, json};
@@ -724,7 +724,7 @@ mod tests {
     use crate::{CallOptions, Caller, Engine};
     use serde_json::json;
 
-    fn call(e: &Engine, id: &str, p: serde_json::Value) -> Result<serde_json::Value, craft_anything_evidence::ToolError> {
+    fn call(e: &Engine, id: &str, p: serde_json::Value) -> Result<serde_json::Value, pickaxe_evidence::ToolError> {
         e.call(id, p, CallOptions::new(Caller::Agent)).map(|o| o.to_json())
     }
 
@@ -746,11 +746,11 @@ mod tests {
         session.project = Some(Project::create(&directory.path().join("project.cany"), "Test", Purpose::Education).unwrap());
         let cancel = crate::CancelToken::default();
         let guard = super::UpdateLock::acquire(&session, &cancel, std::time::Duration::ZERO).unwrap();
-        assert_eq!(super::UpdateLock::acquire(&session, &cancel, std::time::Duration::ZERO).err().unwrap().code, craft_anything_evidence::ErrorCode::TimedOut);
+        assert_eq!(super::UpdateLock::acquire(&session, &cancel, std::time::Duration::ZERO).err().unwrap().code, pickaxe_evidence::ErrorCode::TimedOut);
         cancel.cancel();
         assert_eq!(
             super::UpdateLock::acquire(&session, &cancel, std::time::Duration::from_secs(10)).err().unwrap().code,
-            craft_anything_evidence::ErrorCode::Cancelled
+            pickaxe_evidence::ErrorCode::Cancelled
         );
         drop(guard);
         assert!(super::UpdateLock::acquire(&session, &crate::CancelToken::default(), std::time::Duration::ZERO).is_ok());
@@ -769,7 +769,7 @@ mod tests {
         std::fs::write(&path, b"not-json").unwrap();
         assert_eq!(
             call(&engine, "core_brief_write", json!({"question":"Do not replace"})).unwrap_err().code,
-            craft_anything_evidence::ErrorCode::GarbledOutput
+            pickaxe_evidence::ErrorCode::GarbledOutput
         );
         assert_eq!(std::fs::read(&path).unwrap(), b"not-json");
         assert_eq!(std::fs::read(path.with_file_name("brief.md")).unwrap(), rendered);
@@ -792,7 +792,7 @@ mod tests {
             let result = call(&engine, "core_plan_update", json!({"steps":[{"title":label,"status":"todo"}],"based_on_revision":0}));
             let outcome = match result {
                 Ok(_) => "ok",
-                Err(error) if error.code == craft_anything_evidence::ErrorCode::StaleRevision => "stale",
+                Err(error) if error.code == pickaxe_evidence::ErrorCode::StaleRevision => "stale",
                 Err(error) => panic!("{error:?}"),
             };
             std::fs::write(root.join(format!("{label}.result")), outcome).unwrap();
@@ -809,7 +809,7 @@ mod tests {
                 .map(|label| {
                     let root = project.root.clone();
                     std::thread::spawn(move || {
-                        craft_anything_platform::Process::new(std::env::current_exe().unwrap())
+                        pickaxe_platform::Process::new(std::env::current_exe().unwrap())
                             .args(["--exact", "tools::investigation_tools::tests::project_writer_child", "--test-threads=1"])
                             .env("CRAFT_TEST_INV_PROJECT", &root)
                             .env("CRAFT_TEST_INV_LABEL", label)
@@ -844,7 +844,7 @@ mod tests {
 
     #[test]
     fn finding_corrections_keep_their_id_and_reject_stale_revisions() {
-        use craft_anything_evidence::{Confidence, Environment, EvidenceBuilder, Subject};
+        use pickaxe_evidence::{Confidence, Environment, EvidenceBuilder, Subject};
         let engine = Engine::new(crate::testing::session());
         let evidence = EvidenceBuilder::new("test-observation", Subject { kind: "test".into(), sha256: None, name: None }, Environment::builtin(true))
             .result(json!({"value": 1}))
@@ -861,7 +861,7 @@ mod tests {
         let investigation = call(&engine, "core_investigation_show", json!({})).unwrap();
         assert_eq!(investigation["result"]["findings"].as_array().unwrap().len(), 1);
         assert_eq!(investigation["result"]["findings"][0]["statement"], "corrected");
-        assert_eq!(call(&engine, "core_finding_edit", edit).unwrap_err().code, craft_anything_evidence::ErrorCode::StaleRevision);
+        assert_eq!(call(&engine, "core_finding_edit", edit).unwrap_err().code, pickaxe_evidence::ErrorCode::StaleRevision);
         for (confidence, expected) in [("observed", Confidence::Observed), ("derived", Confidence::Derived), ("inferred", Confidence::Inferred)] {
             call(
                 &engine,
@@ -877,7 +877,7 @@ mod tests {
 
     #[test]
     fn shared_projects_preserve_memory_and_refresh_an_external_writers_findings() {
-        use craft_anything_evidence::{Confidence, Environment, EvidenceBuilder, Subject};
+        use pickaxe_evidence::{Confidence, Environment, EvidenceBuilder, Subject};
         let directory = tempfile::tempdir().unwrap();
         let engine = Engine::new(crate::session::Session::isolated(directory.path()));
         let evidence = EvidenceBuilder::new("test-shared", Subject { kind: "test".into(), sha256: None, name: None }, Environment::builtin(true))
@@ -947,7 +947,7 @@ mod tests {
         assert_eq!(inv["result"]["handoff"], "next: check the loader");
         let rev = inv["result"]["revision"].as_u64().unwrap();
         let err = call(&e, "core_plan_update", json!({"steps": [], "based_on_revision": rev + 7})).unwrap_err();
-        assert_eq!(err.code, craft_anything_evidence::ErrorCode::StaleRevision);
+        assert_eq!(err.code, pickaxe_evidence::ErrorCode::StaleRevision);
         assert!(call(&e, "core_journal_read", json!({})).is_err());
     }
 

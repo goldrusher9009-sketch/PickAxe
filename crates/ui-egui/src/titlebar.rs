@@ -7,7 +7,7 @@ use crate::i18n::tr;
 use crate::state::Screen;
 use crate::theme::{self, Tokens};
 use crate::{CraftApp, icons, widgets};
-use craft_anything_engine::Mode;
+use pickaxe_engine::Mode;
 use egui::viewport::ResizeDirection;
 use egui::{RichText, Ui, Vec2};
 
@@ -155,7 +155,7 @@ pub fn show(app: &mut CraftApp, ui: &mut Ui) {
         if ui.add(crate::app_icon(22.0 * s).sense(egui::Sense::click())).on_hover_text(tr("Home")).clicked() {
             app.state.screen = Screen::Home;
         }
-        ui.label(theme::label_text("Craft Anything", theme::LABEL * s).color(t.text).strong());
+        ui.label(theme::label_text("Pickaxe", theme::LABEL * s).color(t.text).strong());
         let in_project = app.state.screen == Screen::Project;
         let project = if in_project { app.workspace.as_ref().map(|w| w.manifest.name.clone()) } else { app.view.project.clone() };
         let target = if in_project { None } else { app.view.active_target().map(|t| (t.name.clone(), t.kind)) };
@@ -259,7 +259,7 @@ fn usage_pill(app: &CraftApp, ui: &mut Ui) {
     r.widget_info(|| egui::WidgetInfo::labeled(egui::WidgetType::Label, true, &text));
     r.on_hover_ui(|ui| {
         ui.label(RichText::new(tr("AI use this session")).font(theme::semibold(theme::SMALL)));
-        ui.label(crate::usage::explain(u, "Since Craft Anything opened."));
+        ui.label(crate::usage::explain(u, "Since Pickaxe opened."));
     });
 }
 

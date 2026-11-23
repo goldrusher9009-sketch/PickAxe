@@ -3,7 +3,7 @@
 //! code such as `queue.push([[1], { callback: () => 42 }])` made a webpack module and named the
 //! file a webpack bundle.
 
-use craft_anything_js::{Analysis, Limits, ParseMode, analyze};
+use pickaxe_js::{Analysis, Limits, ParseMode, analyze};
 
 fn parsed(src: &str) -> Analysis {
     let analysis = analyze("app.js", src, &Limits::default());

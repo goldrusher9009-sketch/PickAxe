@@ -6,7 +6,7 @@ use crate::i18n::tr;
 use crate::state::{BottomTab, CenterTab, Fill, RailKind, RightTab};
 use crate::theme::{self, Tokens};
 use crate::{CraftApp, Pick, Route, chat, icons, widgets};
-use craft_anything_engine::Consent;
+use pickaxe_engine::Consent;
 use egui::{Margin, RichText, Ui, Vec2};
 use serde_json::{Value, json};
 
@@ -714,7 +714,7 @@ fn result_view(app: &mut CraftApp, ui: &mut Ui) {
     }
 }
 
-fn evidence_view(ui: &mut Ui, e: &craft_anything_engine::evidence::Evidence, t: &Tokens) {
+fn evidence_view(ui: &mut Ui, e: &pickaxe_engine::evidence::Evidence, t: &Tokens) {
     egui::ScrollArea::vertical().auto_shrink([false, false]).show(ui, |ui| {
         evidence_ui::proof_card(ui, e, true, false);
         ui.add_space(theme::space::MD);
@@ -861,9 +861,9 @@ fn unknowns(app: &mut CraftApp, ui: &mut Ui) {
                 ui.horizontal(|ui| {
                     let sev = format!("{:?}", u.severity);
                     let col = match u.severity {
-                        craft_anything_engine::evidence::Severity::Critical | craft_anything_engine::evidence::Severity::High => t.danger,
-                        craft_anything_engine::evidence::Severity::Medium => t.warning,
-                        craft_anything_engine::evidence::Severity::Low => t.text_dim,
+                        pickaxe_engine::evidence::Severity::Critical | pickaxe_engine::evidence::Severity::High => t.danger,
+                        pickaxe_engine::evidence::Severity::Medium => t.warning,
+                        pickaxe_engine::evidence::Severity::Low => t.text_dim,
                     };
                     widgets::pill(ui, &sev, col, t.raised);
                     widgets::pill(ui, &format!("{:?}", u.status), t.text_dim, t.raised);
@@ -991,12 +991,12 @@ mod tests {
 
     #[test]
     fn recorded_findings_render_even_without_evidence_rows() {
-        let mut app = crate::demo::app(crate::demo::engine(craft_anything_engine::Mode::Beginner, false));
-        app.view.findings = vec![craft_anything_engine::tools::investigation_tools::Finding {
+        let mut app = crate::demo::app(crate::demo::engine(pickaxe_engine::Mode::Beginner, false));
+        app.view.findings = vec![pickaxe_engine::tools::investigation_tools::Finding {
             id: "fnd_1".into(),
             statement: "A recorded answer from the shared investigation".into(),
             evidence_ids: Vec::new(),
-            confidence: craft_anything_engine::evidence::Confidence::Observed,
+            confidence: pickaxe_engine::evidence::Confidence::Observed,
         }];
         app.view.ledger.clear();
         let context = egui::Context::default();

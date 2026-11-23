@@ -1,4 +1,4 @@
-use craft_anything_formats::sourcemap::find_source_mapping_url;
+use pickaxe_formats::sourcemap::find_source_mapping_url;
 
 /// An unfinished block hint cannot override an earlier complete annotation.
 #[test]

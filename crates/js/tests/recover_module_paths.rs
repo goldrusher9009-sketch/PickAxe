@@ -1,8 +1,8 @@
 //! Regression tests for `recover::safe_module_path` single-scheme stripping and
 //! extension-preserving collision deduplication in `recover::recover_modules`.
 
-use craft_anything_js::BundleModule;
-use craft_anything_js::recover::{RewriteLevel, recover_modules, safe_module_path};
+use pickaxe_js::BundleModule;
+use pickaxe_js::recover::{RewriteLevel, recover_modules, safe_module_path};
 use std::collections::HashSet;
 
 fn synthetic_module(id: &str, hash: &str, len: u32) -> BundleModule {
@@ -59,7 +59,7 @@ fn duplicate_non_js_and_double_js_modules_preserve_stem_and_extension() {
         synthetic_module("foo.js.js", "ffffffff66666666", len),
     ];
 
-    let recovered = recover_modules(source, &modules, RewriteLevel::None, &craft_anything_js::Limits::default());
+    let recovered = recover_modules(source, &modules, RewriteLevel::None, &pickaxe_js::Limits::default());
     let paths: Vec<&str> = recovered.iter().map(|m| m.file_name.as_str()).collect();
     assert_eq!(
         paths,
@@ -79,7 +79,7 @@ fn repeated_collisions_on_non_js_extensions_remain_distinct() {
         synthetic_module("view.01234567.tsx", "0123456789abcdef", len),
     ];
 
-    let recovered = recover_modules(source, &modules, RewriteLevel::None, &craft_anything_js::Limits::default());
+    let recovered = recover_modules(source, &modules, RewriteLevel::None, &pickaxe_js::Limits::default());
     let unique: HashSet<&str> = recovered.iter().map(|m| m.file_name.as_str()).collect();
     assert_eq!(unique.len(), recovered.len());
     assert_eq!(recovered[0].file_name, "view.tsx");

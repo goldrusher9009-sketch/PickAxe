@@ -1,5 +1,5 @@
-use craft_anything_formats::pcap::summarize;
-use craft_anything_testkit::pcap::{block, pcapng, sample_frames};
+use pickaxe_formats::pcap::summarize;
+use pickaxe_testkit::pcap::{block, pcapng, sample_frames};
 
 #[test]
 fn mismatched_block_footers_stop_the_capture_with_a_warning() {

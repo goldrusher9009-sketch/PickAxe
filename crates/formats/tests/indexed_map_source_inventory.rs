@@ -1,4 +1,4 @@
-use craft_anything_formats::sourcemap::{InventoryLimits, Limits, parse, parse_sources};
+use pickaxe_formats::sourcemap::{InventoryLimits, Limits, parse, parse_sources};
 
 /// Only real section sources use inventory slots, and each map keeps its own root.
 #[test]

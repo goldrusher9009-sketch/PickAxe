@@ -323,7 +323,7 @@ pub fn layout(pixel_format: &str) -> Option<Layout> {
 #[cfg(test)]
 mod tests {
     use super::*;
-    use craft_anything_testkit::games::unreal_texture_package;
+    use pickaxe_testkit::games::unreal_texture_package;
 
     #[test]
     fn reads_a_cooked_texture_package() {

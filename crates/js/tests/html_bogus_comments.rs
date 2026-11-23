@@ -1,4 +1,4 @@
-use craft_anything_js::html::scan_html;
+use pickaxe_js::html::scan_html;
 
 /// Malformed declarations and end tags consume apparent markup through the next greater-than sign.
 #[test]

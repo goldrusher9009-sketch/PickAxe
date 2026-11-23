@@ -1,4 +1,4 @@
-use craft_anything_formats::dotnet::cil::{Operand, decode};
+use pickaxe_formats::dotnet::cil::{Operand, decode};
 
 fn rejected(code: &[u8]) {
     let (instructions, issue) = decode(code, 100);

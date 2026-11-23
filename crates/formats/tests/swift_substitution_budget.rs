@@ -1,4 +1,4 @@
-use craft_anything_formats::swift_demangle::{Status, demangle};
+use pickaxe_formats::swift_demangle::{Status, demangle};
 
 fn rejects_expansion(symbol: &str) {
     let result = demangle(symbol);

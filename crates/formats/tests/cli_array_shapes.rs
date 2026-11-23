@@ -1,10 +1,10 @@
-use craft_anything_formats::dotnet::{
+use pickaxe_formats::dotnet::{
     self,
     sig::{Cur, GenCtx, Names},
 };
 
 fn type_name(signature: &[u8]) -> Option<String> {
-    let bytes = craft_anything_testkit::managed::managed_assembly(1);
+    let bytes = pickaxe_testkit::managed::managed_assembly(1);
     let assembly = dotnet::open(&bytes).unwrap();
     Names::new(&assembly.md).ty(&mut Cur::new(signature), &GenCtx::default(), 0)
 }
@@ -37,7 +37,7 @@ fn nested_array_kinds_keep_their_order() {
 
 #[test]
 fn signature_projections_keep_the_same_array_shape() {
-    let bytes = craft_anything_testkit::managed::managed_assembly(1);
+    let bytes = pickaxe_testkit::managed::managed_assembly(1);
     let assembly = dotnet::open(&bytes).unwrap();
     let names = Names::new(&assembly.md);
     let g = GenCtx::default();

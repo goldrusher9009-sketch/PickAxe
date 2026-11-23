@@ -1,4 +1,4 @@
-use craft_anything_formats::ai_model;
+use pickaxe_formats::ai_model;
 use serde_json::json;
 
 fn safetensors(shape: &[u64], data_bytes: usize) -> Vec<u8> {

@@ -1,4 +1,4 @@
-//! The Craft Anything engine: one session, one registry of tools, one way in.
+//! The Pickaxe engine: one session, one registry of tools, one way in.
 //!
 //! The desktop UI, the CLI, the MCP server and the built-in AI agent all call [`Engine::call`]
 //! with a tool id and JSON params. The engine checks availability and consent, runs the tool,
@@ -41,15 +41,15 @@ pub mod versioned;
 pub mod wasm_plugins;
 pub mod workspace;
 
-pub use craft_anything_evidence as evidence;
+pub use pickaxe_evidence as evidence;
 pub use registry::Registry;
 pub use session::Session;
 pub use settings::{Mode, Settings};
 pub use target::{Target, TargetKind};
 pub use tool::{AGENT_ENV, Caller, CancelToken, Ctx, Effects, Progress, Requires, ToolOutput, ToolSpec, Toolset};
 
-use craft_anything_evidence::{ErrorCode, ToolError};
-use craft_anything_platform::sync::{Mutex, MutexGuard};
+use pickaxe_evidence::{ErrorCode, ToolError};
+use pickaxe_platform::sync::{Mutex, MutexGuard};
 use serde_json::Value;
 use std::sync::PoisonError;
 
@@ -120,7 +120,7 @@ pub struct Engine {
     /// Sign-in evidence that couldn't reach the ledger because Stop came while another tool held
     /// the session, with the project root it belongs to. Taken in whenever the session is next
     /// locked (see [`Engine::settle`]). Locked only briefly, and never while waiting for the session.
-    pending: Mutex<Vec<(Option<std::path::PathBuf>, craft_anything_evidence::Evidence)>>,
+    pending: Mutex<Vec<(Option<std::path::PathBuf>, pickaxe_evidence::Evidence)>>,
 }
 
 /// A handle to the engine a tool runs in, for tools that start work which calls back into it (a
@@ -230,7 +230,7 @@ impl Engine {
                     });
                     let names = names.collect::<Vec<_>>().join(" or ");
                     Availability::no(
-                        format!("This needs {names} and is not available on this host ({}).", craft_anything_evidence::host_triple()),
+                        format!("This needs {names} and is not available on this host ({}).", pickaxe_evidence::host_triple()),
                         format!("Run it on {names}."),
                     )
                 }
@@ -273,7 +273,7 @@ impl Engine {
 
     fn call_inner(&self, id: &str, params: Value, opts: CallOptions<'_>, journal_at: &mut JournalAt) -> Result<ToolOutput, ToolError> {
         let spec = *self.registry.get(id).ok_or_else(|| {
-            ToolError::invalid(format!("No tool named {id}")).with_remediation("List tools with `craft-anything-cli commands` or the command palette.")
+            ToolError::invalid(format!("No tool named {id}")).with_remediation("List tools with `pickaxe-cli commands` or the command palette.")
         })?;
         // Stop works while waiting for the session, and a holder that looks stuck is an error here,
         // not a wait forever. Tools are long jobs: the label says so (they have their own deadlines).
@@ -284,8 +284,8 @@ impl Engine {
                 self.settle(&mut g);
                 g
             }
-            Err(craft_anything_platform::sync::GaveUp::Stopped) => return Err(ToolError::cancelled()),
-            Err(craft_anything_platform::sync::GaveUp::Stuck(why)) => {
+            Err(pickaxe_platform::sync::GaveUp::Stopped) => return Err(ToolError::cancelled()),
+            Err(pickaxe_platform::sync::GaveUp::Stuck(why)) => {
                 return Err(ToolError::new(ErrorCode::TimedOut, format!("{} couldn't start because another part of the app is stuck.", spec.title))
                     .with_remediation("Restart the app; your work is kept.")
                     .with_details(serde_json::json!({"lock": why})));
@@ -620,7 +620,7 @@ mod tests {
         let e = Engine::new(crate::testing::session());
         for spec in e.registry().all() {
             if let Requires::Engine(id) = spec.requires {
-                assert!(craft_anything_engines::engine(id).is_some(), "{} needs unknown engine {id:?}", spec.id);
+                assert!(pickaxe_engines::engine(id).is_some(), "{} needs unknown engine {id:?}", spec.id);
             }
         }
     }

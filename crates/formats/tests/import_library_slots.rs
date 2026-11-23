@@ -1,5 +1,5 @@
-use craft_anything_formats::parse_binary;
-use craft_anything_testkit::{Buf, PE_BASE, PE_IAT_RVA, pe64, program_facts::elf_versioned_library};
+use pickaxe_formats::parse_binary;
+use pickaxe_testkit::{Buf, PE_BASE, PE_IAT_RVA, pe64, program_facts::elf_versioned_library};
 
 fn same_named_imports(second_library: &[u8]) -> Vec<u8> {
     let mut data = pe64();

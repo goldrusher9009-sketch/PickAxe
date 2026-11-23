@@ -2,8 +2,8 @@
 //! low-bit (`addr | 1`) normalization across noreturn symbols, exports, stripped entry points,
 //! and data-section function pointers.
 
-use craft_anything_disasm::{Image, Limits, Mode, NoControl, Program, Xref, XrefKind};
-use craft_anything_formats::{Arch, Binary, Export, Format, Section, Symbol, SymbolKind};
+use pickaxe_disasm::{Image, Limits, Mode, NoControl, Program, Xref, XrefKind};
+use pickaxe_formats::{Arch, Binary, Export, Format, Section, Symbol, SymbolKind};
 use std::sync::Arc;
 
 /// Build a synthetic two-section (`.text` at `0x1000`, `.data` at `0x2000`) image for `arch`.

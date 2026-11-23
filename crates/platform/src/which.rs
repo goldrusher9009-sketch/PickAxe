@@ -277,12 +277,12 @@ pub fn which_in(name: &str, path: Option<OsString>) -> Vec<PathBuf> {
     out
 }
 
-/// File name of the command-line binary (`craft-anything-cli`, plus `.exe` on Windows).
+/// File name of the command-line binary (`pickaxe-cli`, plus `.exe` on Windows).
 pub fn cli_file_name() -> String {
-    format!("craft-anything-cli{}", std::env::consts::EXE_SUFFIX)
+    format!("pickaxe-cli{}", std::env::consts::EXE_SUFFIX)
 }
 
-/// Absolute path of the installed `craft-anything-cli`: this executable when it is the CLI, else
+/// Absolute path of the installed `pickaxe-cli`: this executable when it is the CLI, else
 /// a sibling of this executable (the desktop app ships next to it), else the first one on `PATH`.
 pub fn self_cli_path() -> Option<PathBuf> {
     // The prefix is dropped from the path found, not from this executable's: a sibling is longer,
@@ -314,7 +314,7 @@ fn find_cli() -> Option<PathBuf> {
             }
         }
     }
-    which("craft-anything-cli")
+    which("pickaxe-cli")
 }
 
 /// `target/<profile>` for a test binary in Cargo's newer build-dir layout (Rust 1.100), which puts
@@ -407,7 +407,7 @@ mod tests {
     /// the CLI one level up wasn't there any more and every test that starts the helper failed.
     #[test]
     fn the_cli_is_found_from_cargos_newer_test_binary_folder() {
-        let out = Path::new("/w/target/debug/build/craft-anything-ai/8138ba20ac4e84fe/out");
+        let out = Path::new("/w/target/debug/build/pickaxe-ai/8138ba20ac4e84fe/out");
         assert_eq!(new_layout_profile_dir(out), Some(Path::new("/w/target/debug")));
         for other in ["/w/target/debug/deps", "/w/target/debug/build/ring/9ac8/out/x", "/w/target/debug/elsewhere/p/h/out", "/opt/app", "/out"] {
             assert_eq!(new_layout_profile_dir(Path::new(other)), None, "{other}");
@@ -416,7 +416,7 @@ mod tests {
 
     #[test]
     fn plain_form_drops_the_extended_length_prefix_only_when_it_names_the_same_file() {
-        assert_eq!(plain_form(r"\\?\C:\Apps\craft-anything-cli.exe").as_deref(), Some(r"C:\Apps\craft-anything-cli.exe"));
+        assert_eq!(plain_form(r"\\?\C:\Apps\pickaxe-cli.exe").as_deref(), Some(r"C:\Apps\pickaxe-cli.exe"));
         assert_eq!(plain_form(r"\\?\UNC\server\share\bin\cli.exe").as_deref(), Some(r"\\server\share\bin\cli.exe"));
         // Not extended-length, or not a drive or UNC path behind the prefix: left alone.
         for p in [

@@ -2,9 +2,9 @@
 //! walkthrough capture, or a HAR), planning a collision-free file layout for export, and mapping
 //! generated positions back to original sources through source maps.
 
-use craft_anything_evidence::sha256_hex;
-use craft_anything_formats::har;
-use craft_anything_formats::sourcemap::{self, SourceMap, base64_decode};
+use pickaxe_evidence::sha256_hex;
+use pickaxe_formats::har;
+use pickaxe_formats::sourcemap::{self, SourceMap, base64_decode};
 use serde::{Deserialize, Serialize};
 use serde_json::{Value, json};
 use std::collections::BTreeSet;
@@ -175,7 +175,7 @@ struct LayoutCandidate {
 /// Plan where each script goes. Same URL path seen twice (query variants, different content)
 /// gets a content-hash suffix and a stated reason.
 pub fn plan_layout(scripts: &[CapturedScript]) -> Vec<PlannedFile> {
-    use craft_anything_js::recover::{ancestor_dir_keys, module_path_key};
+    use pickaxe_js::recover::{ancestor_dir_keys, module_path_key};
 
     let candidates: Vec<LayoutCandidate> = scripts
         .iter()

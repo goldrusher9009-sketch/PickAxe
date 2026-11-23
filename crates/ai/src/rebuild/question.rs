@@ -16,7 +16,7 @@
 use super::*;
 use crate::agent::{EngineHost, LoopConfig, ReadOnlyHost};
 use crate::cli_agents::CliSpec;
-use craft_anything_engine::Toolset;
+use pickaxe_engine::Toolset;
 use serde::Serialize;
 use std::time::{Duration, Instant, SystemTime};
 
@@ -32,7 +32,7 @@ const SCAN_DEPTH: usize = 12;
 /// Folders a build makes again, never listed.
 const SKIPPED: &[&str] = &["node_modules", "target", ".godot", "Library", "Temp", "obj", ".venv", "__pycache__", ".next", ".turbo", ".git"];
 
-const PREAMBLE: &str = "You're answering a question the person asked about the project you built inside Craft Anything. This isn't a task: answer it and stop. Don't create, change or delete any file, don't run anything, and don't carry on the build; if the answer is that something should change, say what you'd change and that they can ask for it as a change. Answer in plain words for someone who doesn't code, briefly, with full paths when they ask where something is. You're a short-lived copy with fewer tools than the builder, and the build may still be running beside you. So a tool you can't see here is not a tool the build has lost, and a call with no result here may still be running: never report tools as disconnected or work as cut off because of what you see from here.\n\n";
+const PREAMBLE: &str = "You're answering a question the person asked about the project you built inside Pickaxe. This isn't a task: answer it and stop. Don't create, change or delete any file, don't run anything, and don't carry on the build; if the answer is that something should change, say what you'd change and that they can ask for it as a change. Answer in plain words for someone who doesn't code, briefly, with full paths when they ask where something is. You're a short-lived copy with fewer tools than the builder, and the build may still be running beside you. So a tool you can't see here is not a tool the build has lost, and a call with no result here may still be running: never report tools as disconnected or work as cut off because of what you see from here.\n\n";
 
 /// How a question was answered.
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Serialize)]
@@ -83,7 +83,7 @@ pub fn cannot_answer<'a>(backends: &'a [crate::BackendConfig], saved: Option<&st
 /// the UI thread.
 pub fn ask(
     hub: &AiHub,
-    settings: &craft_anything_engine::Settings,
+    settings: &pickaxe_engine::Settings,
     logs: Option<std::path::PathBuf>,
     ws: &Workspace,
     question: &str,
@@ -134,7 +134,7 @@ pub fn ask(
         }
         _ => {
             // An engine of its own, pointed at this project, so a build running meanwhile keeps its.
-            let engine = Arc::new(Engine::new(craft_anything_engine::Session::new(settings.clone())));
+            let engine = Arc::new(Engine::new(pickaxe_engine::Session::new(settings.clone())));
             engine.session().ext.insert(Arc::new(InboxDir(ws.inbox_dir())));
             let host = Arc::new(ReadOnlyHost(EngineHost(engine)));
             let slot = hub.build_model(&entry)?;
@@ -416,7 +416,7 @@ mod tests {
             if let Some(baseline) = baseline {
                 std::fs::write(d.path().join("claude-session-costs.json"), format!("{{\"version\":1,\"totals\":{{\"deep-session\":{baseline}}}}}")).unwrap();
             }
-            let engine = Arc::new(Engine::new(craft_anything_engine::testing::session()));
+            let engine = Arc::new(Engine::new(pickaxe_engine::testing::session()));
             let hub = AiHub::with_stores(engine, d.path().join("settings.toml"), KeyStore::file_only(d.path().join("keys.toml")));
             let mut cfg = hub.config();
             cfg.upsert(BackendEntry {

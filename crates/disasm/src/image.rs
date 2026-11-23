@@ -3,7 +3,7 @@
 
 use crate::DisasmError;
 use crate::decode::{Insn, Mode, decode};
-use craft_anything_formats::{Arch, Binary, Format, SymbolKind};
+use pickaxe_formats::{Arch, Binary, Format, SymbolKind};
 use std::collections::BTreeMap;
 use std::sync::Arc;
 
@@ -62,7 +62,7 @@ pub fn mode_for(bin: &Binary) -> Option<Mode> {
 impl Image {
     /// Parse any supported container.
     pub fn parse(data: Arc<[u8]>) -> Result<Image, DisasmError> {
-        let bin = craft_anything_formats::parse_binary(&data).map_err(DisasmError::Format)?;
+        let bin = pickaxe_formats::parse_binary(&data).map_err(DisasmError::Format)?;
         Ok(Image::from_binary(data, bin))
     }
 
@@ -73,7 +73,7 @@ impl Image {
 
     /// A DOS .COM program (16-bit, loaded at 0x100).
     pub fn dos_com(data: Arc<[u8]>) -> Result<Image, DisasmError> {
-        let bin = craft_anything_formats::dos::com_binary(&data).map_err(DisasmError::Format)?;
+        let bin = pickaxe_formats::dos::com_binary(&data).map_err(DisasmError::Format)?;
         Ok(Image::from_binary(data, bin))
     }
 

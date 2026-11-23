@@ -1,4 +1,4 @@
-//! Plugins: external MCP servers whose tools become Craft Anything tools, each server its own
+//! Plugins: external MCP servers whose tools become Pickaxe tools, each server its own
 //! toolset. A server is listed in `config.toml`:
 //!
 //! ```toml
@@ -24,9 +24,9 @@
 use crate::registry::{RuntimeTool, custom_toolset};
 use crate::session::Session;
 use crate::tool::{Ctx, Effects, Requires, ToolOutput};
-use craft_anything_engines::mcp_client::{McpClient, RemoteTool, Server, ServerCommand, ServerUrl, content_text, url_allowed};
-use craft_anything_evidence::{Authority, Confidence, Environment, ErrorCode, EvidenceBuilder, Subject, ToolError};
-use craft_anything_platform::sync::Mutex;
+use pickaxe_engines::mcp_client::{McpClient, RemoteTool, Server, ServerCommand, ServerUrl, content_text, url_allowed};
+use pickaxe_evidence::{Authority, Confidence, Environment, ErrorCode, EvidenceBuilder, Subject, ToolError};
+use pickaxe_platform::sync::Mutex;
 use serde::{Deserialize, Serialize};
 use serde_json::{Value, json};
 use std::collections::{BTreeMap, HashMap};
@@ -256,7 +256,7 @@ fn logged(p: &McpPlugin, config: &std::path::Path, e: ToolError) -> ToolError {
         return e;
     }
     // An argument can carry a key where no flag names it (`https://…/mcp?token=…`).
-    let command = crate::journal::scrubbed_line(&craft_anything_platform::process::printable_command(std::ffi::OsStr::new(&cmd.command), &cmd.args));
+    let command = crate::journal::scrubbed_line(&pickaxe_platform::process::printable_command(std::ffi::OsStr::new(&cmd.command), &cmd.args));
     let detail = |k: &str| e.details.as_ref().and_then(|d| d.get(k)).cloned();
     let report = crate::failure_log::Report {
         what: format!("The {} plugin (an MCP server) didn't start", p.display_name()),
@@ -310,7 +310,7 @@ fn call_plugin(ctx: &mut Ctx<'_>, params: Value) -> Result<ToolOutput, ToolError
         clean_room: ctx.session.clean_room(),
         engine: format!("plugin:{}", plugin.id),
         engine_version: None,
-        host: craft_anything_evidence::host_triple(),
+        host: pickaxe_evidence::host_triple(),
         language_id: None,
     };
     let e = EvidenceBuilder::new(ctx.tool, Subject { kind: "plugin".into(), sha256: None, name: Some(plugin.display_name().to_string()) }, env)
@@ -393,7 +393,7 @@ mod tests {
     fn a_plugin_that_cant_start_names_its_log_and_a_remote_one_writes_none() {
         let config = tempfile::tempdir().unwrap();
         let args = vec!["--url".to_string(), "https://mcp.example.test/mcp?token=plainsecretvalue42".to_string()];
-        let e = refresh(&McpPlugin { args, ..plugin("craft-anything-no-such-plugin-server") }, config.path()).unwrap_err();
+        let e = refresh(&McpPlugin { args, ..plugin("pickaxe-no-such-plugin-server") }, config.path()).unwrap_err();
         assert!(e.remediation.unwrap_or_default().contains("The details are in"), "a missing program is logged too");
         let logs: Vec<_> = std::fs::read_dir(crate::failure_log::dir_in(config.path())).unwrap().flatten().map(|f| f.path()).collect();
         let log = std::fs::read_to_string(&logs[0]).unwrap();

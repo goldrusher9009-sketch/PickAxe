@@ -206,7 +206,7 @@ fn python_package_script(app: &Path, bin: &Path) -> Option<PathBuf> {
 /// case-insensitive, as the JAR specification has them.
 fn runnable_jar(jar: &Path) -> bool {
     let Ok(mut file) = std::fs::File::open(jar) else { return false };
-    let manifest = craft_anything_formats::zip_file::read_named_entry(&mut file, "META-INF/MANIFEST.MF", 1 << 20);
+    let manifest = pickaxe_formats::zip_file::read_named_entry(&mut file, "META-INF/MANIFEST.MF", 1 << 20);
     let manifest = manifest.ok().flatten().map(|m| crate::tools::java_tools::parse_manifest(&m)).unwrap_or_default();
     manifest.iter().any(|(name, class)| name.eq_ignore_ascii_case("Main-Class") && !class.is_empty())
 }
@@ -295,7 +295,7 @@ mod tests {
     /// wrapper. A plain library jar beside it isn't a second choice.
     #[test]
     fn java_launch_uses_the_one_runnable_jar() {
-        let jar = |manifest: &str| craft_anything_testkit::electron::zip_stored(&[("META-INF/MANIFEST.MF", manifest.as_bytes())]);
+        let jar = |manifest: &str| pickaxe_testkit::electron::zip_stored(&[("META-INF/MANIFEST.MF", manifest.as_bytes())]);
         let runnable = jar("Manifest-Version: 1.0\r\nMain-Class: app.Main\r\n\r\n");
         let library = jar("Manifest-Version: 1.0\r\n\r\n");
         for (marker, folder) in [("pom.xml", "target"), ("build.gradle", "build/libs")] {

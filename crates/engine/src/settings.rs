@@ -1,7 +1,7 @@
 //! User settings (`config.toml`). No environment variables are required for anything.
 
 use crate::versioned::{Step, upgrade};
-use craft_anything_evidence::{ErrorCode, ToolError};
+use pickaxe_evidence::{ErrorCode, ToolError};
 use serde::{Deserialize, Serialize};
 use std::path::{Path, PathBuf};
 use std::time::Duration;
@@ -37,7 +37,7 @@ pub struct GhidraSettings {
 
 /// One list for the per-engine path overrides: it declares the `ToolPaths` fields, `override_for`,
 /// and the list the Engines settings page shows. The ids and their order are exactly the engines in
-/// `craft_anything_engines::ENGINES` that have a path setting (a test checks it).
+/// `pickaxe_engines::ENGINES` that have a path setting (a test checks it).
 macro_rules! tool_paths {
     ($($id:ident),* $(,)?) => {
         /// Paths to external tools when the user prefers their own install over the managed one.
@@ -54,7 +54,7 @@ macro_rules! tool_paths {
             }
         }
 
-        impl craft_anything_engines::ToolPathLookup for ToolPaths {
+        impl pickaxe_engines::ToolPathLookup for ToolPaths {
             fn override_for(&self, id: &str) -> Option<PathBuf> {
                 match id {
                     $(stringify!($id) => self.$id.clone(),)*
@@ -120,7 +120,7 @@ pub struct Settings {
     pub runtime_study: bool,
     /// Recently opened projects and targets.
     pub recent: Vec<PathBuf>,
-    /// Where new projects are created; `None` = `Documents/Craft Anything`.
+    /// Where new projects are created; `None` = `Documents/Pickaxe`.
     pub projects_dir: Option<PathBuf>,
     /// More places projects are listed from: folders of projects, or projects started in a folder
     /// the person picked (added when they start one there).
@@ -130,7 +130,7 @@ pub struct Settings {
     pub existing_files: Option<crate::workspace::ExistingFiles>,
     /// Generated game assets: the budget a new project starts with and the picture model.
     pub assets: AssetSettings,
-    /// External MCP servers whose tools are offered as Craft Anything tools (`[[plugins.mcp]]`).
+    /// External MCP servers whose tools are offered as Pickaxe tools (`[[plugins.mcp]]`).
     pub plugins: crate::plugins::PluginSettings,
     /// How builds are checked and when refining stops (`[build]`).
     pub build: BuildSettings,
@@ -318,18 +318,18 @@ pub fn read_settings(text: &str) -> Result<Settings, String> {
     table.try_into::<Settings>().map_err(|e| e.to_string())
 }
 
-/// Where settings, logs and the engine store live: `CRAFT_ANYTHING_CONFIG_DIR`, then a portable
+/// Where settings, logs and the engine store live: `PICKAXE_CONFIG_DIR`, then a portable
 /// `portable.txt` marker next to the executable, then the platform config dir.
 pub fn config_dir() -> PathBuf {
-    if let Some(dir) = std::env::var_os("CRAFT_ANYTHING_CONFIG_DIR") {
+    if let Some(dir) = std::env::var_os("PICKAXE_CONFIG_DIR") {
         return PathBuf::from(dir);
     }
     if let Some(exe_dir) = std::env::current_exe().ok().and_then(|p| p.parent().map(Path::to_path_buf))
         && exe_dir.join("portable.txt").exists()
     {
-        return exe_dir.join("CraftAnythingData");
+        return exe_dir.join("PickaxeData");
     }
-    dirs::config_dir().map(|d| d.join("craft-anything")).unwrap_or_else(|| PathBuf::from(".craft-anything"))
+    dirs::config_dir().map(|d| d.join("pickaxe")).unwrap_or_else(|| PathBuf::from(".pickaxe"))
 }
 
 impl Settings {
@@ -414,7 +414,7 @@ impl Settings {
         let e = match read {
             Ok(s) => {
                 if s.version > SETTINGS_VERSION {
-                    log::warn!("{} is from a newer Craft Anything (version {}); changes won't be saved over it", path.display(), s.version);
+                    log::warn!("{} is from a newer Pickaxe (version {}); changes won't be saved over it", path.display(), s.version);
                 }
                 return s;
             }
@@ -426,7 +426,7 @@ impl Settings {
             .and_then(|t| t.get("version").and_then(toml::Value::as_integer))
             .and_then(|n| u32::try_from(n).ok());
         if let Some(version) = newer.filter(|v| *v > SETTINGS_VERSION) {
-            log::warn!("{} is from a newer Craft Anything (version {version}) and unreadable here ({e}); using defaults without saving", path.display());
+            log::warn!("{} is from a newer Pickaxe (version {version}) and unreadable here ({e}); using defaults without saving", path.display());
             return Settings { version, ..Settings::default() };
         }
         match set_aside(path) {
@@ -502,7 +502,7 @@ impl Settings {
             Err(e) => return Err(ToolError::io(path.display(), e)),
         };
         if current.version > SETTINGS_VERSION || pending.version > SETTINGS_VERSION {
-            return Err(ToolError::new(ErrorCode::BadSettings, "Update Craft Anything to recover settings saved by a newer version."));
+            return Err(ToolError::new(ErrorCode::BadSettings, "Update Pickaxe to recover settings saved by a newer version."));
         }
         pending.ai = current.ai;
         pending.save_to(path)?;
@@ -511,34 +511,34 @@ impl Settings {
 
     /// Save settings privately. A non-empty parent is treated as a dedicated config directory:
     /// create it if needed and restrict it to 0700 on Unix before replacing the 0600 file.
-    /// This includes an existing directory selected by `CRAFT_ANYTHING_CONFIG_DIR`; callers must
+    /// This includes an existing directory selected by `PICKAXE_CONFIG_DIR`; callers must
     /// not select an unrelated shared directory. Ancestors are not chmodded. A bare filename does
     /// not change the working directory's permissions. Directory preparation failure leaves any
     /// existing config file unchanged; directory creation/permission changes are not rolled back.
     pub fn save_to(&self, path: &Path) -> Result<(), ToolError> {
-        self.save_to_with_dir_permissions(path, craft_anything_platform::fs::set_private_dir)
+        self.save_to_with_dir_permissions(path, pickaxe_platform::fs::set_private_dir)
     }
 
     fn save_to_with_dir_permissions(&self, path: &Path, set_private_dir: impl FnOnce(&Path) -> Result<(), ToolError>) -> Result<(), ToolError> {
         if let Some(why) = &self.not_loaded {
             return Err(ToolError::new(ErrorCode::BadSettings, format!("Settings weren't saved: {why}, so these are defaults standing in for it."))
-                .with_remediation("Nothing was written. Make that file readable or move it aside, then start Craft Anything again."));
+                .with_remediation("Nothing was written. Make that file readable or move it aside, then start Pickaxe again."));
         }
         if self.version > SETTINGS_VERSION {
             return Err(ToolError::new(
                 ErrorCode::BadSettings,
-                format!("{} was written by a newer Craft Anything (version {}), so this one doesn't change it.", path.display(), self.version),
+                format!("{} was written by a newer Pickaxe (version {}), so this one doesn't change it.", path.display(), self.version),
             )
-            .with_remediation("Update Craft Anything to change settings, or move config.toml aside to start fresh. Nothing was written."));
+            .with_remediation("Update Pickaxe to change settings, or move config.toml aside to start fresh. Nothing was written."));
         }
         let text = toml::to_string_pretty(self).map_err(|e| ToolError::new(ErrorCode::BadSettings, e.to_string()))?;
         // `config.toml` can hold plugin headers and environment (API keys), so it is owner-only,
-        // as is the folder that holds it (audit: craft-anything #2).
+        // as is the folder that holds it (audit: pickaxe #2).
         if let Some(dir) = path.parent().filter(|dir| !dir.as_os_str().is_empty()) {
             std::fs::create_dir_all(dir).map_err(|e| ToolError::io(dir.display(), e))?;
             set_private_dir(dir)?;
         }
-        craft_anything_platform::write_atomic_private(path, text.as_bytes())
+        pickaxe_platform::write_atomic_private(path, text.as_bytes())
     }
 
     pub fn save(&self) -> Result<(), ToolError> {
@@ -553,15 +553,15 @@ impl Settings {
     pub fn ghidra_launcher(&self) -> Option<PathBuf> {
         let (dir, store) = (self.engines.ghidra.install_dir.as_deref(), self.engine_store_dir());
         if self.engines.only_configured {
-            craft_anything_engines::ghidra::get::headless_configured(dir, &store)
+            pickaxe_engines::ghidra::get::headless_configured(dir, &store)
         } else {
-            craft_anything_engines::ghidra::get::headless(dir, &store)
+            pickaxe_engines::ghidra::get::headless(dir, &store)
         }
     }
 
     /// The Java runtime Ghidra runs on (`None`: let Ghidra find its own).
     pub fn ghidra_java(&self) -> Option<PathBuf> {
-        craft_anything_engines::ghidra::get::java_home(self.engines.ghidra.java_home.as_deref(), &self.engine_store_dir())
+        pickaxe_engines::ghidra::get::java_home(self.engines.ghidra.java_home.as_deref(), &self.engine_store_dir())
     }
 
     /// Where an external engine is on this computer, honouring every setting that can name one:
@@ -570,23 +570,23 @@ impl Settings {
     /// `doctor`, `capabilities`) and behind `Requires::Engine`, so they all agree with what Deep
     /// mode actually runs.
     pub fn engine_path(&self, id: &str) -> Option<PathBuf> {
-        if id == craft_anything_engines::ghidra::get::ID {
+        if id == pickaxe_engines::ghidra::get::ID {
             return self.ghidra_launcher();
         }
         if let Some(java) = (id == "java").then(|| self.java_set_for_ghidra()).flatten() {
             return Some(java);
         }
         if self.engines.only_configured {
-            craft_anything_engines::locate_configured(id, &self.engines.tools, &self.engine_store_dir())
+            pickaxe_engines::locate_configured(id, &self.engines.tools, &self.engine_store_dir())
         } else {
-            craft_anything_engines::locate(id, &self.engines.tools, &self.engine_store_dir())
+            pickaxe_engines::locate(id, &self.engines.tools, &self.engine_store_dir())
         }
     }
 
     /// The `java` in the Java folder set for Ghidra, unless a path is set for the Java runtime
     /// itself: the other Java tools (Vineflower, JADX…) run on it too.
     pub fn java_set_for_ghidra(&self) -> Option<PathBuf> {
-        use craft_anything_engines::ToolPathLookup;
+        use pickaxe_engines::ToolPathLookup;
         if self.engines.tools.override_for("java").is_some() {
             return None;
         }
@@ -596,8 +596,8 @@ impl Settings {
 
     /// Why an engine wasn't found and what to do about it, as (reason, remediation).
     pub fn engine_not_found(&self, id: &str) -> (String, String) {
-        use craft_anything_engines::ToolPathLookup;
-        craft_anything_engines::not_found_help(id, self.engines.tools.override_for(id).as_deref(), craft_anything_platform::in_flatpak())
+        use pickaxe_engines::ToolPathLookup;
+        pickaxe_engines::not_found_help(id, self.engines.tools.override_for(id).as_deref(), pickaxe_platform::in_flatpak())
     }
 }
 
@@ -713,10 +713,10 @@ auto_mode = true
 
     #[test]
     fn path_overrides_match_the_engine_table_exactly() {
-        use craft_anything_engines::ToolPathLookup;
+        use pickaxe_engines::ToolPathLookup;
         let mut paths = ToolPaths::default();
         let ids: Vec<&str> = paths.entries_mut().into_iter().map(|(id, _)| id).collect();
-        let table: Vec<&str> = craft_anything_engines::path_setting_ids().collect();
+        let table: Vec<&str> = pickaxe_engines::path_setting_ids().collect();
         assert_eq!(ids, table, "tool_paths! must list the engine table's path-setting ids, in table order");
         for (id, v) in paths.entries_mut() {
             *v = Some(PathBuf::from(format!("/opt/{id}")));
@@ -856,7 +856,7 @@ default = "Claude Code"
         Settings::default()
             .save_to_with_dir_permissions(&path, |dir| {
                 assert!(!path.exists(), "the file must not be written before securing its directory");
-                craft_anything_platform::fs::set_private_dir(dir)
+                pickaxe_platform::fs::set_private_dir(dir)
             })
             .unwrap();
         for (path, mode) in [(root.path(), 0o755), (parent.as_path(), 0o700), (unrelated.as_path(), 0o755), (path.as_path(), 0o600)] {

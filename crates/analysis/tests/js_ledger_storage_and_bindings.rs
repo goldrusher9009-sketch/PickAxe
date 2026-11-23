@@ -2,8 +2,8 @@
 //! `native_modules`, effective-key deduplication in `candidate_expectations`, and order-independent
 //! aggregation of multiple `Binding` records from the same owner in `build_ledger`.
 
-use craft_anything_analysis::js_app::{AppFile, AppGraph, AppInput, AppOptions, Node, analyze_application};
-use craft_anything_analysis::js_ledger::{Binding, Case, Owner, Review, Verifier, build_ledger, candidate_expectations};
+use pickaxe_analysis::js_app::{AppFile, AppGraph, AppInput, AppOptions, Node, analyze_application};
+use pickaxe_analysis::js_ledger::{Binding, Case, Owner, Review, Verifier, build_ledger, candidate_expectations};
 use serde_json::{Value, json};
 use std::collections::BTreeSet;
 

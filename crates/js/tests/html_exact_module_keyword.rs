@@ -1,4 +1,4 @@
-use craft_anything_js::html::scan_html;
+use pickaxe_js::html::scan_html;
 
 /// Padded keyword values do not run as either classic scripts or modules.
 #[test]

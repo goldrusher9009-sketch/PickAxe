@@ -1,4 +1,4 @@
-use craft_anything_formats::plist::{self, Value};
+use pickaxe_formats::plist::{self, Value};
 
 /// Literal line endings normalize before entities, including keys and CDATA.
 #[test]

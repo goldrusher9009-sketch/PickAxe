@@ -1,6 +1,6 @@
 [package]
-name = "craft-anything-engines"
-description = "Adapters for optional external engines (Ghidra, adb, Chromium, Frida, JADX…) used by Craft Anything"
+name = "pickaxe-engines"
+description = "Adapters for optional external engines (Ghidra, adb, Chromium, Frida, JADX…) used by Pickaxe"
 version.workspace = true
 edition.workspace = true
 license.workspace = true
@@ -10,9 +10,9 @@ publish = false
 workspace = true
 
 [dependencies]
-craft-anything-evidence = { workspace = true }
-craft-anything-platform = { workspace = true }
-craft-anything-formats = { workspace = true }
+pickaxe-evidence = { workspace = true }
+pickaxe-platform = { workspace = true }
+pickaxe-formats = { workspace = true }
 serde = { workspace = true }
 serde_json = { workspace = true }
 log = { workspace = true }
@@ -40,4 +40,4 @@ wasm-plugins = ["dep:wasmtime"]
 rcgen = { version = "0.14", default-features = false, features = ["crypto", "ring"] }
 rustls = { version = "0.23", default-features = false, features = ["ring", "std", "tls12"] }
 tempfile = "3"
-craft-anything-testkit = { workspace = true }
+pickaxe-testkit = { workspace = true }

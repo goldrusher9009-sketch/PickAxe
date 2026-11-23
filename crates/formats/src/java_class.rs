@@ -19,8 +19,8 @@ mod parity {
     use super::*;
     #[test]
     fn shared_class_reports_errors_and_opcodes_match() {
-        let data = craft_anything_testkit::java::hello_class();
-        let mut samples = craft_anything_testkit::mutations(&data);
+        let data = pickaxe_testkit::java::hello_class();
+        let mut samples = pickaxe_testkit::mutations(&data);
         samples.push(data);
         for data in samples {
             assert_eq!(is_class(&data), legacy::is_class(&data));

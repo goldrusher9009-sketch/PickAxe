@@ -1,4 +1,4 @@
-use craft_anything_js::html::scan_html;
+use pickaxe_js::html::scan_html;
 
 /// HTML resumes after the browser's alternate comment terminators, including empty comments.
 #[test]

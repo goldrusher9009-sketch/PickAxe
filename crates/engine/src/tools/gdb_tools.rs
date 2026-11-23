@@ -1,4 +1,4 @@
-//! GDB sessions over the machine interface (GDB/MI), through [`craft_anything_engines::gdb`]:
+//! GDB sessions over the machine interface (GDB/MI), through [`pickaxe_engines::gdb`]:
 //! each session is one owned `gdb` process driven with `-interpreter-exec console`, so any GDB
 //! command works while results come back as structured records. Starting a session only loads the
 //! program; running it, calling functions or using GDB's shell/python commands happens through
@@ -6,9 +6,9 @@
 
 use super::native_common::spec;
 use crate::tool::{Ctx, Effects, Requires, ToolOutput, ToolSpec, Toolset, parse_params, schema_of};
-use craft_anything_engines::gdb::GdbSession;
-use craft_anything_evidence::{Authority, Confidence, Coverage, Environment, ErrorCode, EvidenceBuilder, Limitation, Subject, ToolError, sha256_hex};
-use craft_anything_platform::sync::Mutex;
+use pickaxe_engines::gdb::GdbSession;
+use pickaxe_evidence::{Authority, Confidence, Coverage, Environment, ErrorCode, EvidenceBuilder, Limitation, Subject, ToolError, sha256_hex};
+use pickaxe_platform::sync::Mutex;
 use schemars::JsonSchema;
 use serde::{Deserialize, Serialize};
 use serde_json::{Value, json};
@@ -310,7 +310,7 @@ mod tests {
     #[test]
     fn live_session_when_gdb_is_installed() {
         let e = Engine::new(crate::testing::session());
-        let p = craft_anything_testkit::temp_file("dbg.elf", &craft_anything_testkit::elf64(craft_anything_testkit::ElfArch::X86_64, true).0);
+        let p = pickaxe_testkit::temp_file("dbg.elf", &pickaxe_testkit::elf64(pickaxe_testkit::ElfArch::X86_64, true).0);
         let Ok(ToolOutput::Value(v)) = e.call("native_gdb_session_begin", json!({"program": p}), CallOptions::new(Caller::Mcp)) else {
             return; // GDB not installed here
         };

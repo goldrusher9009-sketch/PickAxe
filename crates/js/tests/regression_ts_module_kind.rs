@@ -2,7 +2,7 @@
 //! ES module whatever the file contains. Both used to be read like `.ts`, where the syntax decides,
 //! so a `.cts` file that calls `require` was a script and a `.mts` file without `import` was too.
 
-use craft_anything_js::{Analysis, Limits, ParseMode, analyze};
+use pickaxe_js::{Analysis, Limits, ParseMode, analyze};
 
 /// Analyse `src` as `path` and check the syntax tree was used without errors.
 fn parsed(path: &str, src: &str) -> Analysis {

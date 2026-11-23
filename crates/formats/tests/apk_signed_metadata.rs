@@ -1,5 +1,5 @@
-use craft_anything_formats::{apk_sign, verify};
-use craft_anything_testkit::{android, crypto, electron::zip_stored};
+use pickaxe_formats::{apk_sign, verify};
+use pickaxe_testkit::{android, crypto, electron::zip_stored};
 
 const RSA_SHA256: u32 = 0x0103;
 const UNKNOWN: u32 = 0x7fff_0001;

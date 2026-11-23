@@ -1,4 +1,4 @@
-use craft_anything_js::html::scan_html;
+use pickaxe_js::html::scan_html;
 fn decode_entities(value: &str) -> String {
     scan_html(&format!("<script src=\"{value}\"></script>")).scripts[0].src.clone().unwrap()
 }

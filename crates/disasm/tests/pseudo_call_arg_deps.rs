@@ -1,10 +1,10 @@
 //! Regressions verifying that pseudo-C call/tail-call and Win64 stack-argument folding does
 //! not inline stale register expressions after one of their source registers is overwritten.
 
-use craft_anything_disasm::pseudo::lift;
-use craft_anything_disasm::{Image, Limits, NoControl, Program};
-use craft_anything_formats::{Arch, Binary};
-use craft_anything_testkit as tk;
+use pickaxe_disasm::pseudo::lift;
+use pickaxe_disasm::{Image, Limits, NoControl, Program};
+use pickaxe_formats::{Arch, Binary};
+use pickaxe_testkit as tk;
 use std::sync::Arc;
 
 /// Copying an argument register (`mov rsi, rdi`) before updating the source (`add edi, 1`)

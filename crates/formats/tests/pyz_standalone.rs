@@ -1,8 +1,8 @@
 //! A PyInstaller PYZ archive given on its own, not inside a program's CArchive.
 
-use craft_anything_formats::packed::{PackedFormat, detect};
-use craft_anything_formats::pyinstaller::{PyInstaller, PyzArchive};
-use craft_anything_testkit::packed::{code_311, pyz};
+use pickaxe_formats::packed::{PackedFormat, detect};
+use pickaxe_formats::pyinstaller::{PyInstaller, PyzArchive};
+use pickaxe_testkit::packed::{code_311, pyz};
 
 const MAGIC: u16 = 3531;
 

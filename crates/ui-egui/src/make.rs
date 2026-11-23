@@ -6,9 +6,9 @@ use crate::i18n::tr;
 use crate::state::{MakeDraft, Screen};
 use crate::theme::{self, Tokens};
 use crate::{CraftApp, Pick, icons, widgets};
-use craft_anything_engine::Mode;
-use craft_anything_engine::tools::web_common;
-use craft_anything_engine::workspace::{ExistingFiles, Status, TargetRef};
+use pickaxe_engine::Mode;
+use pickaxe_engine::tools::web_common;
+use pickaxe_engine::workspace::{ExistingFiles, Status, TargetRef};
 use egui::{RichText, Sense, Ui, Vec2};
 
 const SUGGESTIONS_WEB: &[&str] = &["Recreate this website", "Recreate it with darker colours"];
@@ -61,10 +61,10 @@ pub fn resolve_target(d: &MakeDraft) -> TargetRef {
 }
 
 /// A game is being copied or made, so it's built with a game engine ("Build with").
-pub fn is_game(kinds: &craft_anything_ai::rebuild::KindRegistry, d: &MakeDraft) -> bool {
-    use craft_anything_ai::rebuild::GameKind;
+pub fn is_game(kinds: &pickaxe_ai::rebuild::KindRegistry, d: &MakeDraft) -> bool {
+    use pickaxe_ai::rebuild::GameKind;
     if let Some(stack) = own_stack(kinds, d) {
-        return craft_anything_engines::game::Builder::from_stack(stack).is_some();
+        return pickaxe_engines::game::Builder::from_stack(stack).is_some();
     }
     d.found.is_some()
         || (d.game && matches!(d.target, TargetRef::Local { .. }))
@@ -73,7 +73,7 @@ pub fn is_game(kinds: &craft_anything_ai::rebuild::KindRegistry, d: &MakeDraft) 
 
 /// What the person's own files are built with, when they're the app and the request names no
 /// other stack (the run decides the same way: `project::first_stack`).
-pub fn own_stack<'a>(kinds: &craft_anything_ai::rebuild::KindRegistry, d: &'a MakeDraft) -> Option<&'a str> {
+pub fn own_stack<'a>(kinds: &pickaxe_ai::rebuild::KindRegistry, d: &'a MakeDraft) -> Option<&'a str> {
     let own = d.existing == Some(ExistingFiles::Edit) && kinds.named(&d.request, &resolve_target(d)).is_none();
     d.folder_stack.as_deref().filter(|_| own)
 }
@@ -436,7 +436,7 @@ fn sign_in(app: &mut CraftApp, ui: &mut Ui, url: Option<&str>) {
             }
         } else if let Some(url) = url {
             ui.label(RichText::new(tr("Does the site show more once you're signed in?")).size(theme::SMALL).color(t.text_dim));
-            let hint = tr("A browser window opens: sign in there yourself, then close it. Craft Anything never sees your password. The sign-in is kept on this computer and used when this site is studied.");
+            let hint = tr("A browser window opens: sign in there yourself, then close it. Pickaxe never sees your password. The sign-in is kept on this computer and used when this site is studied.");
             let free = app.creating.is_none();
             let button = ui.add(widgets::Button::new(widgets::ButtonKind::Secondary, "Sign in to this site").enabled(free));
             let button = if free { button.on_hover_text(hint) } else { button.on_disabled_hover_text(tr("Wait until the new project is made.")) };
@@ -478,7 +478,7 @@ fn look_inside(app: &mut CraftApp, ui: &mut Ui) {
     let t = Tokens::get(ui.ctx());
     // The app's one setting (the title bar's switch), not this project's: said where it's chosen.
     ui.horizontal_wrapped(|ui| {
-        ui.label(RichText::new(tr("How closely may Craft Anything look at it?")).size(theme::BODY).color(t.text_dim));
+        ui.label(RichText::new(tr("How closely may Pickaxe look at it?")).size(theme::BODY).color(t.text_dim));
         ui.label(RichText::new(tr("For everything you make, like the switch in the title bar.")).size(theme::SMALL).color(t.text_faint));
     });
     ui.add_space(theme::space::SM);
@@ -489,8 +489,8 @@ fn look_inside(app: &mut CraftApp, ui: &mut Ui) {
     ui.horizontal(|ui| {
         ui.spacing_mut().item_spacing.x = gap;
         for (on, icon, label, blurb) in [
-            (false, "shield-check", "Clean room", "Nothing inside it is read; Craft Anything works from what you can see. Your version gets its own art."),
-            (true, "microscope", "Deep", "Craft Anything reads its code and files with every tool it has. For your private use."),
+            (false, "shield-check", "Clean room", "Nothing inside it is read; Pickaxe works from what you can see. Your version gets its own art."),
+            (true, "microscope", "Deep", "Pickaxe reads its code and files with every tool it has. For your private use."),
         ] {
             if widgets::choice_tile(ui, size, icon, label, blurb, deep == on).clicked() {
                 pick = Some(on);
@@ -590,7 +590,7 @@ fn reach_choice(app: &mut CraftApp, ui: &mut Ui) {
 
 /// Time since `ms` in plain words.
 pub fn ago(ms: u64) -> String {
-    let now = craft_anything_engine::inbox::now_ms();
+    let now = pickaxe_engine::inbox::now_ms();
     let s = now.saturating_sub(ms) / 1000;
     match s {
         0..=59 => tr("just now"),
@@ -603,7 +603,7 @@ pub fn ago(ms: u64) -> String {
 
 /// A project's status as the app shows it: waiting its turn, interrupted (its run stopped
 /// part-way: the app or the computer closed), or the one it saved. (label, text, fill).
-pub fn status_shown(app: &CraftApp, ws: &craft_anything_engine::workspace::Workspace, t: &Tokens) -> (&'static str, egui::Color32, egui::Color32) {
+pub fn status_shown(app: &CraftApp, ws: &pickaxe_engine::workspace::Workspace, t: &Tokens) -> (&'static str, egui::Color32, egui::Color32) {
     let s = ws.manifest.status;
     let (label, look) = if app.asking.contains(&ws.root) {
         ("Needs you", Status::NeedsYou)
@@ -628,8 +628,8 @@ pub fn status_colors(t: &Tokens, s: Status) -> (egui::Color32, egui::Color32) {
 }
 
 /// A project's icon: a game (built with a game engine), a website, an app, or something new.
-pub fn project_icon(m: &craft_anything_engine::workspace::Manifest) -> &'static str {
-    if craft_anything_engines::game::Builder::from_stack(&m.stack).is_some() {
+pub fn project_icon(m: &pickaxe_engine::workspace::Manifest) -> &'static str {
+    if pickaxe_engines::game::Builder::from_stack(&m.stack).is_some() {
         return "puzzle";
     }
     match m.target {
@@ -646,7 +646,7 @@ mod tests {
     #[cfg(not(target_arch = "wasm32"))]
     #[test]
     fn no_update_installs_while_a_sign_in_window_is_open() {
-        let mut app = crate::demo::app(crate::demo::engine(craft_anything_engine::Mode::Beginner, true));
+        let mut app = crate::demo::app(crate::demo::engine(pickaxe_engine::Mode::Beginner, true));
         assert!(app.safe_to_install());
         app.signing_in = Some(1);
         assert!(!app.safe_to_install(), "installing closes the app before the sign-in is saved");
@@ -667,8 +667,8 @@ mod tests {
     #[test]
     fn the_persons_own_files_say_whether_it_is_a_game() {
         use crate::engine_ui::chosen;
-        use craft_anything_engines::game::Builder;
-        let kinds = craft_anything_ai::rebuild::KindRegistry::built_in();
+        use pickaxe_engines::game::Builder;
+        let kinds = pickaxe_ai::rebuild::KindRegistry::built_in();
         let own = |stack: Option<&str>, request: &str| MakeDraft {
             folder_stack: stack.map(str::to_string),
             existing: Some(ExistingFiles::Edit),

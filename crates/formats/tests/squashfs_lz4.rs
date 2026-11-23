@@ -1,4 +1,4 @@
-use craft_anything_formats::fsread::{Limits, squashfs};
+use pickaxe_formats::fsread::{Limits, squashfs};
 
 fn put16(data: &mut [u8], at: usize, value: u16) {
     data[at..at + 2].copy_from_slice(&value.to_le_bytes());

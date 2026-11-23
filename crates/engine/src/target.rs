@@ -1,6 +1,6 @@
 //! Targets: what we're looking at, loaded once, identified by content hash.
 
-use craft_anything_evidence::{ErrorCode, Subject, ToolError, sha256_hex};
+use pickaxe_evidence::{ErrorCode, Subject, ToolError, sha256_hex};
 use serde::{Deserialize, Serialize};
 use std::path::{Path, PathBuf};
 use std::sync::Arc;
@@ -44,7 +44,7 @@ impl TargetContext {
             let target = Target::load(&self.path)?;
             if target.sha256 != self.sha256 {
                 return Err(ToolError::invalid("The shared target changed after it was opened.")
-                    .with_remediation("Reopen the target in Craft Anything, then start a new conversation."));
+                    .with_remediation("Reopen the target in Pickaxe, then start a new conversation."));
             }
             target
         };
@@ -165,7 +165,7 @@ pub fn sniff(bytes: &[u8], name: &str) -> TargetKind {
         Some(Kind::Sqlite) => TargetKind::Sqlite,
         Some(Kind::Elf) => TargetKind::Elf,
         Some(Kind::Pe | Kind::DosExecutable) => {
-            if craft_anything_formats::pe_is_managed(bytes) {
+            if pickaxe_formats::pe_is_managed(bytes) {
                 TargetKind::Managed
             } else {
                 TargetKind::Pe
@@ -176,7 +176,7 @@ pub fn sniff(bytes: &[u8], name: &str) -> TargetKind {
         // major version where a fat binary has a small big-endian architecture count, so prefer
         // the .class extension, then the version check.
         Some(Kind::MachOFat | Kind::JavaClass) => {
-            if lower.ends_with(".class") || craft_anything_formats::java_class::is_class(bytes) {
+            if lower.ends_with(".class") || pickaxe_formats::java_class::is_class(bytes) {
                 TargetKind::JavaClass
             } else {
                 TargetKind::MachOFat
@@ -197,7 +197,7 @@ fn sniff_zip(bytes: &[u8], lower: &str) -> TargetKind {
         TargetKind::Apk
     } else if lower.ends_with(".jar") || lower.ends_with(".war") {
         TargetKind::Jar
-    } else if craft_anything_formats::zip_has_entry(bytes, "AndroidManifest.xml") {
+    } else if pickaxe_formats::zip_has_entry(bytes, "AndroidManifest.xml") {
         TargetKind::Apk
     } else {
         TargetKind::Zip
@@ -206,7 +206,7 @@ fn sniff_zip(bytes: &[u8], lower: &str) -> TargetKind {
 
 /// The kinds the shared table has no signature for, told apart by name and content.
 fn sniff_unsigned(bytes: &[u8], lower: &str) -> TargetKind {
-    if lower.ends_with(".asar") || craft_anything_formats::looks_like_asar(bytes) {
+    if lower.ends_with(".asar") || pickaxe_formats::looks_like_asar(bytes) {
         TargetKind::Asar
     } else if lower.ends_with(".plist") && bytes.windows(6).take(512).any(|w| w == b"<plist") {
         TargetKind::Plist
@@ -263,7 +263,7 @@ impl Target {
                 raw: None,
             });
         }
-        let bytes = craft_anything_platform::fs::read_file_capped(path, MAX_TARGET_BYTES)?;
+        let bytes = pickaxe_platform::fs::read_file_capped(path, MAX_TARGET_BYTES)?;
         Ok(Target::from_bytes(path.to_path_buf(), name, bytes))
     }
 
@@ -282,7 +282,7 @@ impl Target {
         if self.kind == TargetKind::Directory {
             return Ok(());
         }
-        match craft_anything_platform::fs::read_file_capped(&self.path, MAX_TARGET_BYTES) {
+        match pickaxe_platform::fs::read_file_capped(&self.path, MAX_TARGET_BYTES) {
             Ok(b) if sha256_hex(&b) == self.sha256 => Ok(()),
             Ok(_) => Err(ToolError::new(ErrorCode::FileChanged, format!("{} changed on disk since it was opened", self.path.display()))
                 .with_remediation("Open it again to analyse the new version.")),

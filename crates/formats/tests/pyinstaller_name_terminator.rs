@@ -1,5 +1,5 @@
-use craft_anything_formats::{packed::PackedFormat, pyinstaller::PyInstaller};
-use craft_anything_testkit::packed::pyinstaller;
+use pickaxe_formats::{packed::PackedFormat, pyinstaller::PyInstaller};
+use pickaxe_testkit::packed::pyinstaller;
 
 /// A damaged TOC name must not turn padding into an extractable file identity.
 #[test]

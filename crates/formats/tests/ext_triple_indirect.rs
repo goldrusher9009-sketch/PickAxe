@@ -1,4 +1,4 @@
-use craft_anything_formats::fsread::{Limits, extfs};
+use pickaxe_formats::fsread::{Limits, extfs};
 
 const BS: usize = 1024;
 const INODE: usize = 6400;
@@ -9,7 +9,7 @@ fn put32(data: &mut [u8], at: usize, value: u32) {
 }
 
 fn image(skipped_subtrees: usize) -> Vec<u8> {
-    let mut data = craft_anything_testkit::firmware::ext_image(false);
+    let mut data = pickaxe_testkit::firmware::ext_image(false);
     data.resize(44 * BS, 0);
     put32(&mut data, 1028, 44);
     data[INODE + 40..INODE + 100].fill(0);

@@ -1,21 +1,21 @@
 #!/bin/sh
-# Craft Anything AppImage entry point (packaging/linux/AppRun; installed by package.sh).
+# Pickaxe AppImage entry point (packaging/linux/AppRun; installed by package.sh).
 #
 # On Wayland the compositor resolves a window's dock icon by taking the window's
-# app_id (ai.storyteller.craft-anything) and looking up an installed .desktop file.
+# app_id (ai.goldrusher.pickaxe) and looking up an installed .desktop file.
 # An AppImage installs nothing, so every AppImage run would otherwise show the
 # generic "Wayland" icon. Best-effort desktop integration: on first run
 # (and whenever the AppImage's path changes) install the .desktop entry and the
 # hicolor icons into $XDG_DATA_HOME, then launch. Every failure here must leave
-# the launch untouched. Opt out with CRAFT_ANYTHING_NO_DESKTOP_INTEGRATION=1.
+# the launch untouched. Opt out with PICKAXE_NO_DESKTOP_INTEGRATION=1.
 
 set -u
 
 APPDIR="$(dirname "$(readlink -f "$0")")"
-DESK_ID=ai.storyteller.craft-anything
+DESK_ID=ai.goldrusher.pickaxe
 
 integrate() {
-  case "${CRAFT_ANYTHING_NO_DESKTOP_INTEGRATION:-}" in
+  case "${PICKAXE_NO_DESKTOP_INTEGRATION:-}" in
     1 | true | yes) return 0 ;;
   esac
   # The AppImage runtime exports $APPIMAGE; without it (an extracted AppDir) there
@@ -82,15 +82,15 @@ EOF
 
 # The command-line tool ships beside the app but nothing puts it on PATH, and the launcher renames
 # the AppImage on every update (#723). `<AppImage> --cli …` runs it, and so does a symlink to the
-# AppImage named `craft-anything-cli` (the runtime passes the name it was started by as $ARGV0).
+# AppImage named `pickaxe-cli` (the runtime passes the name it was started by as $ARGV0).
 # It writes nothing to the desktop: a CLI or MCP run isn't a launch of the app.
 case "${ARGV0:-}" in
-  *craft-anything-cli) exec "$APPDIR/usr/bin/craft-anything-cli" "$@" ;;
+  *pickaxe-cli) exec "$APPDIR/usr/bin/pickaxe-cli" "$@" ;;
 esac
 if [ "${1:-}" = "--cli" ]; then
   shift
-  exec "$APPDIR/usr/bin/craft-anything-cli" "$@"
+  exec "$APPDIR/usr/bin/pickaxe-cli" "$@"
 fi
 
 integrate
-exec "$APPDIR/usr/bin/craft-anything" "$@"
+exec "$APPDIR/usr/bin/pickaxe" "$@"

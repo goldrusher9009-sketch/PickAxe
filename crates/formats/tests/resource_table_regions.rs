@@ -1,8 +1,8 @@
-use craft_anything_formats::{
+use pickaxe_formats::{
     arsc::{Limits, parse},
     axml::chunk_header,
 };
-use craft_anything_testkit::android::resources_arsc;
+use pickaxe_testkit::android::resources_arsc;
 
 fn children(data: &[u8], start: usize) -> Vec<(usize, u16)> {
     let (_, head, size) = chunk_header(data, start).unwrap();
@@ -41,7 +41,7 @@ fn a_truncated_bag_retains_its_identity_without_incomplete_values() {
     assert_incomplete_style(&out, "incomplete bag data");
 }
 
-fn assert_incomplete_style(out: &craft_anything_formats::arsc::Table, warning: &str) {
+fn assert_incomplete_style(out: &pickaxe_formats::arsc::Table, warning: &str) {
     let style = out.entries.iter().find(|entry| entry.type_name == "style").unwrap();
     assert_eq!(style.key, "AppTheme");
     assert_eq!(style.id, "0x7f020000");

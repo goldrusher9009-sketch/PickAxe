@@ -1,4 +1,4 @@
-use craft_anything_formats::{FormatError, unity_texture};
+use pickaxe_formats::{FormatError, unity_texture};
 
 #[test]
 fn etc1_has_its_name_and_eight_byte_blocks() {
@@ -84,7 +84,7 @@ fn clipped_edge_blocks_mips_and_output_limits_use_the_shared_pipeline() {
 fn serialized_unity_texture_reaches_the_etc1_decoder() {
     let block = [0x88, 0x88, 0x88, 0, 0, 0, 0, 0];
     let version = "2022.3.12f1";
-    let object = craft_anything_testkit::games::unity_texture2d(version, "MobileTexture", 4, 4, 34, Some(&block), None);
+    let object = pickaxe_testkit::games::unity_texture2d(version, "MobileTexture", 4, 4, 34, Some(&block), None);
     let texture = unity_texture::parse(&object, version, false).unwrap();
     let (start, len) = texture.inline.unwrap();
     assert_eq!(unity_texture::decode(texture.format, texture.width, texture.height, &object[start..start + len]).unwrap(), [138, 138, 138, 255].repeat(16));

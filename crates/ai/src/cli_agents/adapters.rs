@@ -373,7 +373,7 @@ impl AgentAdapter for Plain {
 }
 
 /// Claude Code settings with one PostToolUse hook, run after every tool call: our CLI hands over
-/// the notes waiting in `dir` (`craft-anything-cli builder-notes <dir>`). Paths use forward
+/// the notes waiting in `dir` (`pickaxe-cli builder-notes <dir>`). Paths use forward
 /// slashes and quotes so the hook's shell reads them the same on every platform.
 pub fn notes_hook_settings(cli: &str, dir: &std::path::Path) -> String {
     let fwd = |s: &str| s.replace('\\', "/");
@@ -459,7 +459,7 @@ impl AgentAdapter for ClaudeCode {
     }
 
     fn check_tool_server(&self, stop: &CancelToken) -> Result<(), ToolError> {
-        cli_can_start(craft_anything_platform::self_cli_path().as_deref(), stop)
+        cli_can_start(pickaxe_platform::self_cli_path().as_deref(), stop)
     }
 
     fn check_remote_tool_server(&self, host: &str, stop: &CancelToken) -> Result<(), ToolError> {
@@ -546,9 +546,9 @@ impl AgentAdapter for ClaudeCode {
                     p.failure = Some(TurnFailure::new(FailureKind::ToolsUnavailable));
                     let status = server.get("status").and_then(Value::as_str).unwrap_or_default();
                     out.push(AgentEvent::Error {
-                        message: format!("Craft Anything's tools did not start in Claude Code (server status: {status})."),
+                        message: format!("Pickaxe's tools did not start in Claude Code (server status: {status})."),
                         remediation: Some(
-                            "Check the Craft Anything CLI and the agent failure log, then start a new build attempt after fixing the tool connection.".into(),
+                            "Check the Pickaxe CLI and the agent failure log, then start a new build attempt after fixing the tool connection.".into(),
                         ),
                         log: None,
                     });
@@ -747,7 +747,7 @@ fn claude_config_dir() -> Option<std::path::PathBuf> {
     set.or_else(flatpak_claude_dir).or_else(|| dirs::home_dir().map(|h| h.join(".claude")))
 }
 
-pub use craft_anything_platform::in_flatpak;
+pub use pickaxe_platform::in_flatpak;
 
 /// Where Claude Code keeps its conversations when we start it under a Flatpak and the person
 /// hasn't chosen a folder: its own is `~/.claude`, which the sandbox only lets us read, so a
@@ -760,7 +760,7 @@ pub fn flatpak_claude_dir() -> Option<std::path::PathBuf> {
 }
 
 pub fn flatpak_claude_dir_in(flatpak: bool, chosen: bool, data: Option<std::path::PathBuf>) -> Option<std::path::PathBuf> {
-    (flatpak && !chosen).then_some(data?.join("craft-anything").join("claude"))
+    (flatpak && !chosen).then_some(data?.join("pickaxe").join("claude"))
 }
 
 /// Claude Code's name for the folder a session ran in: the path with everything but letters and
@@ -785,7 +785,7 @@ pub fn claude_restore(config: &std::path::Path, id: &str, saved: &[u8], cwd: &st
         return Err(ToolError::invalid("The conversation kept in the project is of another session."));
     }
     let path = config.join("projects").join(claude_project_folder(cwd)).join(format!("{id}.jsonl"));
-    craft_anything_platform::fs::write_atomic_private(&path, saved)?;
+    pickaxe_platform::fs::write_atomic_private(&path, saved)?;
     Ok(true)
 }
 
@@ -819,7 +819,7 @@ pub fn claude_names_account(file: &std::path::Path) -> bool {
 /// Longest single request or reply in a handoff; a first brief runs to many thousands.
 const HANDOFF_ENTRY: usize = 1500;
 
-/// A Claude Code session read back as a handoff: the messages Craft Anything sent and the text
+/// A Claude Code session read back as a handoff: the messages Pickaxe sent and the text
 /// the builder answered with, oldest first, leaving out tool calls, their results, thinking and
 /// side tasks. The newest are kept when it's longer than `max` characters.
 pub fn claude_handoff(saved: &str, max: usize) -> Option<String> {
@@ -836,7 +836,7 @@ pub fn claude_handoff(saved: &str, max: usize) -> Option<String> {
         match v.get("type").and_then(Value::as_str) {
             Some("user") => {
                 if let Some(t) = content.and_then(Value::as_str).filter(|t| !t.trim().is_empty()) {
-                    entries.push(format!("Craft Anything asked you: {}", clip(t)));
+                    entries.push(format!("Pickaxe asked you: {}", clip(t)));
                 }
             }
             Some("assistant") => {
@@ -884,7 +884,7 @@ impl AgentAdapter for Codex {
     fn check_native_options(&self, options: &BackendOptions, _cwd: Option<&Path>) -> Result<(), ToolError> {
         if options.args.iter().any(|arg| arg == "--ephemeral") {
             return Err(ToolError::invalid("Codex's --ephemeral option does not save conversations for later turns.")
-                .with_remediation("Remove --ephemeral from this backend's arguments so Craft Anything can resume the project's conversation."));
+                .with_remediation("Remove --ephemeral from this backend's arguments so Pickaxe can resume the project's conversation."));
         }
         if options.args.iter().any(|arg| arg == "--worktree") {
             return Err(ToolError::invalid("Codex's --worktree option cannot continue this project's saved conversation.").with_remediation(
@@ -951,7 +951,7 @@ impl AgentAdapter for Codex {
     }
 
     fn check_tool_server(&self, stop: &CancelToken) -> Result<(), ToolError> {
-        cli_can_start(craft_anything_platform::self_cli_path().as_deref(), stop)
+        cli_can_start(pickaxe_platform::self_cli_path().as_deref(), stop)
     }
 
     fn check_remote_tool_server(&self, host: &str, stop: &CancelToken) -> Result<(), ToolError> {
@@ -981,7 +981,7 @@ impl AgentAdapter for Codex {
         // `codex exec` can't ask, so without this it refuses a tool not marked read-only, such as
         // rebuild_start, before our server sees the call (#540). Only tools we limit ourselves
         // (consent, or the asset budget: #1464) are approved; the rest keep the person's policy.
-        for tool in craft_anything_engine::AGENT_APP_PREAPPROVED_TOOLS {
+        for tool in pickaxe_engine::AGENT_APP_PREAPPROVED_TOOLS {
             v.extend(["-c".into(), format!("mcp_servers.{MCP_NAME}.tools.{tool}.approval_mode=\"approve\"")]);
         }
         if let Some(m) = &cx.options.cli_model {
@@ -1118,9 +1118,9 @@ pub(crate) fn codex_tool_text(item: &Value, tool: &str, ours: bool) -> String {
         // The feed keeps 200 characters of a result, so the fix comes first and fits. Setup
         // approves only the tools we limit ourselves; any other is approved, or not,
         // in the person's own Codex settings, and setup changes nothing for it (#1867).
-        if craft_anything_engine::AGENT_APP_PREAPPROVED_TOOLS.contains(&tool) {
+        if pickaxe_engine::AGENT_APP_PREAPPROVED_TOOLS.contains(&tool) {
             return format!(
-                "Codex blocked {tool}: it can't ask for approval here. Fix: run `craft-anything-cli setup --client codex --yes`, then retry. See docs/codex.md."
+                "Codex blocked {tool}: it can't ask for approval here. Fix: run `pickaxe-cli setup --client codex --yes`, then retry. See docs/codex.md."
             );
         }
         return format!(
@@ -1206,9 +1206,9 @@ impl AgentAdapter for GeminiCli {
 }
 
 /// One `ssh` run for a remote set-up step. Never interactive (`BatchMode`, stdin closed).
-fn ssh_run(host: &str, line: &str, timeout: std::time::Duration, stop: Option<&CancelToken>) -> Result<craft_anything_platform::Output, ToolError> {
+fn ssh_run(host: &str, line: &str, timeout: std::time::Duration, stop: Option<&CancelToken>) -> Result<pickaxe_platform::Output, ToolError> {
     let argv = crate::ssh::ssh_line_args(host, line.to_string());
-    let mut proc = craft_anything_platform::process::Process::new("ssh").args(&argv).timeout(timeout).stdout_cap(64 * 1024);
+    let mut proc = pickaxe_platform::process::Process::new("ssh").args(&argv).timeout(timeout).stdout_cap(64 * 1024);
     if let Some(stop) = stop {
         let stop = stop.clone();
         proc = proc.cancel_when(move || stop.is_cancelled());
@@ -1219,9 +1219,9 @@ fn ssh_run(host: &str, line: &str, timeout: std::time::Duration, stop: Option<&C
 /// `command -v` only promises a nonzero status for a missing program: 127 is the shell's own "not
 /// found", which [`crate::ssh::diagnose`] turns into how to install it or put it on the PATH.
 /// It prints where the helper is, which [`remote_cli_path`] reads.
-pub(super) const REMOTE_CHECK_LINE: &str = "command -v craft-anything-cli || exit 127";
+pub(super) const REMOTE_CHECK_LINE: &str = "command -v pickaxe-cli || exit 127";
 
-/// Where `craft-anything-cli` is on `host`, as an absolute path. Claude Code starts the tool server
+/// Where `pickaxe-cli` is on `host`, as an absolute path. Claude Code starts the tool server
 /// with its own PATH, not the one ssh gave this check: by bare name the server failed on a host
 /// where the check passed ("server status: failed"), and by absolute path it connected. None: the
 /// host didn't say, so the bare name stays and the build's own error explains.
@@ -1293,10 +1293,10 @@ mod remote_path_tests {
 
     #[test]
     fn only_an_absolute_path_is_taken_as_the_helper_location() {
-        assert_eq!(absolute_path_line("/home/a/.cargo/bin/craft-anything-cli\n").as_deref(), Some("/home/a/.cargo/bin/craft-anything-cli"));
-        assert_eq!(absolute_path_line("\n  /opt/ca/craft-anything-cli  \n").as_deref(), Some("/opt/ca/craft-anything-cli"));
-        assert_eq!(absolute_path_line("craft-anything-cli"), None);
-        assert_eq!(absolute_path_line("alias craft-anything-cli='x'"), None);
+        assert_eq!(absolute_path_line("/home/a/.cargo/bin/pickaxe-cli\n").as_deref(), Some("/home/a/.cargo/bin/pickaxe-cli"));
+        assert_eq!(absolute_path_line("\n  /opt/ca/pickaxe-cli  \n").as_deref(), Some("/opt/ca/pickaxe-cli"));
+        assert_eq!(absolute_path_line("pickaxe-cli"), None);
+        assert_eq!(absolute_path_line("alias pickaxe-cli='x'"), None);
         assert_eq!(absolute_path_line(""), None);
     }
 }
@@ -1312,9 +1312,9 @@ fn remote_check(host: &str, stop: Option<&CancelToken>) -> Result<(), ToolError>
 }
 
 /// Map the remote failure onto the fix, reusing the ssh failure wording other remote runs use.
-pub(super) fn remote_failure(host: &str, out: &craft_anything_platform::Output) -> ToolError {
-    if let Some(failure) = crate::ssh::diagnose(host, "craft-anything-cli", crate::ssh::is_git_server(host), out.code, out.stderr_end_text().as_str()) {
-        return ToolError::new(ErrorCode::EngineMissing, format!("Craft Anything can't set up its tools on {host}: {}.", failure.what))
+pub(super) fn remote_failure(host: &str, out: &pickaxe_platform::Output) -> ToolError {
+    if let Some(failure) = crate::ssh::diagnose(host, "pickaxe-cli", crate::ssh::is_git_server(host), out.code, out.stderr_end_text().as_str()) {
+        return ToolError::new(ErrorCode::EngineMissing, format!("Pickaxe can't set up its tools on {host}: {}.", failure.what))
             .with_remediation(failure.fix);
     }
     let end = out.end_text();
@@ -1322,9 +1322,9 @@ pub(super) fn remote_failure(host: &str, out: &craft_anything_platform::Output) 
     let n = trimmed.chars().count();
     let snippet: String = trimmed.chars().skip(n.saturating_sub(200)).collect();
     let exit = out.code.map_or_else(|| "it was stopped".to_string(), |code| format!("exit {code}"));
-    ToolError::new(ErrorCode::EngineMissing, format!("Craft Anything couldn't set up its tools on {host}: ssh didn't come back as expected ({exit})."))
+    ToolError::new(ErrorCode::EngineMissing, format!("Pickaxe couldn't set up its tools on {host}: ssh didn't come back as expected ({exit})."))
         .with_remediation(if snippet.is_empty() {
-            "Check that craft-anything-cli is on the PATH this ssh session uses, and that the host lets you run programs over ssh.".to_string()
+            "Check that pickaxe-cli is on the PATH this ssh session uses, and that the host lets you run programs over ssh.".to_string()
         } else {
             format!("ssh said: {snippet}")
         })

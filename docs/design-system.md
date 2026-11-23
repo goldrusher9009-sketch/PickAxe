@@ -115,7 +115,7 @@ given.
   for them.
 - The title bar follows the window's chrome (and, on macOS, keeps its size when the app zooms),
   so it scales the same tokens instead of using `ControlSize`.
-- Check a change in both themes: `cargo run -p craft-anything-ui-egui --example snapshot -- --out-dir <dir>`
+- Check a change in both themes: `cargo run -p pickaxe-ui-egui --example snapshot -- --out-dir <dir>`
   renders every scene, and `--light` renders them in Studio Light. `--scale 1` shows what a
   display at 100 % shows. The README's pictures come from the same scenes (the example's header
   says which).

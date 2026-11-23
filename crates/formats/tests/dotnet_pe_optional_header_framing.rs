@@ -2,9 +2,9 @@
 //! `pe::headers` already did; `dotnet::pe::parse_pe` read the CLI data directory from section-table
 //! bytes when the declared header ended before it.
 
-use craft_anything_formats::FormatError;
-use craft_anything_formats::dotnet::pe;
-use craft_anything_testkit::managed as fx;
+use pickaxe_formats::FormatError;
+use pickaxe_formats::dotnet::pe;
+use pickaxe_testkit::managed as fx;
 
 /// The testkit's PE32 optional header starts at 0x98 and declares 224 bytes, with its only section
 /// header just past it.

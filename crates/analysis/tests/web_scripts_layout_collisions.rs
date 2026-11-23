@@ -1,9 +1,9 @@
 //! Regression tests for `web_scripts::plan_layout` case collisions, uppercase script extensions,
 //! and repeated identical script suffix bounds.
 
-use craft_anything_analysis::web_scripts::{CapturedScript, PlannedFile, plan_layout, scripts_from_har};
-use craft_anything_evidence::sha256_hex;
-use craft_anything_js::recover::module_path_key;
+use pickaxe_analysis::web_scripts::{CapturedScript, PlannedFile, plan_layout, scripts_from_har};
+use pickaxe_evidence::sha256_hex;
+use pickaxe_js::recover::module_path_key;
 use std::collections::HashSet;
 use std::io::Write;
 use std::path::{Path, PathBuf};

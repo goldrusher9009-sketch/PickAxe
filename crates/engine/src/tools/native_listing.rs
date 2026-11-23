@@ -3,8 +3,8 @@
 
 use super::native_common::{DEFAULT_LIMIT, address_or_cursor, ev, hex, image, name_of, native, page, params_json, select_document, spec};
 use crate::tool::{Ctx, Effects, Requires, ToolOutput, ToolSpec, Toolset, parse_params, schema_of};
-use craft_anything_disasm::{Xref, slot_label};
-use craft_anything_evidence::{Confidence, Coverage, ErrorCode, Limitation, Location, ToolError};
+use pickaxe_disasm::{Xref, slot_label};
+use pickaxe_evidence::{Confidence, Coverage, ErrorCode, Limitation, Location, ToolError};
 use schemars::JsonSchema;
 use serde::{Deserialize, Serialize};
 use serde_json::{Value, json};
@@ -707,8 +707,8 @@ fn native_inline_comment_read(ctx: &mut Ctx<'_>, params: Value) -> Result<ToolOu
 mod tests {
     use super::super::native_common::{NativeState, test_support::*};
     use super::*;
-    use craft_anything_disasm::{Image, Limits, NoControl, Program, Xref, XrefKind};
-    use craft_anything_testkit as tk;
+    use pickaxe_disasm::{Image, Limits, NoControl, Program, Xref, XrefKind};
+    use pickaxe_testkit as tk;
     use serde_json::json;
 
     #[test]
@@ -748,7 +748,7 @@ mod tests {
         assert_eq!(hit["references_capped"], false);
         let r = call(&e, "native_strings_find", json!({"pattern": "CRAFT", "case_sensitive": true}));
         assert_eq!(r["result"]["total"], 0);
-        assert_eq!(call_err(&e, "native_strings_find", json!({"pattern": "(", "mode": "regex"})).code, craft_anything_evidence::ErrorCode::BadInput);
+        assert_eq!(call_err(&e, "native_strings_find", json!({"pattern": "(", "mode": "regex"})).code, pickaxe_evidence::ErrorCode::BadInput);
         let r = call(&e, "native_bytes_show", json!({"address": format!("{:#x}", l.code_va), "length": 4}));
         assert_eq!(r["result"]["hex"], "554889e5");
         assert!(call_err(&e, "native_bytes_show", json!({"address": "0x10"})).message.contains("isn't backed"));
@@ -813,7 +813,7 @@ mod tests {
         bytes[7 * (refs + 1)] = 0xc3;
         bytes[FIRST as usize - BASE as usize..][..first.len()].copy_from_slice(first.as_bytes());
         bytes[SECOND as usize - BASE as usize..][..second.len()].copy_from_slice(second.as_bytes());
-        (Image::raw(std::sync::Arc::from(bytes), craft_anything_formats::Arch::X86_64, BASE), first.to_string(), second.to_string())
+        (Image::raw(std::sync::Arc::from(bytes), pickaxe_formats::Arch::X86_64, BASE), first.to_string(), second.to_string())
     }
 
     /// The analysis xref limit and the 32-reference display cap both reach the tool's evidence on
@@ -868,7 +868,7 @@ mod tests {
     fn non_native_targets_get_a_clear_error() {
         let e = engine_with("notes.txt", b"just some text, not a program at all");
         let err = call_err(&e, "native_functions_list", json!({}));
-        assert_eq!(err.code, craft_anything_evidence::ErrorCode::NotSupported);
+        assert_eq!(err.code, pickaxe_evidence::ErrorCode::NotSupported);
         assert!(err.remediation.is_some());
     }
 }

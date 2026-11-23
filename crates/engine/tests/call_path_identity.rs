@@ -1,6 +1,6 @@
-use craft_anything_engine::evidence::{Environment, ErrorCode, EvidenceBuilder, Subject};
-use craft_anything_engine::{CallOptions, Caller, Engine};
-use craft_anything_testkit as tk;
+use pickaxe_engine::evidence::{Environment, ErrorCode, EvidenceBuilder, Subject};
+use pickaxe_engine::{CallOptions, Caller, Engine};
+use pickaxe_testkit as tk;
 use serde_json::{Value, json};
 
 fn sample(main_calls_helper: bool, helper_calls_dispatch: bool) -> Vec<u8> {
@@ -26,7 +26,7 @@ fn call(engine: &Engine, tool: &str, params: Value) -> Value {
 }
 
 fn studies(engine: &Engine, name: &str, bytes: &[u8]) -> Vec<Value> {
-    let dir = craft_anything_engine::testing::temp_dir();
+    let dir = pickaxe_engine::testing::temp_dir();
     let path = dir.join(name);
     std::fs::write(&path, bytes).unwrap();
     call(engine, "core_target_open", json!({"path": path}));
@@ -41,7 +41,7 @@ fn request(functions: Value, goal: u64) -> Value {
 
 #[test]
 fn mixed_inline_studies_cannot_invent_a_cross_binary_call_path() {
-    let engine = Engine::new(craft_anything_engine::testing::session());
+    let engine = Engine::new(pickaxe_engine::testing::session());
     let left = studies(&engine, "left.elf", &sample(true, false));
     let right = studies(&engine, "right.elf", &sample(false, true));
     assert_ne!(left[0]["subject"]["sha256"], right[0]["subject"]["sha256"]);
@@ -56,7 +56,7 @@ fn mixed_inline_studies_cannot_invent_a_cross_binary_call_path() {
 
 #[test]
 fn mixed_saved_studies_cannot_invent_a_cross_binary_call_path() {
-    let engine = Engine::new(craft_anything_engine::testing::session());
+    let engine = Engine::new(pickaxe_engine::testing::session());
     let left = studies(&engine, "left.elf", &sample(true, false));
     let right = studies(&engine, "right.elf", &sample(false, true));
     let result =
@@ -67,7 +67,7 @@ fn mixed_saved_studies_cannot_invent_a_cross_binary_call_path() {
 
 #[test]
 fn call_path_records_require_an_input_content_identity() {
-    let engine = Engine::new(craft_anything_engine::testing::session());
+    let engine = Engine::new(pickaxe_engine::testing::session());
     let records = studies(&engine, "chain.elf", &sample(true, true));
     let unbound = EvidenceBuilder::new(
         "native_function_study",
@@ -85,7 +85,7 @@ fn call_path_records_require_an_input_content_identity() {
 
 #[test]
 fn same_input_content_still_connects_across_file_names() {
-    let engine = Engine::new(craft_anything_engine::testing::session());
+    let engine = Engine::new(pickaxe_engine::testing::session());
     let bytes = sample(true, true);
     let left = studies(&engine, "first-name.elf", &bytes);
     let right = studies(&engine, "second-name.elf", &bytes);
@@ -97,7 +97,7 @@ fn same_input_content_still_connects_across_file_names() {
 
 #[test]
 fn one_binary_keeps_its_positive_and_negative_paths() {
-    let engine = Engine::new(craft_anything_engine::testing::session());
+    let engine = Engine::new(pickaxe_engine::testing::session());
     let records = studies(&engine, "simple.elf", &sample(true, false));
     let found = call(&engine, "app_call_path_find", request(json!(records), tk::x64::HELPER));
     assert_eq!(found["result"]["found"], true);

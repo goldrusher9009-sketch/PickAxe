@@ -1,4 +1,4 @@
-use craft_anything_js::html::scan_html;
+use pickaxe_js::html::scan_html;
 
 /// Unsupported suffixes and parameters describe data, not executable scripts.
 #[test]

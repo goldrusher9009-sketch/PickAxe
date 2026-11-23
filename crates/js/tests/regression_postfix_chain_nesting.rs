@@ -2,8 +2,8 @@
 //! what came before in one more syntax-tree node. The nesting estimate has to count them, or a
 //! source deeper than the parser's stack is admitted and the whole process stops on a stack overflow.
 
-use craft_anything_js::lex::{nesting_estimate, tokenize};
-use craft_anything_js::{Limits, ParseMode, admit, analyze};
+use pickaxe_js::lex::{nesting_estimate, tokenize};
+use pickaxe_js::{Limits, ParseMode, admit, analyze};
 
 /// Links (or labels) in each chain: more than the native nesting limit of 4096.
 const LINKS: usize = 5_000;

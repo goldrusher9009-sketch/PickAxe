@@ -1,6 +1,6 @@
-use craft_anything_formats::binary::{Arch, Binary};
-use craft_anything_formats::macho;
-use craft_anything_testkit::Buf;
+use pickaxe_formats::binary::{Arch, Binary};
+use pickaxe_formats::macho;
+use pickaxe_testkit::Buf;
 
 const LIMIT: usize = 500_000;
 const INDIRECT: usize = 0x1020;

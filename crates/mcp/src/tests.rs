@@ -19,7 +19,7 @@ fn run_with(opts: ServerOptions, lines: &[Value]) -> Vec<Value> {
 }
 
 fn run_raw(opts: ServerOptions, input: &str) -> Vec<Value> {
-    let engine = Arc::new(Engine::new(craft_anything_engine::testing::session()));
+    let engine = Arc::new(Engine::new(pickaxe_engine::testing::session()));
     let buf = Buf::default();
     serve(engine, opts, std::io::Cursor::new(input.as_bytes().to_vec()), Box::new(buf.clone())).unwrap();
     let out = String::from_utf8(buf.0.lock().unwrap().clone()).unwrap();
@@ -85,10 +85,10 @@ fn enabling_a_toolset_counts_the_tools_listed() {
 ",
         req(1, "tools/call", json!({"name": "enable_toolset", "arguments": {"toolset": "all"}}))
     );
-    let mut session = craft_anything_engine::testing::session();
+    let mut session = pickaxe_engine::testing::session();
     session.settings.deep_mode = false;
     let engine = Arc::new(Engine::new(session));
-    let runs = engine.registry().all().iter().filter(|s| craft_anything_engine::clean_room::allows(s.id)).count();
+    let runs = engine.registry().all().iter().filter(|s| pickaxe_engine::clean_room::allows(s.id)).count();
     let buf = Buf::default();
     serve(engine, ServerOptions::default(), std::io::Cursor::new(input.into_bytes()), Box::new(buf.clone())).unwrap();
     let out: Vec<Value> = String::from_utf8(buf.0.lock().unwrap().clone()).unwrap().lines().map(|l| serde_json::from_str(l).unwrap()).collect();
@@ -110,7 +110,7 @@ fn initialize_negotiates_version() {
     ]);
     let r = response(&out, 1);
     assert_eq!(r["result"]["protocolVersion"], "2025-03-26");
-    assert_eq!(r["result"]["serverInfo"]["name"], "craft-anything");
+    assert_eq!(r["result"]["serverInfo"]["name"], "pickaxe");
     assert_eq!(r["result"]["capabilities"]["tools"]["listChanged"], true);
     assert_eq!(response(&out, 2)["result"]["protocolVersion"], PROTOCOL_VERSIONS[0]);
     assert_eq!(response(&out, 3)["result"], json!({}));
@@ -146,7 +146,7 @@ fn tool_call_success_and_error_shapes() {
     ]);
     let ok = response(&out, 1);
     assert_eq!(ok["result"]["isError"], false);
-    assert_eq!(ok["result"]["structuredContent"]["result"]["server"]["name"], "craft-anything");
+    assert_eq!(ok["result"]["structuredContent"]["result"]["server"]["name"], "pickaxe");
     let text: Value = serde_json::from_str(ok["result"]["content"][0]["text"].as_str().unwrap()).unwrap();
     assert_eq!(text, ok["result"]["structuredContent"]);
     let err = response(&out, 2);
@@ -274,7 +274,7 @@ fn test_server(engine: Arc<Engine>, opts: ServerOptions) -> Server {
 
 #[test]
 fn provenance_meta_is_set_for_target_content() {
-    let server = test_server(Arc::new(Engine::new(craft_anything_engine::testing::session())), ServerOptions::default());
+    let server = test_server(Arc::new(Engine::new(pickaxe_engine::testing::session())), ServerOptions::default());
 
     // By tool id: a known producer of target content, even when the record didn't set the flag.
     let mut body = json!({"content": [{"type": "text", "text": "x"}], "structuredContent": {"result": {}}, "isError": false});
@@ -295,8 +295,8 @@ fn provenance_meta_is_set_for_target_content() {
 
 #[test]
 fn oversize_evidence_collapses_to_a_summary() {
-    use craft_anything_evidence::{Confidence, Environment, EvidenceBuilder, Subject};
-    let engine = Arc::new(Engine::new(craft_anything_engine::testing::session()));
+    use pickaxe_evidence::{Confidence, Environment, EvidenceBuilder, Subject};
+    let engine = Arc::new(Engine::new(pickaxe_engine::testing::session()));
     let ev = EvidenceBuilder::new(
         "extract_strings",
         Subject { kind: "native".into(), sha256: Some("ab".repeat(32)), name: Some("calc".into()) },
@@ -331,7 +331,7 @@ fn oversize_evidence_collapses_to_a_summary() {
 /// (bigger results come back summary-first); other clients and an explicit budget are left alone.
 #[test]
 fn claude_code_connections_get_a_budget_that_fits_its_limit() {
-    let server = |opts: ServerOptions| Server::new(Arc::new(Engine::new(craft_anything_engine::testing::session())), opts, Box::new(Buf::default()));
+    let server = |opts: ServerOptions| Server::new(Arc::new(Engine::new(pickaxe_engine::testing::session())), opts, Box::new(Buf::default()));
     let hello = |name: &str| json!({"protocolVersion": PROTOCOL_VERSIONS[0], "clientInfo": {"name": name, "version": "1"}});
     let s = server(ServerOptions::default());
     s.handle_request("initialize", &hello("claude-code")).unwrap();
@@ -348,11 +348,11 @@ fn claude_code_connections_get_a_budget_that_fits_its_limit() {
 /// every time. It is remembered in the project, and a tool it was said for isn't asked again.
 #[test]
 fn always_for_this_project_on_a_consent_card_is_remembered() {
-    use craft_anything_engine::inbox::{Answer, Inbox, InboxDir};
-    use craft_anything_engine::workspace::{TargetRef, Workspace};
+    use pickaxe_engine::inbox::{Answer, Inbox, InboxDir};
+    use pickaxe_engine::workspace::{TargetRef, Workspace};
     let dir = tempfile::tempdir().unwrap();
     let ws = Workspace::create(dir.path(), "t", "r", TargetRef::None).unwrap();
-    let engine = Arc::new(Engine::new(craft_anything_engine::testing::session()));
+    let engine = Arc::new(Engine::new(pickaxe_engine::testing::session()));
     engine.session().ext.insert(Arc::new(InboxDir(ws.inbox_dir())));
     let server = Server::new(engine, ServerOptions::default(), Box::new(Buf::default()));
     let inbox = Inbox::new(ws.inbox_dir());
@@ -434,7 +434,7 @@ fn restricted_mode_refuses_calling_turned_off_tools() {
             req(5, "tools/call", json!({"name": "plugins_add", "arguments": {}})),
             req(6, "tools/call", json!({"name": "engines_install", "arguments": {}})),
             req(7, "tools/call", json!({"name": "adb_device_show", "arguments": {}})),
-            req(8, "tools/call", json!({"name": "mcp__craft-anything__web_site_open", "arguments": {}})),
+            req(8, "tools/call", json!({"name": "mcp__pickaxe__web_site_open", "arguments": {}})),
             req(9, "tools/call", json!({"name": "web-site-open", "arguments": {}})),
         ],
     );
@@ -492,8 +492,8 @@ fn restricted_mode_allows_web_and_capture_tools_when_operator_permits() {
 /// desktop person's saved account; sign-in is hidden there, so reusing one would bypass that.
 #[test]
 fn restricted_web_opens_never_use_a_saved_sign_in() {
-    use craft_anything_engine::tools::site_sign_in;
-    let session = craft_anything_engine::testing::session();
+    use pickaxe_engine::tools::site_sign_in;
+    let session = pickaxe_engine::testing::session();
     // A saved sign-in for the site, as web_site_sign_in leaves it.
     let key = site_sign_in::site_key("https://example.com").unwrap();
     let dir = site_sign_in::sign_ins_dir(&session).join(&key);
@@ -506,7 +506,7 @@ fn restricted_web_opens_never_use_a_saved_sign_in() {
 
     let input: String = [
         req(1, "tools/call", json!({"name": "web_site_open", "arguments": {"url": "https://example.com", "signed_in": true}})),
-        req(2, "tools/call", json!({"name": "mcp__craft-anything__web_site_open", "arguments": {"url": "https://example.com", "signed_in": "yes"}})),
+        req(2, "tools/call", json!({"name": "mcp__pickaxe__web_site_open", "arguments": {"url": "https://example.com", "signed_in": "yes"}})),
     ]
     .iter()
     .map(|l| format!("{l}\n"))
@@ -539,7 +539,7 @@ fn restricted_web_opens_never_use_a_saved_sign_in() {
 
 #[test]
 fn restricted_mode_server_options_from_env() {
-    let map = [("CRAFT_ANYTHING_MCP_RESTRICTED", "1"), ("CRAFT_ANYTHING_MCP_ALLOW_WEB", "true"), ("CRAFT_ANYTHING_MCP_ALLOW_CAPTURE", "1")]
+    let map = [("PICKAXE_MCP_RESTRICTED", "1"), ("PICKAXE_MCP_ALLOW_WEB", "true"), ("PICKAXE_MCP_ALLOW_CAPTURE", "1")]
         .into_iter()
         .collect::<std::collections::HashMap<_, _>>();
 
@@ -575,7 +575,7 @@ fn stdio_transcript_parity_and_envelope_framing() {
         "{\"jsonrpc\":\"2.0\",\"id\":6,\"method\":\"tools/call\",\"params\":{\"name\":\"core_session_show\",\"arguments\":{}}}"
     );
 
-    let engine = Arc::new(Engine::new(craft_anything_engine::testing::session()));
+    let engine = Arc::new(Engine::new(pickaxe_engine::testing::session()));
     let buf = Buf::default();
     serve(engine, ServerOptions::default(), std::io::Cursor::new(transcript.as_bytes().to_vec()), Box::new(buf.clone())).unwrap();
     let raw_out = String::from_utf8(buf.0.lock().unwrap().clone()).unwrap();
@@ -632,7 +632,7 @@ fn stdio_transcript_parity_and_envelope_framing() {
 #[test]
 fn stdio_eof_and_newline_bounds() {
     for empty in ["", "\n", "\r\n  \n\t\r\n"] {
-        let engine = Arc::new(Engine::new(craft_anything_engine::testing::session()));
+        let engine = Arc::new(Engine::new(pickaxe_engine::testing::session()));
         let buf = Buf::default();
         serve(engine, ServerOptions::default(), std::io::Cursor::new(empty.as_bytes().to_vec()), Box::new(buf.clone())).unwrap();
         assert!(buf.0.lock().unwrap().is_empty(), "empty/whitespace input {empty:?} must produce no output");
@@ -640,7 +640,7 @@ fn stdio_eof_and_newline_bounds() {
 
     // Single request without trailing newline before EOF must still be answered with a newline-terminated frame.
     let no_eof_newline = "{\"jsonrpc\":\"2.0\",\"id\":42,\"method\":\"ping\"}";
-    let engine = Arc::new(Engine::new(craft_anything_engine::testing::session()));
+    let engine = Arc::new(Engine::new(pickaxe_engine::testing::session()));
     let buf = Buf::default();
     serve(engine, ServerOptions::default(), std::io::Cursor::new(no_eof_newline.as_bytes().to_vec()), Box::new(buf.clone())).unwrap();
     let raw = String::from_utf8(buf.0.lock().unwrap().clone()).unwrap();
@@ -710,8 +710,8 @@ fn stdio_batch_rejection_transcript() {
 
 #[test]
 fn stdio_cancel_inflight_tool_call_transcript() {
-    use craft_anything_engine::inbox::{Inbox, InboxDir};
-    use craft_anything_engine::workspace::{TargetRef, Workspace};
+    use pickaxe_engine::inbox::{Inbox, InboxDir};
+    use pickaxe_engine::workspace::{TargetRef, Workspace};
     use std::io::BufReader;
 
     struct CancelAfterPendingRead {
@@ -749,7 +749,7 @@ fn stdio_cancel_inflight_tool_call_transcript() {
 
     let dir = tempfile::tempdir().unwrap();
     let ws = Workspace::create(dir.path(), "t", "r", TargetRef::None).unwrap();
-    let engine = Arc::new(Engine::new(craft_anything_engine::testing::session()));
+    let engine = Arc::new(Engine::new(pickaxe_engine::testing::session()));
     engine.session().ext.insert(Arc::new(InboxDir(ws.inbox_dir())));
     let inbox = Inbox::new(ws.inbox_dir());
 
@@ -764,8 +764,8 @@ fn stdio_cancel_inflight_tool_call_transcript() {
 
 #[test]
 fn stdio_cancel_running_job_transcript() {
-    use craft_anything_engine::inbox::InboxDir;
-    use craft_anything_engine::workspace::{TargetRef, Workspace};
+    use pickaxe_engine::inbox::InboxDir;
+    use pickaxe_engine::workspace::{TargetRef, Workspace};
     use std::io::BufReader;
 
     struct CancelAfterStartedRead {
@@ -804,7 +804,7 @@ fn stdio_cancel_running_job_transcript() {
 
     let dir = tempfile::tempdir().unwrap();
     let ws = Workspace::create(dir.path(), "t", "r", TargetRef::None).unwrap();
-    let engine = Arc::new(Engine::new(craft_anything_engine::testing::session()));
+    let engine = Arc::new(Engine::new(pickaxe_engine::testing::session()));
     engine.session().ext.insert(Arc::new(InboxDir(ws.inbox_dir())));
 
     let cmd = if cfg!(windows) {

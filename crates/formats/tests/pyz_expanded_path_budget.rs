@@ -1,6 +1,6 @@
-use craft_anything_formats::packed::{Compression, PackedFormat};
-use craft_anything_formats::pyinstaller::{PyInstaller, PyzArchive};
-use craft_anything_testkit::packed::{pyinstaller, pyz};
+use pickaxe_formats::packed::{Compression, PackedFormat};
+use pickaxe_formats::pyinstaller::{PyInstaller, PyzArchive};
+use pickaxe_testkit::packed::{pyinstaller, pyz};
 
 const PATH_BYTES: usize = 8 * 1024 * 1024;
 const BODY: &[u8] = b"N";

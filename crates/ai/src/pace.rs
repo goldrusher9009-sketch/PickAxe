@@ -1,8 +1,8 @@
 //! Spacing a backend's requests out, for services that limit requests per second or minute.
 
 use crate::model::{ChatModel, Delta, Stop, TurnRequest, TurnResult};
-use craft_anything_evidence::ToolError;
-use craft_anything_platform::sync::Mutex;
+use pickaxe_evidence::ToolError;
+use pickaxe_platform::sync::Mutex;
 use std::collections::BTreeMap;
 use std::sync::PoisonError;
 use std::time::{Duration, Instant};

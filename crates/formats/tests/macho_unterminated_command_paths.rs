@@ -1,8 +1,8 @@
-use craft_anything_formats::{
+use pickaxe_formats::{
     binary::{Arch, Binary},
     macho, macho_deps,
 };
-use craft_anything_testkit::{Buf, apple};
+use pickaxe_testkit::{Buf, apple};
 
 /// Remove the terminator and its padding from a load command with a path at the given offset.
 fn unterminated(mut command: Vec<u8>, offset: usize) -> Vec<u8> {

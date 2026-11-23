@@ -1,5 +1,5 @@
-use craft_anything_formats::{firmware, zip};
-use craft_anything_testkit::electron::zip_stored;
+use pickaxe_formats::{firmware, zip};
+use pickaxe_testkit::electron::zip_stored;
 
 const BODY: &[u8] = b"zstandard payload";
 

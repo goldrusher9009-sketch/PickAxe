@@ -9,8 +9,8 @@ use super::artifact_tools::{
 use super::native_common::{page, spec};
 use super::static_input::{Input, builder, format_err, load, load_path};
 use crate::tool::{Ctx, Effects, Requires, ToolOutput, ToolSpec, Toolset, parse_params, schema_of};
-use craft_anything_evidence::{Authority, Confidence, Coverage, CoverageStatus, ErrorCode, Limitation, Location, Subject, ToolError};
-use craft_anything_formats::dotnet::{self, Assembly, MemberOptions, Members, MethodInfo, NativeBoundaries, csharp};
+use pickaxe_evidence::{Authority, Confidence, Coverage, CoverageStatus, ErrorCode, Limitation, Location, Subject, ToolError};
+use pickaxe_formats::dotnet::{self, Assembly, MemberOptions, Members, MethodInfo, NativeBoundaries, csharp};
 use schemars::JsonSchema;
 use serde::{Deserialize, Serialize};
 use serde_json::{Value, json};
@@ -629,10 +629,10 @@ fn norm_module(m: &str) -> String {
 fn native_lib(ctx: &Ctx<'_>, v: &Value) -> Result<NativeLib, ToolError> {
     let from_path = |p: &str| -> Result<NativeLib, ToolError> {
         let input = load_path(p, 2 << 30)?;
-        let bin = craft_anything_formats::parse_binary(&input.bytes).map_err(|e| format_err(e, "an ELF, PE or Mach-O library"))?;
+        let bin = pickaxe_formats::parse_binary(&input.bytes).map_err(|e| format_err(e, "an ELF, PE or Mach-O library"))?;
         let mut exports: BTreeSet<String> = bin.exports.iter().map(|e| e.name.clone()).collect();
         // Mach-O exports carry a leading underscore.
-        if matches!(bin.format, craft_anything_formats::Format::MachO) {
+        if matches!(bin.format, pickaxe_formats::Format::MachO) {
             exports = exports.into_iter().map(|e| e.strip_prefix('_').map(String::from).unwrap_or(e)).collect();
         }
         Ok(NativeLib { norm: norm_module(&input.name), name: input.name, exports, source: p.to_string() })
@@ -745,7 +745,7 @@ fn managed_native_calls_verify(ctx: &mut Ctx<'_>, params: Value) -> Result<ToolO
         b = b.link(id);
     }
     for v in &p.native {
-        if let Some(id) = v.as_str().filter(|s| craft_anything_evidence::is_evidence_id(s)).or_else(|| v.get("evidence_id").and_then(Value::as_str)) {
+        if let Some(id) = v.as_str().filter(|s| pickaxe_evidence::is_evidence_id(s)).or_else(|| v.get("evidence_id").and_then(Value::as_str)) {
             b = b.link(id.to_string());
         }
     }
@@ -1083,7 +1083,7 @@ mod tests {
     use super::super::native_common::test_support::{call, call_err, engine_with};
     use super::{MAX_SOURCE_BYTES, WALK_CUT_NOTE, WalkOptions, Walked, read_source_files, walk_dir};
     use crate::Engine;
-    use craft_anything_testkit::managed as fx;
+    use pickaxe_testkit::managed as fx;
     use serde_json::{Value, json};
 
     fn retained(v: &Value) -> Value {
@@ -1108,7 +1108,7 @@ mod tests {
         let f = call(&e, "managed_members_list", json!({"type_names": ["Sample.NativeMethods"]}));
         assert_eq!(f["result"]["total_types"], 1);
         let err = call_err(&e, "managed_members_list", json!({"type_names": ["Nope"]}));
-        assert_eq!(err.code, craft_anything_evidence::ErrorCode::BadInput);
+        assert_eq!(err.code, pickaxe_evidence::ErrorCode::BadInput);
         let nb = call(&e, "managed_native_calls_list", json!({}));
         assert_eq!(nb["result"]["pinvokes"].as_array().unwrap().len(), 2);
         assert_eq!(nb["result"]["internal_calls"][0]["method"], "GetTicks");
@@ -1116,18 +1116,18 @@ mod tests {
 
     #[test]
     fn non_managed_input_is_a_clear_error() {
-        let e = engine_with("prog.exe", &craft_anything_testkit::pe64());
+        let e = engine_with("prog.exe", &pickaxe_testkit::pe64());
         let err = call_err(&e, "managed_assembly_show", json!({}));
         assert!(err.message.contains(".NET"), "{}", err.message);
-        let p = craft_anything_testkit::temp_file("junk.dll", b"MZjunk");
+        let p = pickaxe_testkit::temp_file("junk.dll", b"MZjunk");
         assert!(call_err(&Engine::new(crate::testing::session()), "managed_members_list", json!({"path": p})).remediation.is_some());
     }
 
     #[test]
     fn compare_two_builds() {
         let e = Engine::new(crate::testing::session());
-        let p1 = craft_anything_testkit::temp_file("v1.dll", &fx::managed_assembly(1));
-        let p2 = craft_anything_testkit::temp_file("v2.dll", &fx::managed_assembly(2));
+        let p1 = pickaxe_testkit::temp_file("v1.dll", &fx::managed_assembly(1));
+        let p2 = pickaxe_testkit::temp_file("v2.dll", &fx::managed_assembly(2));
         let m1 = call(&e, "managed_members_list", json!({"path": p1}));
         let d = call(&e, "managed_assemblies_compare", json!({"left": retained(&m1), "right": p2}));
         let c = &d["result"]["counts"];
@@ -1141,15 +1141,15 @@ mod tests {
         // A changed file behind retained evidence is refused.
         std::fs::write(&p1, fx::managed_assembly(2)).unwrap();
         let err = call_err(&e, "managed_assemblies_compare", json!({"left": retained(&m1), "right": p2}));
-        assert_eq!(err.code, craft_anything_evidence::ErrorCode::FileChanged);
+        assert_eq!(err.code, pickaxe_evidence::ErrorCode::FileChanged);
     }
 
     #[test]
     fn verify_pinvokes_against_a_native_library() {
         let e = Engine::new(crate::testing::session());
-        let asm = craft_anything_testkit::temp_file("Sample.dll", &fx::managed_assembly(1));
+        let asm = pickaxe_testkit::temp_file("Sample.dll", &fx::managed_assembly(1));
         // The native export library is named like the P/Invoke module.
-        let lib = craft_anything_testkit::temp_file("craft.dll", &craft_anything_testkit::pe64());
+        let lib = pickaxe_testkit::temp_file("craft.dll", &pickaxe_testkit::pe64());
         let nb = call(&e, "managed_native_calls_list", json!({"path": asm}));
         let layout = call(&e, "native_layout_show", json!({"path": lib}));
         let v = call(&e, "managed_native_calls_verify", json!({"managed": retained(&nb), "native": [retained(&layout)]}));
@@ -1159,7 +1159,7 @@ mod tests {
         let v2 = call(
             &e,
             "managed_native_calls_verify",
-            json!({"managed": asm, "native": [craft_anything_testkit::temp_file("other.dll", &craft_anything_testkit::pe64())]}),
+            json!({"managed": asm, "native": [pickaxe_testkit::temp_file("other.dll", &pickaxe_testkit::pe64())]}),
         );
         assert_eq!(v2["result"]["counts"]["undetermined"], 2);
         assert_eq!(super::norm_module("libcraft.so.1"), "craft");
@@ -1173,7 +1173,7 @@ mod tests {
     fn a_source_folder_that_cant_be_listed_is_named_with_its_reason() {
         use super::super::artifact_tools::walk_testing::{assert_names_unlisted, close, unlisted_message};
         let e = Engine::new(crate::testing::session());
-        let asm = craft_anything_testkit::temp_file("Sample.dll", &fx::managed_assembly(1));
+        let asm = pickaxe_testkit::temp_file("Sample.dll", &fx::managed_assembly(1));
         let dir = tempfile::tempdir().unwrap();
         std::fs::create_dir_all(dir.path().join("closed")).unwrap();
         std::fs::write(dir.path().join("Empty.cs"), "namespace Empty { }\n").unwrap();
@@ -1274,12 +1274,12 @@ mod tests {
     #[test]
     fn managed_sources_single_oversized_file_is_refused() {
         let e = Engine::new(crate::testing::session());
-        let asm = craft_anything_testkit::temp_file("Sample.dll", &fx::managed_assembly(1));
+        let asm = pickaxe_testkit::temp_file("Sample.dll", &fx::managed_assembly(1));
         let dir = tempfile::tempdir().unwrap();
         let path = dir.path().join("TooBig.cs");
         std::fs::File::create(&path).unwrap().set_len(MAX_SOURCE_BYTES + 1).unwrap();
         let err = call_err(&e, "managed_reconstruction_check", json!({"members": asm, "source_path": path}));
-        assert_eq!(err.code, craft_anything_evidence::ErrorCode::OverLimit);
+        assert_eq!(err.code, pickaxe_evidence::ErrorCode::OverLimit);
         assert!(err.message.contains("64 MiB"));
     }
 
@@ -1288,7 +1288,7 @@ mod tests {
     #[test]
     fn source_files_left_unread_make_the_check_partial() {
         let e = Engine::new(crate::testing::session());
-        let asm = craft_anything_testkit::temp_file("Sample.dll", &fx::managed_assembly(1));
+        let asm = pickaxe_testkit::temp_file("Sample.dll", &fx::managed_assembly(1));
         let check = |dir: &std::path::Path, max_files: usize| {
             call(&e, "managed_reconstruction_check", json!({"members": asm, "source_path": dir, "max_files": max_files}))
         };
@@ -1335,7 +1335,7 @@ mod tests {
     fn no_source_found_names_the_folders_that_couldnt_be_listed() {
         use super::super::artifact_tools::walk_testing::close;
         let e = Engine::new(crate::testing::session());
-        let asm = craft_anything_testkit::temp_file("Sample.dll", &fx::managed_assembly(1));
+        let asm = pickaxe_testkit::temp_file("Sample.dll", &fx::managed_assembly(1));
         let dir = tempfile::tempdir().unwrap();
         std::fs::create_dir_all(dir.path().join("closed")).unwrap();
         std::fs::write(dir.path().join("closed/Calc.cs"), fx::RECONSTRUCTION_CS).unwrap();
@@ -1357,7 +1357,7 @@ mod tests {
     #[test]
     fn reconstruction_and_graph() {
         let e = Engine::new(crate::testing::session());
-        let asm = craft_anything_testkit::temp_file("Sample.dll", &fx::managed_assembly(1));
+        let asm = pickaxe_testkit::temp_file("Sample.dll", &fx::managed_assembly(1));
         let m = call(&e, "managed_members_list", json!({"path": asm}));
         let r = call(&e, "managed_reconstruction_check", json!({"members": retained(&m), "source_text": fx::RECONSTRUCTION_CS}));
         assert_eq!(r["result"]["counts"]["signature_mismatch"], 1, "{}", r["result"]);
@@ -1382,7 +1382,7 @@ mod tests {
     #[test]
     fn a_skipped_gitignore_is_named_for_managed_sources() {
         let e = Engine::new(crate::testing::session());
-        let asm = craft_anything_testkit::temp_file("Sample.dll", &fx::managed_assembly(1));
+        let asm = pickaxe_testkit::temp_file("Sample.dll", &fx::managed_assembly(1));
         let dir = tempfile::tempdir().unwrap();
         std::fs::create_dir_all(dir.path().join("src")).unwrap();
         std::fs::write(dir.path().join("src/Calc.cs"), fx::RECONSTRUCTION_CS).unwrap();

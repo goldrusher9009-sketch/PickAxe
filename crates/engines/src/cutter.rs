@@ -2,8 +2,8 @@
 //! run `=h& 9090`, which serves that session's Rizin over HTTP on this computer; each command is
 //! one `GET /cmd/<command>` answered with its text output. Only 127.0.0.1 is ever contacted.
 
-use craft_anything_evidence::{ErrorCode, ToolError};
-use craft_anything_platform::retry;
+use pickaxe_evidence::{ErrorCode, ToolError};
+use pickaxe_platform::retry;
 use serde_json::{Value, json};
 use std::io::{ErrorKind, Read};
 use std::time::{Duration, Instant};
@@ -50,7 +50,7 @@ fn run(port: u16, cmd: &str, timeout: Duration, tries: u32) -> Result<(String, b
     let deadline = Instant::now().checked_add(timeout).ok_or_else(|| ToolError::invalid("The time limit for a Cutter command is too long."))?;
     let agent = ureq::Agent::config_builder()
         .http_status_as_error(false)
-        .user_agent("CraftAnything-dev")
+        .user_agent("Pickaxe-dev")
         .timeout_connect(Some(Duration::from_secs(2)))
         .build()
         .new_agent();

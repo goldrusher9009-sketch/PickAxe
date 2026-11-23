@@ -1,7 +1,7 @@
-use craft_anything_formats::fsread::{Limits, jffs2};
+use pickaxe_formats::fsread::{Limits, jffs2};
 
 fn image(payload: &[u8], compression: u8, declared: u32, file_size: u32) -> Vec<u8> {
-    let mut bytes = craft_anything_testkit::firmware::jffs2_image();
+    let mut bytes = pickaxe_testkit::firmware::jffs2_image();
     let node = 96;
     bytes.truncate(node + 68);
     for (field, value) in [(4, 68 + payload.len() as u32), (28, file_size), (48, payload.len() as u32), (52, declared)] {

@@ -1,4 +1,4 @@
-use craft_anything_js::html::scan_html;
+use pickaxe_js::html::scan_html;
 
 /// Legacy language values that do not select a JavaScript MIME type add no script evidence.
 #[test]

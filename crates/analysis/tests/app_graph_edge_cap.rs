@@ -1,7 +1,7 @@
 //! An application graph records the edges its cap drops, and a graph cut by either cap is not
 //! reported as complete.
 
-use craft_anything_analysis::js_app::{AppFile, AppInput, AppOptions, analyze_application};
+use pickaxe_analysis::js_app::{AppFile, AppInput, AppOptions, analyze_application};
 
 fn mutually_importing(n: usize) -> Vec<AppFile> {
     (0..n)
@@ -12,7 +12,7 @@ fn mutually_importing(n: usize) -> Vec<AppFile> {
         .collect()
 }
 
-fn graph_of(files: Vec<AppFile>, max_nodes: usize) -> craft_anything_analysis::js_app::AppGraph {
+fn graph_of(files: Vec<AppFile>, max_nodes: usize) -> pickaxe_analysis::js_app::AppGraph {
     let listing = files.iter().map(|f| (f.path.clone(), f.bytes.len() as u64)).collect();
     analyze_application(&AppInput { files, listing, ..Default::default() }, &AppOptions { max_nodes, ..Default::default() }, &|| false).unwrap()
 }

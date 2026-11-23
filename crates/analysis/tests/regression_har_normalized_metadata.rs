@@ -1,4 +1,4 @@
-use craft_anything_analysis::web_har::{HarOptions, inspect_har};
+use pickaxe_analysis::web_har::{HarOptions, inspect_har};
 use serde_json::{Value, json};
 
 fn report(entries: Value, hidden: &[&str]) -> Value {

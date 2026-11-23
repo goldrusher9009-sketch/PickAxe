@@ -21,8 +21,8 @@ mod parity {
     use super::*;
     #[test]
     fn shared_reports_errors_and_text_match() {
-        let sample = craft_anything_testkit::formats::wasm_module();
-        let mut samples = craft_anything_testkit::mutations(&sample);
+        let sample = pickaxe_testkit::formats::wasm_module();
+        let mut samples = pickaxe_testkit::mutations(&sample);
         samples.push(sample);
         samples.push(b"not wasm".to_vec());
         samples.push(b"\0asm\x0d\0\x01\0".to_vec());
@@ -32,7 +32,7 @@ mod parity {
             match (legacy::inspect(&data), inspect(&data)) {
                 (Ok(old), Ok(new)) => {
                     assert_eq!(serde_json::to_value(&old).unwrap(), serde_json::to_value(&new).unwrap());
-                    let glue = craft_anything_testkit::formats::WASM_GLUE;
+                    let glue = pickaxe_testkit::formats::WASM_GLUE;
                     assert_eq!(
                         serde_json::to_value(legacy::scan_glue(glue, &old.imports)).unwrap(),
                         serde_json::to_value(scan_glue(glue, &new.imports)).unwrap()
@@ -102,7 +102,7 @@ mod parity {
         assert_eq!(report.tags.iter().map(|x| (x.index, x.imported)).collect::<Vec<_>>(), [(0, true), (1, false)]);
         assert_eq!(report.start_function, Some(0));
         assert_eq!(report.data_count, Some(0));
-        for damaged in craft_anything_testkit::mutations(&bytes) {
+        for damaged in pickaxe_testkit::mutations(&bytes) {
             if is_wasm(&damaged) {
                 same_report(&damaged);
             }

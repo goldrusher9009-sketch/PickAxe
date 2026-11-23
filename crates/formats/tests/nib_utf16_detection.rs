@@ -1,5 +1,5 @@
-use craft_anything_formats::{nib, plist};
-use craft_anything_testkit::apple::{self as fx, P, dict, s};
+use pickaxe_formats::{nib, plist};
+use pickaxe_testkit::apple::{self as fx, P, dict, s};
 
 fn archive() -> P {
     dict(vec![

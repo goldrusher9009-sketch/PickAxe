@@ -1,5 +1,5 @@
-use craft_anything_formats::binary::{Arch, Binary, Section};
-use craft_anything_formats::elf;
+use pickaxe_formats::binary::{Arch, Binary, Section};
+use pickaxe_formats::elf;
 
 fn put(data: &mut [u8], at: usize, width: usize, value: u64, big: bool) {
     let bytes = if big { value.to_be_bytes() } else { value.to_le_bytes() };

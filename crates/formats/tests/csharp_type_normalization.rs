@@ -1,7 +1,7 @@
 //! Regression tests for C# type normalization and metadata signature reconciliation.
 
-use craft_anything_formats::dotnet::csharp::{norm_type, reconcile, scan};
-use craft_anything_formats::dotnet::{Members, MethodInfo, Param, TypeInfo};
+use pickaxe_formats::dotnet::csharp::{norm_type, reconcile, scan};
+use pickaxe_formats::dotnet::{Members, MethodInfo, Param, TypeInfo};
 
 /// Construct a minimal metadata method entry for reconciliation checks.
 fn meta_method(name: &str, params: &[&str], ret: &str) -> MethodInfo {

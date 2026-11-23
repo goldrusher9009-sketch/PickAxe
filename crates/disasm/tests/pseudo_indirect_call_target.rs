@@ -2,10 +2,10 @@
 //! call target / memory address / pointer-authentication modifier instead of folding them as fake
 //! callee arguments and deleting the assignment statement in pseudo-C.
 
-use craft_anything_disasm::pseudo::lift;
-use craft_anything_disasm::{Image, Limits, NoControl, Program};
-use craft_anything_formats::{Arch, Binary, ImportSlot, Symbol, SymbolKind};
-use craft_anything_testkit as tk;
+use pickaxe_disasm::pseudo::lift;
+use pickaxe_disasm::{Image, Limits, NoControl, Program};
+use pickaxe_formats::{Arch, Binary, ImportSlot, Symbol, SymbolKind};
+use pickaxe_testkit as tk;
 use std::sync::Arc;
 
 /// ARM32 (`blx r3`) and Thumb (`blx r2`) indirect calls using an AAPCS32 argument register for the

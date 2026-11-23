@@ -1,4 +1,4 @@
-use craft_anything_formats::dotnet::{
+use pickaxe_formats::dotnet::{
     self,
     meta::{Metadata, t},
     sig::{Cur, GenCtx, Names},
@@ -6,7 +6,7 @@ use craft_anything_formats::dotnet::{
 
 #[test]
 fn padded_method_and_property_signatures_keep_their_types() {
-    let bytes = craft_anything_testkit::managed::managed_assembly(1);
+    let bytes = pickaxe_testkit::managed::managed_assembly(1);
     let assembly = dotnet::open(&bytes).unwrap();
     for convention in [0, 8] {
         for tail in [0, 8, 0x41, 0xff] {
@@ -23,7 +23,7 @@ fn padded_method_and_property_signatures_keep_their_types() {
 
 #[test]
 fn padded_field_local_and_instantiation_signatures_keep_their_types() {
-    let bytes = craft_anything_testkit::managed::managed_assembly(1);
+    let bytes = pickaxe_testkit::managed::managed_assembly(1);
     let assembly = dotnet::open(&bytes).unwrap();
     let names = Names::new(&assembly.md);
     let g = GenCtx::default();
@@ -50,7 +50,7 @@ fn padded_field_local_and_instantiation_signatures_keep_their_types() {
 
 #[test]
 fn nested_function_pointers_leave_the_enclosing_parameters_available() {
-    let bytes = craft_anything_testkit::managed::managed_assembly(1);
+    let bytes = pickaxe_testkit::managed::managed_assembly(1);
     let assembly = dotnet::open(&bytes).unwrap();
     let names = Names::new(&assembly.md);
     let g = GenCtx::default();
@@ -98,7 +98,7 @@ fn padded_standalone_type_specifications_keep_their_type() {
 
 #[test]
 fn malformed_prefixes_are_not_accepted_as_padding() {
-    let bytes = craft_anything_testkit::managed::managed_assembly(1);
+    let bytes = pickaxe_testkit::managed::managed_assembly(1);
     let assembly = dotnet::open(&bytes).unwrap();
     let names = Names::new(&assembly.md);
     let g = GenCtx::default();
@@ -116,10 +116,10 @@ fn malformed_prefixes_are_not_accepted_as_padding() {
 
 #[test]
 fn public_views_retain_padded_signatures_and_report_the_limitation() {
-    let bytes = craft_anything_testkit::managed::managed_assembly_with_padded_signatures(1);
+    let bytes = pickaxe_testkit::managed::managed_assembly_with_padded_signatures(1);
     let assembly = dotnet::open(&bytes).unwrap();
     let inventory = dotnet::inventory(&assembly);
-    assert_eq!(inventory.target_frameworks, [craft_anything_testkit::managed::TFM]);
+    assert_eq!(inventory.target_frameworks, [pickaxe_testkit::managed::TFM]);
     let members = dotnet::members(&assembly, &dotnet::MemberOptions { include_il: true, ..Default::default() });
     let calc = members.types.iter().find(|t| t.name == "Calculator").unwrap();
     assert_eq!(calc.fields[0].ty, "int");
@@ -137,7 +137,7 @@ fn public_views_retain_padded_signatures_and_report_the_limitation() {
 
 #[test]
 fn signature_note_survives_the_tools_warning_display_cap() {
-    let bytes = craft_anything_testkit::managed::managed_assembly_with_padded_signatures(1);
+    let bytes = pickaxe_testkit::managed::managed_assembly_with_padded_signatures(1);
     let mut assembly = dotnet::open(&bytes).unwrap();
     assembly.md.warnings = (0..21).map(|i| format!("earlier metadata warning {i}")).collect();
     let inventory = dotnet::inventory(&assembly);

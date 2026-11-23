@@ -1,5 +1,5 @@
-use craft_anything_formats::sqlite::{CellValue, SqliteDb};
-use craft_anything_testkit::sqlite::{Val, without_rowid_db};
+use pickaxe_formats::sqlite::{CellValue, SqliteDb};
+use pickaxe_testkit::sqlite::{Val, without_rowid_db};
 
 /// Read the declaration-order row from a supplied WITHOUT ROWID record.
 fn row(sql: &str, record: Vec<Val>) -> Vec<CellValue> {

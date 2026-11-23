@@ -1,17 +1,17 @@
 //! Rebuild control as tools, registered from this layer next to the engine's own
-//! ([`craft_anything_engine::Engine::shared`]): start a build (new or a follow-up), see whether
+//! ([`pickaxe_engine::Engine::shared`]): start a build (new or a follow-up), see whether
 //! it's running, add a note while it works, and stop it. The conversation, questions and result
 //! are the project tools' (`project_show`, `project_inbox_answer`, `project_play`…).
 
 use super::*;
-use craft_anything_engine::EngineRef;
-use craft_anything_engine::questions::{self, AskedQuestion};
-use craft_anything_engine::tool::{Ctx, Effects, Requires, ToolOutput, ToolSpec, Toolset, parse_params, schema_of};
-use craft_anything_engine::workspace::ProjectUsage;
+use pickaxe_engine::EngineRef;
+use pickaxe_engine::questions::{self, AskedQuestion};
+use pickaxe_engine::tool::{Ctx, Effects, Requires, ToolOutput, ToolSpec, Toolset, parse_params, schema_of};
+use pickaxe_engine::workspace::ProjectUsage;
 use schemars::JsonSchema;
 use serde::Deserialize;
 
-/// The AI layer's tools, for [`craft_anything_engine::Engine::shared`].
+/// The AI layer's tools, for [`pickaxe_engine::Engine::shared`].
 pub fn specs() -> Vec<ToolSpec> {
     vec![
         ToolSpec {
@@ -116,7 +116,7 @@ pub fn specs() -> Vec<ToolSpec> {
         ToolSpec {
             id: "rebuild_check",
             title: "Check my build",
-            summary: "For the builder: test the project's current build against the original now, with the same checks Craft Anything runs after each turn (a website's likeness at each width with the padding, colour, font and layout differences; an app's or game's picture against the original's; whether it builds; the mechanics sheet; credits). The project's running build answers it, so the builder can fix what it lists and check again before replying. Not counted as a round. project defaults to the project this tool server works for.",
+            summary: "For the builder: test the project's current build against the original now, with the same checks Pickaxe runs after each turn (a website's likeness at each width with the padding, colour, font and layout differences; an app's or game's picture against the original's; whether it builds; the mechanics sheet; credits). The project's running build answers it, so the builder can fix what it lists and check again before replying. Not counted as a round. project defaults to the project this tool server works for.",
             beginner: "Lets the builder test its work against the original while it builds.",
             toolset: Toolset::Core,
             effects: Effects::WRITES_FILESYSTEM,
@@ -156,7 +156,7 @@ pub struct StartParams {
     /// edited in place) or `start_from` (material to start from; the app is built in app/ beside
     /// them).
     #[serde(default)]
-    pub existing: Option<craft_anything_engine::workspace::ExistingFiles>,
+    pub existing: Option<pickaxe_engine::workspace::ExistingFiles>,
     /// What to build with: an engine (unity, unreal, godot, rust) or a stack's full name.
     #[serde(default)]
     pub build_with: Option<String>,
@@ -300,10 +300,10 @@ fn rebuild_question_ask(ctx: &mut Ctx<'_>, params: Value) -> Result<ToolOutput, 
     let p: QuestionParams = parse_params(params)?;
     let engine = engine(ctx).ok_or_else(|| {
         ToolError::new(ErrorCode::FeatureMissing, "Questions about a build aren't available in this engine.")
-            .with_remediation("Use the app or `craft-anything-cli`.")
+            .with_remediation("Use the app or `pickaxe-cli`.")
     })?;
     let ws = open(&p.project)?;
-    let after = craft_anything_engine::feed::load(&ws).len();
+    let after = pickaxe_engine::feed::load(&ws).len();
     ctx.report(None, "Asking…");
     // The session is this call's while it runs: the question gets its settings from here.
     let mut settings = ctx.session.settings.clone();
@@ -365,7 +365,7 @@ fn rebuild_questions_list(_ctx: &mut Ctx<'_>, params: Value) -> Result<ToolOutpu
 fn rebuild_start(ctx: &mut Ctx<'_>, params: Value) -> Result<ToolOutput, ToolError> {
     let p: StartParams = parse_params(params)?;
     let engine = engine(ctx).ok_or_else(|| {
-        ToolError::new(ErrorCode::FeatureMissing, "Building isn't available in this engine.").with_remediation("Use the app or `craft-anything-cli rebuild`.")
+        ToolError::new(ErrorCode::FeatureMissing, "Building isn't available in this engine.").with_remediation("Use the app or `pickaxe-cli rebuild`.")
     })?;
     let runs = runs(ctx);
     let cfg = crate::AiConfig::from_settings(&ctx.session.settings);
@@ -483,7 +483,7 @@ fn rebuild_activity_show(_ctx: &mut Ctx<'_>, params: Value) -> Result<ToolOutput
     let (lines, total) = super::activity::read_log(&ws.root, p.offset.unwrap_or(0), limit)?;
     Ok(ToolOutput::Value(json!({
         "project": ws.root.display().to_string(),
-        "log": ws.root.join(craft_anything_engine::workspace::ACTIVITY_LOG).display().to_string(),
+        "log": ws.root.join(pickaxe_engine::workspace::ACTIVITY_LOG).display().to_string(),
         "lines": lines,
         "total_lines_read": total,
     })))
@@ -545,10 +545,10 @@ fn rebuild_check(ctx: &mut Ctx<'_>, params: Value) -> Result<ToolOutput, ToolErr
     let ws = open(&project)?;
     if self_check::building_here(&ws.root) {
         return Err(ToolError::new(ErrorCode::FeatureMissing, "This builder can't check its own work while it builds.")
-            .with_remediation("Finish the turn: Craft Anything checks the build after it."));
+            .with_remediation("Finish the turn: Pickaxe checks the build after it."));
     }
     let asks = Inbox::new(self_check::asks_dir(&ws.root));
-    let id = asks.post(craft_anything_engine::inbox::RequestKind::Question, "Check the build", "", Vec::new(), false, None)?;
+    let id = asks.post(pickaxe_engine::inbox::RequestKind::Question, "Check the build", "", Vec::new(), false, None)?;
     ctx.report(None, "Checking the build against the original…");
     let cancel = ctx.cancel.clone();
     let answer = asks.wait(&id, Duration::from_secs(p.wait_minutes.saturating_mul(60)), &|| cancel.is_cancelled());
@@ -573,14 +573,14 @@ fn unanswered(taken: bool, minutes: u64) -> ToolError {
             .with_remediation("A step of the check may be stuck (the project's feed says which step it's on). Don't ask again: finish the turn, and the build is checked after it, with a time limit.")
     } else {
         ToolError::new(ErrorCode::NotFound, format!("No build is running for this project: nothing took the check in {minutes} minutes."))
-            .with_remediation("Use this while Craft Anything is building the project; otherwise build it and finish the turn, and it is checked after.")
+            .with_remediation("Use this while Pickaxe is building the project; otherwise build it and finish the turn, and it is checked after.")
     }
 }
 
 #[cfg(test)]
 mod tests {
     use super::*;
-    use craft_anything_engine::{CallOptions, Caller, Consent, Engine};
+    use pickaxe_engine::{CallOptions, Caller, Consent, Engine};
 
     #[test]
     fn a_questions_cost_is_counted_in_the_projects_usage() {
@@ -611,9 +611,9 @@ mod tests {
     #[test]
     fn a_question_through_the_engine_comes_back_instead_of_waiting_for_the_session() {
         // The tool runs while the call holds the session; reading it again would wait forever.
-        let mut s = craft_anything_engine::testing::session();
+        let mut s = pickaxe_engine::testing::session();
         s.settings.ai =
-            toml::from_str("[[backends]]\nname = \"Agent\"\nkind = \"agent_cli\"\nmodel = \"claude-code\"\ncommand = \"craft-anything-no-such-agent\"\n")
+            toml::from_str("[[backends]]\nname = \"Agent\"\nkind = \"agent_cli\"\nmodel = \"claude-code\"\ncommand = \"pickaxe-no-such-agent\"\n")
                 .unwrap();
         let e = std::sync::Arc::new(Engine::shared(s, specs()));
         let d = tempfile::tempdir().unwrap();
@@ -632,7 +632,7 @@ mod tests {
     #[test]
     fn rebuild_tools_are_registered_from_the_ai_layer_and_check_their_input() {
         let d = tempfile::tempdir().unwrap();
-        let e = Engine::shared(craft_anything_engine::testing::session(), specs());
+        let e = Engine::shared(pickaxe_engine::testing::session(), specs());
         let ok = || CallOptions::new(Caller::Cli).with_consent(Consent::Granted);
         for id in ["rebuild_start", "rebuild_status", "rebuild_note", "rebuild_note_withdraw", "rebuild_stop", "rebuild_check"] {
             assert!(e.registry().get(id).is_some(), "{id}");
@@ -649,7 +649,7 @@ mod tests {
         // A project's activity reads through the tool, none yet being no lines, not an error.
         let shown = e.call("rebuild_activity_show", json!({"project": ws.root}), ok()).unwrap().to_json();
         assert_eq!(shown["result"]["lines"], json!([]), "{shown}");
-        std::fs::write(ws.root.join(craft_anything_engine::workspace::ACTIVITY_LOG), "one\ntwo\nthree\n").unwrap();
+        std::fs::write(ws.root.join(pickaxe_engine::workspace::ACTIVITY_LOG), "one\ntwo\nthree\n").unwrap();
         let shown = e.call("rebuild_activity_show", json!({"project": ws.root, "limit": 1, "offset": 1}), ok()).unwrap().to_json();
         assert_eq!(shown["result"]["lines"], json!(["two"]), "{shown}");
         let st = e.call("rebuild_status", json!({"project": ws.root}), ok()).unwrap().to_json();
@@ -665,7 +665,7 @@ mod tests {
     #[test]
     fn starting_at_a_folder_that_already_holds_a_project_attaches() {
         let d = tempfile::tempdir().unwrap();
-        let e = Engine::shared(craft_anything_engine::testing::session(), specs());
+        let e = Engine::shared(pickaxe_engine::testing::session(), specs());
         let ok = || CallOptions::new(Caller::Cli).with_consent(Consent::Granted);
         let mut ws = Workspace::create(d.path(), "Notes", "A notes app", TargetRef::None).unwrap();
         ws.set_person(|m| {
@@ -693,7 +693,7 @@ mod tests {
     #[test]
     fn starting_at_an_existing_project_sends_its_request_as_a_follow_up() {
         let d = tempfile::tempdir().unwrap();
-        let mut s = craft_anything_engine::testing::session();
+        let mut s = pickaxe_engine::testing::session();
         let mut ai = crate::AiConfig::default();
         ai.upsert(crate::BackendEntry {
             config: crate::BackendConfig {
@@ -728,9 +728,9 @@ mod tests {
         assert_eq!(saved.asset_budget_usd, 42.0, "the saved budget is kept");
         assert!(saved.generate_assets, "the saved asset setting is kept");
         assert_eq!(saved.stack, "Godot", "the saved stack is kept");
-        let feed = craft_anything_engine::feed::load(&ws);
+        let feed = pickaxe_engine::feed::load(&ws);
         assert!(
-            feed.iter().any(|i| matches!(i, craft_anything_engine::feed::FeedItem::User(u) if u.text() == "add a jump")),
+            feed.iter().any(|i| matches!(i, pickaxe_engine::feed::FeedItem::User(u) if u.text() == "add a jump")),
             "the request is the run's follow-up: {feed:?}"
         );
         let _ = e.call("rebuild_stop", json!({"project": ws.root}), ok());
@@ -739,7 +739,7 @@ mod tests {
     #[test]
     fn a_disabled_or_unknown_backend_is_refused_before_the_tool_makes_a_project() {
         let d = tempfile::tempdir().unwrap();
-        let mut s = craft_anything_engine::testing::session();
+        let mut s = pickaxe_engine::testing::session();
         s.settings.ai = toml::from_str("[[backends]]\nname = \"Off\"\nkind = \"anthropic\"\nmodel = \"claude-test\"\nenabled = false\n").unwrap();
         let e = Engine::shared(s, specs());
         let ok = || CallOptions::new(Caller::Cli).with_consent(Consent::Granted);
@@ -756,7 +756,7 @@ mod tests {
     #[test]
     fn a_project_keeps_the_builder_it_is_given() {
         let d = tempfile::tempdir().unwrap();
-        let mut s = craft_anything_engine::testing::session();
+        let mut s = pickaxe_engine::testing::session();
         s.settings.ai = toml::from_str(
             "[[backends]]\nname = \"Claude\"\nkind = \"anthropic\"\nmodel = \"claude-test\"\n\
              [[backends]]\nname = \"Off\"\nkind = \"anthropic\"\nmodel = \"claude-test\"\nenabled = false\n",
@@ -793,7 +793,7 @@ mod tests {
     #[test]
     fn a_builder_is_chosen_in_clean_room() {
         let d = tempfile::tempdir().unwrap();
-        let mut s = craft_anything_engine::testing::session();
+        let mut s = pickaxe_engine::testing::session();
         s.settings.deep_mode = false;
         assert!(s.clean_room());
         s.settings.ai = toml::from_str("[[backends]]\nname = \"Claude\"\nkind = \"anthropic\"\nmodel = \"claude-test\"\n").unwrap();
@@ -812,7 +812,7 @@ mod tests {
     #[test]
     fn a_project_with_no_builder_says_nothing_builds_and_still_resets() {
         let d = tempfile::tempdir().unwrap();
-        let e = Engine::shared(craft_anything_engine::testing::session(), specs());
+        let e = Engine::shared(pickaxe_engine::testing::session(), specs());
         let mut ws = Workspace::create(d.path(), "Notes", "A notes app", TargetRef::None).unwrap();
         ws.set_person(|m| m.builder = Some("Gone".into())).unwrap();
         let call = |p: Value| e.call("project_builder_set", p, CallOptions::new(Caller::Cli)).map(|o| o.to_json()["result"].clone());
@@ -828,7 +828,7 @@ mod tests {
     #[test]
     fn rebuild_start_on_an_api_backend_does_not_wait_on_its_own_session() {
         let d = tempfile::tempdir().unwrap();
-        let mut s = craft_anything_engine::testing::session();
+        let mut s = pickaxe_engine::testing::session();
         let mut ai = crate::AiConfig::default();
         ai.upsert(crate::BackendEntry {
             config: crate::BackendConfig {
@@ -871,7 +871,7 @@ mod tests {
         )
         .unwrap();
         std::fs::set_permissions(&script, std::fs::Permissions::from_mode(0o755)).unwrap();
-        let mut s = craft_anything_engine::testing::session();
+        let mut s = pickaxe_engine::testing::session();
         let mut ai = crate::AiConfig::default();
         ai.upsert(crate::BackendEntry {
             config: crate::BackendConfig {
@@ -911,7 +911,7 @@ mod tests {
     #[test]
     fn the_builder_asks_the_running_build_for_a_check_and_gets_its_report() {
         let d = tempfile::tempdir().unwrap();
-        let e = Engine::shared(craft_anything_engine::testing::session(), specs());
+        let e = Engine::shared(pickaxe_engine::testing::session(), specs());
         let ok = || CallOptions::new(Caller::Mcp);
         let ws = Workspace::create(d.path(), "Snake", "A snake game", TargetRef::None).unwrap();
         assert!(e.call("rebuild_check", json!({"project": ws.root, "wait_minutes": 0}), ok()).is_err(), "wait is checked");

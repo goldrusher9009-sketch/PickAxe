@@ -1,8 +1,8 @@
 //! Opt-in live check: uses the installed, signed-in Codex and its model allowance.
-//! Build craft-anything-cli first and put target/debug on PATH. Never run in CI.
+//! Build pickaxe-cli first and put target/debug on PATH. Never run in CI.
 
-use craft_anything_ai::cli_agents::{Builder, CliConversation, CliSpec};
-use craft_anything_ai::{AgentEvent, BackendConfig, BackendKind, BackendOptions, Conversation};
+use pickaxe_ai::cli_agents::{Builder, CliConversation, CliSpec};
+use pickaxe_ai::{AgentEvent, BackendConfig, BackendKind, BackendOptions, Conversation};
 use std::error::Error;
 use std::time::{Duration, Instant};
 
@@ -72,7 +72,7 @@ fn main() -> Result<(), Box<dyn Error>> {
     }
     let (reply, tool_ok) = turn(
         &mut c,
-        "Remember the marker amber-sail-47 in this conversation. Call Craft Anything's core_targets_list MCP tool. Create smoke.txt containing exactly amber-sail-47 in the working folder. Do not use any other tools except those needed to create the file. Reply exactly READY.",
+        "Remember the marker amber-sail-47 in this conversation. Call Pickaxe's core_targets_list MCP tool. Create smoke.txt containing exactly amber-sail-47 in the working folder. Do not use any other tools except those needed to create the file. Reply exactly READY.",
     )?;
     if reply.lines().last() != Some("READY") || !tool_ok || std::fs::read_to_string(dir.path().join("smoke.txt"))?.trim() != "amber-sail-47" {
         return Err("First turn did not verify MCP, file creation and the expected reply".into());

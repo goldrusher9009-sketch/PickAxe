@@ -132,10 +132,10 @@ cheapest help we can give anyone, so nothing below should hold it up for long.
 - [x] A start that dies before its window (a native driver crash leaves no dialog or log, #74, #104,
       #33) is remembered: `starting` beside `desktop.log` is written before the window is asked for
       and removed once it's open, and a start that finds it draws with WARP that once
-- [x] List `craft-anything-cli` in AppStream metainfo `<provides>` so package managers and software
+- [x] List `pickaxe-cli` in AppStream metainfo `<provides>` so package managers and software
       centres know the CLI ships with the package (it is inside the AppImage and Flatpak but not on
       the host's PATH)
-      (`apps/craft-anything/src/start_guard.rs`)
+      (`apps/pickaxe/src/start_guard.rs`)
 - [x] Live-check the start fallback on Windows: make a start die before its window (kill the
       process at launch), start again, and see `desktop.log` say it drew without the graphics card
       and log `drawing with` an adapter of type `Cpu` (WARP), and that the window opens. Passed on
@@ -151,7 +151,7 @@ cheapest help we can give anyone, so nothing below should hold it up for long.
       `CreatePipelineState`) on AMD, Intel and NVIDIA cards and on WARP too (lightcraft#812,
       pdfcraft#1046, wgpu#10771), so the software retry failed the same way every start, and the
       dialog only said to update the driver. Each failed start now moves on to the next renderer
-      (DX12 → WARP → Vulkan → GL, `apps/craft-anything/src/renderer.rs`), keeps the one that worked
+      (DX12 → WARP → Vulkan → GL, `apps/pickaxe/src/renderer.rs`), keeps the one that worked
       for this app version, and starts again by itself after a wgpu error. Checked with a build
       that failed every DX12 start; the real failure wasn't reproduced (STATUS.md)
       — claimed: 00xJS, branch bugfix/r5.1-renderer-fallback
@@ -183,7 +183,7 @@ Owner: maintainers · Status: in progress
       — claimed: Codex, branch bugfix/r5.2-watched-launch-tests
 - [x] Run PR #1030's shell-free parent/descendant fixture and startup-timeout cleanup test
       on Windows; the contributor reproduced startup failure and leaked processes on 07671fe.
-      Verified on Windows 11: `cargo test -p craft-anything-platform --lib process::launch_tests`
+      Verified on Windows 11: `cargo test -p pickaxe-platform --lib process::launch_tests`
       passed five runs (11 passed, 6 ignored, the six being the stand-ins),
       `stopping_a_watched_program_stops_its_descendant` and
       `a_descendant_startup_timeout_stops_the_watched_launch` among them; after the runs and a 35 s
@@ -269,7 +269,7 @@ only when it's green and a maintainer has fully reviewed it, code as well as wor
 - [x] `process::launch_tests::a_watched_program_can_be_stopped` leaves its `sleep 30` (Windows:
       `ping -n 30`) running, on `main` too: `stop` ends the shell but not what the shell started
       (#1027). Verified on Windows 11: after the test (5 runs) and after the whole
-      `craft-anything-platform` suite plus a 35 s wait, `tasklist` showed no `PING.EXE`. Not
+      `pickaxe-platform` suite plus a 35 s wait, `tasklist` showed no `PING.EXE`. Not
       checked: a panic before `stop`, dropping the handle without `stop`, Windows 10 or Server
       — claimed: yashpatadiya1724-cmyk, branch docs/r5.2-watched-stop-windows-check
 - [x] `a_helper_is_judged_by_whether_it_runs` (ai crate) sometimes failed when several crates'
@@ -467,7 +467,7 @@ Every round spends the person's money or quota. One that can't do anything shoul
 - [x] An OpenCode builder wrote its own progress notes (`{"step":"done",…}`) to
       `inbox/build-progress.json`, so every run after it stopped at "Couldn't read
       inbox/build-progress.json: unknown field `step`", with no way forward given. Only a build
-      started in the person's own folder is told to leave Craft Anything's records alone: tell every
+      started in the person's own folder is told to leave Pickaxe's records alone: tell every
       builder, and say in the error that something else wrote the file and how to go on
       — claimed: youkaicountry, branch bugfix/r5.3-builder-wrote-progress-record
 
@@ -598,7 +598,7 @@ been run live.
       — claimed: youkaicountry, branch bugfix/r5.4-blind-builder-prompts
 - [x] The carry-on and follow-up prompts (`continue_prompt`, `follow_up`) ask an API-loop builder
       to check its work with rebuild_check, which the loop refuses while it builds; only its first
-      message says so. Say "Craft Anything checks it after your turn" there instead
+      message says so. Say "Pickaxe checks it after your turn" there instead
       — claimed: Afloat16, branch bugfix/r5.4-api-follow-up-check
 - [x] When a server refuses a request for its context window and says the size (Ollama, llama.cpp,
       OpenAI-style), fit the conversation to that window and ask once more, else say how to raise it (#962)
@@ -759,7 +759,7 @@ Owner: open · Status: todo
       a moment for the exit. The wait after a failed write has no test of its own (it's a race)
 - [x] An API backend's failure log leaves out what the service said: `write_failure_log` wrote
       the error's message, where a service or a proxy in front of it can repeat the key or words
-      from the request (raised in review of #1049). It keeps Craft Anything's code, the HTTP
+      from the request (raised in review of #1049). It keeps Pickaxe's code, the HTTP
       status, the context window and request size, and the service's error code only when it is
       one of `failure::KNOWN_PROVIDER_ERRORS`
       — claimed: scks1, branch bugfix/r5.5-api-failure-log-service-text
@@ -1084,7 +1084,7 @@ Owner: maintainers · Status: in progress
       requirements summary now name Xcode, matching the guided step.
 - [x] Find Visual Studio's C++ tools on Windows when Visual Studio is installed outside Program
       Files (through the Visual Studio Installer's `ProgramData` instance state or developer
-      environment variables, #669, [PR #726](https://github.com/storytold/craft-anything/pull/726))
+      environment variables, #669, [PR #726](https://github.com/goldrusher9009-sketch/pickaxe/pull/726))
       — claimed: riyaz, branch `bugfix/r1.6-windows-vs-cpp-tools`
 - [x] Turn off web and capture tools by default in restricted MCP mode (#856, #855).
 - [x] Find a Unity Editor that was added to Unity Hub with "Locate" (#1077): read the Hub's own
@@ -1117,7 +1117,7 @@ Owner: open · Status: in progress
       is a symlink to another (`/bin` -> `/usr/bin`, so both spell the same program, #1550):
       compare where the copies really are before counting them
       — claimed: muraa-p, branch bugfix/1550-doctor-symlink
-- [x] `doctor` looks a registration's bare command (`craft-anything-cli`, as a hand-made entry
+- [x] `doctor` looks a registration's bare command (`pickaxe-cli`, as a hand-made entry
       names it) up on PATH, as the app starting it does, instead of calling it missing.
       — claimed: Plastic-time, branch bugfix/r2.2-doctor-cli-on-path
 - [x] Follow `QODER_CONFIG_DIR` for Qoder's `skills` directory as well as `settings.json`, and expand leading `~\` backslash home prefixes in setup environment overrides on Windows.
@@ -1138,7 +1138,7 @@ Owner: open · Status: in progress
       only for Grok. Clean room, deep chat, and questions are refused, because Grok can read and
       edit without a permission request. Verified against Grok 1.0.77's ACP handshake and
       `session/set_config_option` (the CLI `--model` flag does not stick after `session/new`). A
-      live deep build on 2026-11-06 (Grok 1.0.77) finished, called the Craft Anything server, and
+      live deep build on 2026-11-06 (Grok 1.0.77) finished, called the Pickaxe server, and
       answered one permission request. Clean room and deep chat were not run live; those runs
       are refused.
       See [Grok Build](grok.md).
@@ -1187,12 +1187,12 @@ Owner: open · Status: in progress
       and model-with-variant command forms, and share transport selection between preflight and runs.
 - [x] Rebase after #567 and translate the ten model-selection strings and two agent tool titles
       in the Russian catalogue, restoring coverage and catalogue key parity.
-- [x] Supply and verify the run's Craft Anything MCP server in native OpenCode before enabling
+- [x] Supply and verify the run's Pickaxe MCP server in native OpenCode before enabling
       explicit model/thinking execution: a config file in `OPENCODE_CONFIG` with `run --standalone`
       (verified live locally). — claimed: advokat11, branch bugfix/r2.2-opencode-native-mcp
-- [x] Hand native OpenCode runs over SSH the Craft Anything MCP server (the config file is local).
-      One `ssh` run checks `craft-anything-cli` is on the host's PATH and writes the config on the
-      host (`~/.cache/craft-anything/`, mode 600, atomic rename); the builder fails fast with the
+- [x] Hand native OpenCode runs over SSH the Pickaxe MCP server (the config file is local).
+      One `ssh` run checks `pickaxe-cli` is on the host's PATH and writes the config on the
+      host (`~/.cache/pickaxe/`, mode 600, atomic rename); the builder fails fast with the
       fix if the helper is missing. Verified: POSIX-shell regression test (`the_remote_line_runs_on_a_posix_shell`)
       and an SSH round-trip to localhost (probe, byte-exact write, mode, cleanup). Not run with a live
       agent over SSH. — claimed: jelassiaymen94, branch feature/r2.2-opencode-remote-mcp
@@ -1216,15 +1216,15 @@ Owner: open · Status: in progress
       OpenCode 2.2.5 on Windows: a killed `run --standalone` session stays `running` and the
       service resumes it; `session delete --standalone` removes it without resuming it
       — claimed: justinjohn0306, branch bugfix/r2.2-opencode-interrupted-sessions
-- [x] When Craft Anything itself is killed mid-turn (uninstalled, a crash; closing the app during a
+- [x] When Pickaxe itself is killed mid-turn (uninstalled, a crash; closing the app during a
       build isn't known to wait for the delete either), no turn is left to delete the OpenCode
       session, and the service still resumes it (#1115): each turn records its session under a
       lock the system drops when the process ends; the next agent turn and
-      `craft-anything-cli uninstall` delete the sessions of records nobody holds. Over SSH, the
+      `pickaxe-cli uninstall` delete the sessions of records nobody holds. Over SSH, the
       delete runs on the host too
       — claimed: justinjohn0306, branch bugfix/r2.2-opencode-leftover-sessions
 - [x] Sweep leftover agent sessions when the desktop app starts, not only at the next agent turn
-      or `craft-anything-cli uninstall` (#1115) — a background thread at start-up, so a delete
+      or `pickaxe-cli uninstall` (#1115) — a background thread at start-up, so a delete
       over SSH can't hold up the window
       — claimed: AlexJoaquimPereira, branch bugfix/r2.2-startup-session-sweep
 - [ ] A turn stopped before OpenCode's first event leaves no session id to delete: OpenCode names its
@@ -1380,7 +1380,7 @@ Owner: open · Status: in progress
 - [x] A Hermes `config.yaml` that starts with a byte-order mark gets our entry in its own
       `mcp_servers` table, not in a second one that hides the person's servers from Hermes.
       — claimed: Plastic-time, branch bugfix/r2.2-yaml-config-bom
-- [x] Match YAML block mapping keys across optional whitespace before the colon and require a mapping-indicator boundary after it, so `mcp_servers :` is updated in place and plain keys containing colons (`craft-anything:dev`) are left untouched.
+- [x] Match YAML block mapping keys across optional whitespace before the colon and require a mapping-indicator boundary after it, so `mcp_servers :` is updated in place and plain keys containing colons (`pickaxe:dev`) are left untouched.
       — claimed: Plastic-time, branch bugfix/r2.2-yaml-mapping-key-boundaries
 - [x] Report dedicated `ActionKind::Invalid` uninstall diagnostics and remediations when a config blocks `setup::uninstall` (unremovable flow/escaped entries, malformed syntax, invalid UTF-8, or I/O errors), and distinguish invalid UTF-8 from permission errors across `plan`, `doctor`, and `uninstall`.
       — claimed: Plastic-time, branch bugfix/r2.2-uninstall-blocking-diagnostics
@@ -1654,13 +1654,13 @@ Owner: open · Status: in progress
 
 ### R2.8 Clean room means clean room
 Owner: maintainers · Status: in progress
-- [x] A remote (SSH) builder needs a craft-anything-cli that knows `--deep` and `--clean-room`.
+- [x] A remote (SSH) builder needs a pickaxe-cli that knows `--deep` and `--clean-room`.
       Every release from 0.1.0 declares both as global flags and applies them in `mcp`, and has
       `mcp --all-tools`, the only flags a remote tool server gets; a test fails when `mcp_for`
       gives it another. Claude Code and Codex builds over SSH now check the host has
-      `craft-anything-cli` before starting, as OpenCode's did — PR #1211; claimed: rmsff, branch
+      `pickaxe-cli` before starting, as OpenCode's did — PR #1211; claimed: rmsff, branch
       test/r2.8-remote-cli-flags
-- [ ] A remote builder's `craft-anything-cli` should know `CRAFT_ANYTHING_AGENT` (#1022), which no
+- [ ] A remote builder's `pickaxe-cli` should know `PICKAXE_AGENT` (#1022), which no
       release up to 0.5.0 reads: there, a CLI the builder starts calls tools as the person. Today
       that loosens nothing of the build's (the remote tool server has no project or inbox). Check
       it before a build once a release has it: version numbers can't tell (`main` says 0.4.0), so
@@ -1715,7 +1715,7 @@ Gaps found while using the app for real projects.
 - [ ] While "commands" are allowed (Auto mode's default), a builder can run any program. Commands
       that name `craft.json`, the inbox or the approvals tool count as system changes, and our CLI
       started inside an agent calls tools as an agent, but a script that builds the path, or
-      unsets `CRAFT_ANYTHING_AGENT`, isn't caught. Keep the person's choices where a builder's
+      unsets `PICKAXE_AGENT`, isn't caught. Keep the person's choices where a builder's
       shell can't write them, or say plainly that "commands: allow" trusts the builder
 - [x] When project approvals refuse an action, show the kind and how to ask before trying it
       again in the build feed. Repeat refusals of the same kind share one notice.
@@ -1934,7 +1934,7 @@ Gaps found while using the app for real projects.
       dialog that ends later, so a version made on Make can't edit that project, and an address
       in its request isn't read as an original to recreate (review of #686) — claimed: xerenon, branch bugfix/r2.9-own-project-review; PR #750
 - [x] `build_files_list` lists an edited-in-place project from the project folder itself, not a
-      missing or nested `app/`, and leaves Craft Anything's own records out
+      missing or nested `app/`, and leaves Pickaxe's own records out
       — claimed: AlexJoaquimPereira, branch `bugfix/r2.9-build-files-in-place`; commit 1ffeb40
 - [x] `build_file_read` read the whole project file into memory before paging, so a large
       generated file under `app/` could freeze or kill the app; it now refuses a file over 16 MiB
@@ -2112,7 +2112,7 @@ Gaps found while using the app for real projects.
       save isn't recovered over it. The test through a real link skips itself on a Windows account
       that can't create links (as here), so that path ran only from what the system answers
       — claimed: hichang4u, branch bugfix/r2.9-config-link-no-target
-- [x] A website build has no `dev` or `start` script, since Craft Anything serves its built
+- [x] A website build has no `dev` or `start` script, since Pickaxe serves its built
       folder itself, so outside the app there was nothing to run (#1590): the builder writes
       app/README.md saying how to build it and which folder to serve
       — claimed: justinjohn0306, branch bugfix/r2.9-site-readme-how-to-run
@@ -2330,7 +2330,7 @@ Owner: open · Status: in progress
       headers, negative probes and stand-in cancellation on the current main
       — claimed: Afloat16, branch test/loopback-fixture-stability-20261103
       Revision `cd468aca`, synchronized with main `41d2175e`, passed
-      [full Linux CI](https://github.com/storytold/craft-anything/actions/runs/41765850311).
+      [full Linux CI](https://github.com/goldrusher9009-sketch/pickaxe/actions/runs/41765850311).
       The fragmented-header regression withholds the final byte until the next read and keeps
       the existing request and response assertions. The request-encoding, negative-probe,
       cancellation and builder-discovery smoke checks passed in the same run.
@@ -2398,7 +2398,7 @@ Owner: open · Status: in progress
       At the sample cap, a usable answer can replace an unavailable 304 for the same path, query and request key;
       other requests keep their missing-body evidence. Refused bodies cannot replace that evidence.
       Compare complete samples before charging retained bytes, using #717's retained-budget accounting.
-      Historical revision `f79dc0bd` passed [full Linux CI](https://github.com/storytold/craft-anything/actions/runs/41793241151):
+      Historical revision `f79dc0bd` passed [full Linux CI](https://github.com/goldrusher9009-sketch/pickaxe/actions/runs/41793241151):
       all five original metadata regressions and nine header and capacity regressions passed.
       All 24 combined replay regressions pass locally on the refresh onto `cf414ff4`.
       See this PR's checks for the refreshed revision's complete gate.
@@ -2432,7 +2432,7 @@ Owner: open · Status: in progress
 - [x] Enforce stand-in per-body and total byte budgets on the text that is actually retained after redaction;
       deduplicate consecutive samples before charging the capture budget.
       — claimed: Afloat16, branch bugfix/r3.11-standin-redacted-budget-20261103b
-      Revision `d601bc4e` passed [full Linux CI](https://github.com/storytold/craft-anything/actions/runs/41788735130):
+      Revision `d601bc4e` passed [full Linux CI](https://github.com/goldrusher9009-sketch/pickaxe/actions/runs/41788735130):
       all four retained-budget regressions and six deduplication regressions passed.
 - [x] Preserve every observation when comparing evidence bundles, including repeated operation/subject records and identical-record multiplicity.
       — claimed: Afloat16, branch bugfix/r3.11-bundle-record-multiplicity-20261110
@@ -2637,7 +2637,7 @@ Owner: open · Status: in progress
       — claimed: Plastic-time, branch bugfix/r3.12-cpio-symlink-crc
 - [x] Refuse oversized GNU tar long names and link targets instead of silently truncating member identities.
       — claimed: Afloat16, branch bugfix/r3.12-tar-long-identities-20261109
-      Source [`de2c6390`](https://github.com/Afloat16/craft-anything/commit/de2c63908909cab675887103921ed2601b1bae9b) passed [formats tests, fmt and clippy](https://github.com/Afloat16/claude-mem/actions/runs/42640688213/job/129240669663)
+      Source [`de2c6390`](https://github.com/Afloat16/pickaxe/commit/de2c63908909cab675887103921ed2601b1bae9b) passed [formats tests, fmt and clippy](https://github.com/Afloat16/claude-mem/actions/runs/42640688213/job/129240669663)
       and [layers, locks, secret scanning, wasm checks and Cargo.lock stability](https://github.com/Afloat16/claude-mem/actions/runs/42640688213/job/129240669663).
       The [unchanged-code baseline](https://github.com/Afloat16/claude-mem/actions/runs/42636776430/job/129226895582) reproduces the long-name identity regression.
 - [x] Refuse managed engine installation when GNU tar name metadata stops the archive walk, before writing files; retain partial listings for inspection and accept complete member data without an end marker.
@@ -2657,7 +2657,7 @@ Owner: open · Status: in progress
       — claimed: Plastic-time, branch bugfix/r3.12-pyinstaller-name-terminator-1111
 - [x] Keep PyInstaller CArchive member reads before the table and cookie, including signed files with trailing bytes.
       — claimed: Afloat16, branch bugfix/r3.12-carchive-payload-range-20261109
-      Source [`a5bcfaed`](https://github.com/Afloat16/craft-anything/commit/a5bcfaedcb1ad67c8bb7f06c7143befc8292409c) passed [formats tests, fmt and clippy](https://github.com/Afloat16/claude-mem/actions/runs/42636776430/job/129226891917)
+      Source [`a5bcfaed`](https://github.com/Afloat16/pickaxe/commit/a5bcfaedcb1ad67c8bb7f06c7143befc8292409c) passed [formats tests, fmt and clippy](https://github.com/Afloat16/claude-mem/actions/runs/42636776430/job/129226891917)
       and [layers, locks, secret scanning, wasm checks and Cargo.lock stability](https://github.com/Afloat16/claude-mem/actions/runs/42640688213/job/129240669663).
       The [unchanged-code baseline](https://github.com/Afloat16/claude-mem/actions/runs/42636776430/job/129226895582) reproduces the new regression cases.
 - [x] Build only the requested keyed-archive object rows and count shared class names without copying them for every object.
@@ -2680,7 +2680,7 @@ Owner: open · Status: in progress
       — claimed: Afloat16, branch bugfix/r3.12-packed-member-size
 - [x] Validate gzip packed-member trailers and decode concatenated members within one output budget.
       — claimed: Afloat16, branch bugfix/r3.12-packed-gzip-integrity-20261109
-      Source [`3f3ec6a4`](https://github.com/Afloat16/craft-anything/commit/3f3ec6a4bd97bb987d9cad906ce4b2f5028ff88b) passed [formats tests, fmt and clippy](https://github.com/Afloat16/claude-mem/actions/runs/42636776430/job/129226891924)
+      Source [`3f3ec6a4`](https://github.com/Afloat16/pickaxe/commit/3f3ec6a4bd97bb987d9cad906ce4b2f5028ff88b) passed [formats tests, fmt and clippy](https://github.com/Afloat16/claude-mem/actions/runs/42636776430/job/129226891924)
       and [layers, locks, secret scanning, wasm checks and Cargo.lock stability](https://github.com/Afloat16/claude-mem/actions/runs/42640688213/job/129240669663).
       The [unchanged-code baseline](https://github.com/Afloat16/claude-mem/actions/runs/42636776430/job/129226895582) reproduces the new regression cases.
 - [x] Decode all frames of concatenated Zstandard members and account for their combined output.
@@ -2765,7 +2765,7 @@ Owner: open · Status: in progress
       — claimed: Afloat16, branch bugfix/r3.12-tar-octal-fields
 - [x] Recognize GNU sparse PAX metadata and report unsupported reconstruction instead of returning packed extents as complete files.
       — claimed: Afloat16, branch bugfix/r3.12-tar-pax-sparse-20261109
-      Source [`daaeb4fe`](https://github.com/Afloat16/craft-anything/commit/daaeb4fe6c2db3f805fb9b02f9fbdfe55d80eb4a) passed [formats tests, fmt and clippy](https://github.com/Afloat16/claude-mem/actions/runs/42636776430/job/129226895529)
+      Source [`daaeb4fe`](https://github.com/Afloat16/pickaxe/commit/daaeb4fe6c2db3f805fb9b02f9fbdfe55d80eb4a) passed [formats tests, fmt and clippy](https://github.com/Afloat16/claude-mem/actions/runs/42636776430/job/129226895529)
       and [layers, locks, secret scanning, wasm checks and Cargo.lock stability](https://github.com/Afloat16/claude-mem/actions/runs/42640688213/job/129240669663).
       The [unchanged-code baseline](https://github.com/Afloat16/claude-mem/actions/runs/42636776430/job/129226895582) reproduces the new regression cases.
 - [x] Recognize ZIP directories from DOS directory attributes and Unix file-type metadata when the entry name has no trailing slash.
@@ -2774,14 +2774,14 @@ Owner: open · Status: in progress
       — claimed: Plastic-time, branch bugfix/r3.12-zip-legacy-zstd
 - [x] Read ZIP bzip2 and XZ members through the existing bounded pure-Rust decompressors.
       — claimed: Afloat16, branch feature/r3.12-zip-bzip2-xz-20261109
-      Source [`4cac3638`](https://github.com/Afloat16/craft-anything/commit/4cac36386e426e332bd89cb2cfa63894f3a367a5) passed [formats tests, fmt and clippy](https://github.com/Afloat16/claude-mem/actions/runs/42636776430/job/129226892219)
+      Source [`4cac3638`](https://github.com/Afloat16/pickaxe/commit/4cac36386e426e332bd89cb2cfa63894f3a367a5) passed [formats tests, fmt and clippy](https://github.com/Afloat16/claude-mem/actions/runs/42636776430/job/129226892219)
       and [layers, locks, secret scanning, wasm checks and Cargo.lock stability](https://github.com/Afloat16/claude-mem/actions/runs/42640688213/job/129240669663).
       The [unchanged-code baseline](https://github.com/Afloat16/claude-mem/actions/runs/42636776430/job/129226895582) reproduces the new regression cases.
 - [x] Use a verified Info-ZIP Unicode Path extra field when listing a member stored under a legacy filename.
       — claimed: Afloat16, branch feature/r3.12-zip-unicode-path
 - [x] Decode ZIP method 14 property headers and size or end-marker framing with bounded LZMA output.
       — claimed: Afloat16, branch feature/r3.12-zip-lzma-20261109
-      Source [`61fdab39`](https://github.com/Afloat16/craft-anything/commit/61fdab39da4849eb5a84196df53c55e19c869134) passed [formats tests, fmt and clippy](https://github.com/Afloat16/claude-mem/actions/runs/42636776430/job/129226892042)
+      Source [`61fdab39`](https://github.com/Afloat16/pickaxe/commit/61fdab39da4849eb5a84196df53c55e19c869134) passed [formats tests, fmt and clippy](https://github.com/Afloat16/claude-mem/actions/runs/42636776430/job/129226892042)
       and [layers, locks, secret scanning, wasm checks and Cargo.lock stability](https://github.com/Afloat16/claude-mem/actions/runs/42640688213/job/129240669663).
       The [unchanged-code baseline](https://github.com/Afloat16/claude-mem/actions/runs/42636776430/job/129226895582) reproduces the new regression cases.
 - [x] Report ECE and CWR alongside the existing TCP flags in packet inventories.
@@ -2837,7 +2837,7 @@ Owner: open · Status: in progress
       — claimed: Afloat16, branch bugfix/r3.12-unity-stored-block-ranges-20261110
 - [x] Apply standalone LZMA output budgets to its internal dictionary and reject oversized declared output before decoding.
       — claimed: Afloat16, branch bugfix/r3.12-standalone-lzma-budget-20261109
-      Source [`5da8880d`](https://github.com/Afloat16/craft-anything/commit/5da8880d3b56785498cf0c09ae46f300f070322d) passed [formats tests, fmt and clippy](https://github.com/Afloat16/claude-mem/actions/runs/42636776430/job/129226892150)
+      Source [`5da8880d`](https://github.com/Afloat16/pickaxe/commit/5da8880d3b56785498cf0c09ae46f300f070322d) passed [formats tests, fmt and clippy](https://github.com/Afloat16/claude-mem/actions/runs/42636776430/job/129226892150)
       and [layers, locks, secret scanning, wasm checks and Cargo.lock stability](https://github.com/Afloat16/claude-mem/actions/runs/42640688213/job/129240669663).
       The [unchanged-code baseline](https://github.com/Afloat16/claude-mem/actions/runs/42636776430/job/129226895582) reproduces the new regression cases.
 - [x] Expand repeated LZ4 match bytes in blocks when reading Unity bundles.
@@ -3341,7 +3341,7 @@ Owner: open · Status: in progress
       — claimed: Afloat16, branch bugfix/r3.12-cramfs-big-endian-20261110
 - [x] Verify gzip FHCRC and accept informational XFL and OS bytes without inventing reserved-value restrictions.
       — claimed: Afloat16, branch bugfix/r3.12-gzip-header-crc-20261109
-      Source [`dde4aa02`](https://github.com/Afloat16/craft-anything/commit/dde4aa0233be968f9b55bd3316204b880b8dbf2e) passed [formats tests, fmt and clippy](https://github.com/Afloat16/claude-mem/actions/runs/42636776430/job/129226891865)
+      Source [`dde4aa02`](https://github.com/Afloat16/pickaxe/commit/dde4aa0233be968f9b55bd3316204b880b8dbf2e) passed [formats tests, fmt and clippy](https://github.com/Afloat16/claude-mem/actions/runs/42636776430/job/129226891865)
       and [layers, locks, secret scanning, wasm checks and Cargo.lock stability](https://github.com/Afloat16/claude-mem/actions/runs/42640688213/job/129240669663).
       The [unchanged-code baseline](https://github.com/Afloat16/claude-mem/actions/runs/42636776430/job/129226895582) reproduces the new regression cases.
 - [x] Detect ZIP members through the archive directory, not signatures inside nested files or comments.
@@ -3389,7 +3389,7 @@ Owner: open · Status: in progress
       — claimed: Afloat16, branch bugfix/r3.12-android-xml-events
 - [x] Reject Java Long and Double constants without their reserved constant-pool slot, including the maximum u16 pool boundary.
       — claimed: Afloat16, branch bugfix/r3.12-java-wide-pool-slot-20261109
-      Source `e0dbc3a5b60b`; [full Linux gate](https://github.com/Afloat16/craft-anything/actions/runs/42629757277) passed.
+      Source `e0dbc3a5b60b`; [full Linux gate](https://github.com/Afloat16/pickaxe/actions/runs/42629757277) passed.
 - [x] Borrow Java attribute names from the constant pool so repeated references cannot multiply temporary parser memory.
       — claimed: Afloat16, branch bugfix/r3.12-java-attribute-name-borrowing-20261110
 - [x] Unfold JAR manifest attributes as bytes before UTF-8 decoding, preserve value whitespace, and recognize every specified line ending so entry digests use the original filenames.
@@ -3416,7 +3416,7 @@ Owner: open · Status: in progress
       their pool with a shared recovery probe limit, and distinguish missing ext indirect
       metadata from sparse holes.
       — claimed: Afloat16, branch bugfix/r3.12-parser-review-followups-main-20261104
-      Shared-budget revision `29c48e03` passed [full Linux CI](https://github.com/storytold/craft-anything/actions/runs/41762780268).
+      Shared-budget revision `29c48e03` passed [full Linux CI](https://github.com/goldrusher9009-sketch/pickaxe/actions/runs/41762780268).
       The merge with main `41d2175e` awaits a new CI run.
 
 - [x] Recognize HTTP extension method tokens in packet captures, including WebDAV requests.
@@ -3549,7 +3549,7 @@ Owner: open · Status: in progress
       — claimed: Chr0mium24, branch bugfix/r3.12-car-glyph-attributes
 - [x] Reject malformed ASAR directory, link and file nodes instead of listing fabricated empty files.
       — claimed: Afloat16, branch bugfix/r3.12-asar-node-shapes-20261109
-      Source [`351002ea`](https://github.com/Afloat16/craft-anything/commit/351002eab7e69791a9eb6cd3764c35e1c3cbc130) passed [formats tests, fmt and clippy](https://github.com/Afloat16/claude-mem/actions/runs/42636776430/job/129226891843)
+      Source [`351002ea`](https://github.com/Afloat16/pickaxe/commit/351002eab7e69791a9eb6cd3764c35e1c3cbc130) passed [formats tests, fmt and clippy](https://github.com/Afloat16/claude-mem/actions/runs/42636776430/job/129226891843)
       and [layers, locks, secret scanning, wasm checks and Cargo.lock stability](https://github.com/Afloat16/claude-mem/actions/runs/42640688213/job/129240669663).
       The [unchanged-code baseline](https://github.com/Afloat16/claude-mem/actions/runs/42636776430/job/129226895582) reproduces the new regression cases.
 

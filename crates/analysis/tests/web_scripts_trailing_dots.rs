@@ -1,9 +1,9 @@
 //! Regression tests for trailing-dot host and path segment normalization in
 //! `web_scripts::plan_layout`.
 
-use craft_anything_analysis::web_scripts::{CapturedScript, PlannedFile, plan_layout};
-use craft_anything_evidence::sha256_hex;
-use craft_anything_js::recover::module_path_key;
+use pickaxe_analysis::web_scripts::{CapturedScript, PlannedFile, plan_layout};
+use pickaxe_evidence::sha256_hex;
+use pickaxe_js::recover::module_path_key;
 use std::collections::HashSet;
 use std::io::Write;
 use std::path::{Path, PathBuf};

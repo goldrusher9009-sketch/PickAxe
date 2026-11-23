@@ -5,7 +5,7 @@ use crate::i18n::tr;
 use crate::state::{Modal, Screen};
 use crate::theme::{self, Tokens};
 use crate::{CraftApp, Pick, Route, icons, widgets};
-use craft_anything_engine::Consent;
+use pickaxe_engine::Consent;
 use egui::{RichText, Ui, Vec2};
 use serde_json::json;
 
@@ -178,7 +178,7 @@ pub fn modals(app: &mut CraftApp, ctx: &egui::Context) {
                 Modal::PinRename(root, id) => crate::pins::rename_modal(app, ui, root, *id, &mut close),
                 Modal::PinDelete(root, id) => crate::pins::delete_modal(app, ui, root, *id, &mut close),
                 Modal::About => {
-                    ui.label(theme::heading("Craft Anything", theme::SECTION));
+                    ui.label(theme::heading("Pickaxe", theme::SECTION));
                     ui.label(RichText::new(format!("{} {}", tr("Version"), env!("CARGO_PKG_VERSION"))).color(t.text_dim));
                     ui.add_space(theme::space::MD);
                     if widgets::primary(ui, "Close").clicked() {

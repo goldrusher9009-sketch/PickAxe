@@ -5,8 +5,8 @@ use crate::i18n::tr;
 use crate::state::FirstRunStep;
 use crate::theme::{self, Tokens};
 use crate::{CraftApp, icons, widgets};
-use craft_anything_ai::{BackendKind, Detected};
-use craft_anything_engine::Mode;
+use pickaxe_ai::{BackendKind, Detected};
+use pickaxe_engine::Mode;
 use egui::{Align2, RichText, Ui, Vec2};
 
 pub fn show(app: &mut CraftApp, ui: &mut Ui) {
@@ -27,7 +27,7 @@ pub fn show(app: &mut CraftApp, ui: &mut Ui) {
         });
         ui.add_space(theme::space::MD);
     });
-    // Where you are, the ArtCraft way: "02 / 04  AI", plus a progress hairline.
+    // Where you are, at a glance: "02 / 04  AI", plus a progress hairline.
     let step = app.state.first_run.index();
     let y = full.bottom() - 34.0;
     let names = ["Welcome", "AI", "Purpose", "Ready"];
@@ -58,7 +58,7 @@ fn welcome(app: &mut CraftApp, ui: &mut Ui) {
     let t = Tokens::get(ui.ctx());
     ui.add(crate::app_icon(132.0));
     ui.add_space(theme::space::XL);
-    ui.label(theme::heading(tr("Craft Anything"), theme::TITLE));
+    ui.label(theme::heading(tr("Pickaxe"), theme::TITLE));
     ui.add_space(theme::space::SM);
     ui.label(RichText::new(tr("Find out how any software works, then craft your own.")).size(theme::LEAD).color(t.text_dim));
     ui.add_space(theme::space::XXL);
@@ -220,7 +220,7 @@ fn brain_card(app: &mut CraftApp, ui: &mut Ui, d: &Detected) {
         });
         // A subscription key is worth pasting even when the environment already has one, so a
         // different key can be used without restarting the app.
-        let pastable = d.needs_key || d.suggestion.base_url.as_deref().is_some_and(craft_anything_ai::openai::is_opencode_go);
+        let pastable = d.needs_key || d.suggestion.base_url.as_deref().is_some_and(pickaxe_ai::openai::is_opencode_go);
         if pastable && !configured {
             ui.add_space(theme::space::SM);
             ui.horizontal(|ui| {
@@ -293,8 +293,8 @@ fn purpose(app: &mut CraftApp, ui: &mut Ui, width: f32) {
     }
 }
 
-fn purpose_icon(p: craft_anything_engine::project::Purpose) -> &'static str {
-    use craft_anything_engine::project::Purpose::*;
+fn purpose_icon(p: pickaxe_engine::project::Purpose) -> &'static str {
+    use pickaxe_engine::project::Purpose::*;
     match p {
         OwnOrAuthorized => "user",
         Education => "graduation-cap",

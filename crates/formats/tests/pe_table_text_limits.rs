@@ -1,4 +1,4 @@
-use craft_anything_formats::pe::{self, ImportKind};
+use pickaxe_formats::pe::{self, ImportKind};
 
 fn u32_at(bytes: &mut [u8], offset: usize, value: u32) {
     bytes[offset..offset + 4].copy_from_slice(&value.to_le_bytes());
@@ -11,7 +11,7 @@ fn directory(bytes: &mut [u8], index: usize, rva: u32, size: u32) {
 }
 
 fn image(payload: &[u8], index: usize, size: u32) -> Vec<u8> {
-    let mut bytes = craft_anything_testkit::packed::pe_section(".tables", payload);
+    let mut bytes = pickaxe_testkit::packed::pe_section(".tables", payload);
     directory(&mut bytes, index, 0x1000, size);
     bytes
 }
@@ -170,7 +170,7 @@ fn zero_budgets_distinguish_empty_tables_from_omitted_names() {
     let headers = pe::headers(&data).unwrap();
     let exports = pe::export_table_with_text_limit(&data, &headers, 0).unwrap();
     assert!(exports.entries.is_empty() && exports.dll_name.is_none() && exports.truncated);
-    let data = craft_anything_testkit::packed::pe_section(".empty", &[0; 64]);
+    let data = pickaxe_testkit::packed::pe_section(".empty", &[0; 64]);
     let headers = pe::headers(&data).unwrap();
     assert!(!pe::import_table_with_text_limit(&data, &headers, 0).truncated);
     assert!(pe::export_table_with_text_limit(&data, &headers, 0).is_none());

@@ -406,7 +406,7 @@ mod tests {
 
     #[test]
     fn xz_container_blocks_do_not_concatenate_streams() {
-        use craft_anything_testkit::firmware as fx;
+        use pickaxe_testkit::firmware as fx;
         let concatenated = [fx::XZ_FIXTURE, fx::XZ_FIXTURE].concat();
         assert_eq!(decompress(4, fx::XZ_FIXTURE, fx::XZ_PLAIN.len() as u64).as_deref(), Some(fx::XZ_PLAIN));
         assert!(decompress(4, fx::XZ_FIXTURE, fx::XZ_PLAIN.len() as u64 - 1).is_none());
@@ -432,9 +432,9 @@ mod tests {
 
     #[test]
     fn reads_a_small_image() {
-        let img = read(&craft_anything_testkit::firmware::squashfs_image(), &Limits::default());
+        let img = read(&pickaxe_testkit::firmware::squashfs_image(), &Limits::default());
         assert!(img.complete, "{:?}", img.warnings);
-        assert_eq!(img.entries.iter().find(|e| e.path == "readme").unwrap().data.as_deref(), Some(craft_anything_testkit::firmware::SQUASHFS_README));
+        assert_eq!(img.entries.iter().find(|e| e.path == "readme").unwrap().data.as_deref(), Some(pickaxe_testkit::firmware::SQUASHFS_README));
         assert!(img.entries.iter().any(|e| e.path == "etc" && e.kind == FsKind::Dir));
         assert_eq!(img.entries.iter().find(|e| e.path == "etc/motd").unwrap().data.as_deref(), Some(b"welcome\n".as_slice()));
     }
@@ -482,15 +482,15 @@ mod tests {
 
     #[test]
     fn hostile_never_panics() {
-        let base = craft_anything_testkit::firmware::squashfs_image();
-        for m in craft_anything_testkit::mutations(&base) {
+        let base = pickaxe_testkit::firmware::squashfs_image();
+        for m in pickaxe_testkit::mutations(&base) {
             let _ = read(&m, &Limits::default());
         }
         for len in (0..base.len()).step_by(5) {
             let _ = read(&base[..len], &Limits::default());
         }
         for seed in 0..16 {
-            let _ = read(&craft_anything_testkit::noise(seed, 2048), &Limits::default());
+            let _ = read(&pickaxe_testkit::noise(seed, 2048), &Limits::default());
         }
     }
 }

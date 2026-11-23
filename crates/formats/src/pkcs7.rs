@@ -270,12 +270,12 @@ mod tests {
     const SIGNED_DATA: &str = "1.2.840.113549.1.7.2";
 
     fn attribute(oid: &str, values: &[Vec<u8>]) -> Vec<u8> {
-        use craft_anything_testkit::android::{der, der_oid};
+        use pickaxe_testkit::android::{der, der_oid};
         der(0x30, &[der_oid(oid), der(0x31, &values.concat())].concat())
     }
 
     fn required_attributes() -> (Vec<u8>, Vec<u8>) {
-        use craft_anything_testkit::{
+        use pickaxe_testkit::{
             android::{der, der_oid},
             crypto,
         };
@@ -283,7 +283,7 @@ mod tests {
     }
 
     fn genuinely_signed_cms(attributes: Option<Vec<Vec<u8>>>, tail: &[u8]) -> Vec<u8> {
-        use craft_anything_testkit::{android::der, crypto};
+        use pickaxe_testkit::{android::der, crypto};
         let template = crypto::cms_detached_rsa(CONTENT, "Attribute Signer", "Fixture Org");
         let ci = super::der::children(&template, &super::der::read(&template, 0).unwrap());
         let sd = super::der::children(&template, &ci[1]);
@@ -340,7 +340,7 @@ mod tests {
 
     #[test]
     fn message_digest_must_be_an_octet_string() {
-        use craft_anything_testkit::{android::der, crypto};
+        use pickaxe_testkit::{android::der, crypto};
         let (content_type, _) = required_attributes();
         for tag in [0x02, 0x0c, 0x03] {
             let digest = attribute(OID_MESSAGE_DIGEST, &[der(tag, &crypto::sha256(CONTENT))]);
@@ -350,7 +350,7 @@ mod tests {
 
     #[test]
     fn required_attributes_are_unique_and_single_valued() {
-        use craft_anything_testkit::{
+        use pickaxe_testkit::{
             android::{der, der_oid},
             crypto,
         };
@@ -371,7 +371,7 @@ mod tests {
 
     #[test]
     fn signed_content_type_must_match_encapsulated_type() {
-        use craft_anything_testkit::android::{der, der_oid};
+        use pickaxe_testkit::android::{der, der_oid};
         let (_, digest) = required_attributes();
         let oid = der_oid(DATA_TYPE);
         let encoded_oid = super::der::read(&oid, 0).unwrap();
@@ -383,7 +383,7 @@ mod tests {
 
     #[test]
     fn malformed_attribute_containers_cannot_hide_behind_a_valid_prefix() {
-        use craft_anything_testkit::android::der;
+        use pickaxe_testkit::android::der;
         let (content_type, digest) = required_attributes();
         assert_attributes_rejected(&genuinely_signed_cms(Some(vec![content_type.clone(), digest.clone()]), &[0x30]));
         let mut wrong_tag = digest.clone();
@@ -397,7 +397,7 @@ mod tests {
 
     #[test]
     fn complete_attributes_keep_unknown_attributes_and_content_binding() {
-        use craft_anything_testkit::android::der;
+        use pickaxe_testkit::android::der;
         let (content_type, digest) = required_attributes();
         let cms = genuinely_signed_cms(
             Some(vec![content_type, digest, attribute("1.2.3.4", &[]), attribute("1.2.3.5", &[der(0x04, b"one"), der(0x04, b"two")])]),
@@ -450,10 +450,10 @@ mod tests {
     fn empty_and_garbage() {
         assert!(parse_signed_data(&[]).is_none());
         for seed in 0..64 {
-            let n = craft_anything_testkit::noise(seed, 300);
+            let n = pickaxe_testkit::noise(seed, 300);
             let _ = parse_signed_data(&n);
         }
-        let p7 = craft_anything_testkit::android::pkcs7_der(&craft_anything_testkit::android::certificate_der("A", "B"));
+        let p7 = pickaxe_testkit::android::pkcs7_der(&pickaxe_testkit::android::certificate_der("A", "B"));
         let _ = parse_signed_data(&p7);
     }
 }

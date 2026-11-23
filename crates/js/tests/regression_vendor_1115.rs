@@ -1,4 +1,4 @@
-use craft_anything_js::{Limits, analyze, vendor::banner_vendor};
+use pickaxe_js::{Limits, analyze, vendor::banner_vendor};
 /// Attached versions must not erase the npm scope.
 #[test]
 fn scoped_attached_versions() {

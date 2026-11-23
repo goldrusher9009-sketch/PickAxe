@@ -5,8 +5,8 @@ use crate::i18n::{LANGUAGES, tr, trf};
 use crate::state::SettingsTab;
 use crate::theme::{self, ThemeKind, Tokens};
 use crate::{CraftApp, Pick, icons, widgets};
-use craft_anything_ai::BackendKind;
-use craft_anything_engine::Mode;
+use pickaxe_ai::BackendKind;
+use pickaxe_engine::Mode;
 use egui::{RichText, Ui, Vec2};
 use std::path::PathBuf;
 
@@ -156,7 +156,7 @@ fn page_height(ctx: &egui::Context) -> f32 {
 /// (egui leaves selectable labels out of Tab), for a report.
 fn about(ui: &mut Ui) {
     let t = Tokens::get(ui.ctx());
-    ui.label(theme::heading("Craft Anything", theme::SECTION));
+    ui.label(theme::heading("Pickaxe", theme::SECTION));
     ui.add_space(theme::space::XS);
     let version = format!("{} {}", tr("Version"), env!("CARGO_PKG_VERSION"));
     ui.horizontal(|ui| {
@@ -305,7 +305,7 @@ fn engines(app: &mut CraftApp, ui: &mut Ui) {
         },
     );
     ui.add_space(theme::space::MD);
-    row(ui, "Ghidra", "Adds its decompiler to Deep mode. Craft Anything can download and set it up for you.", |ui| {
+    row(ui, "Ghidra", "Adds its decompiler to Deep mode. Pickaxe can download and set it up for you.", |ui| {
         crate::engine_ui::ghidra_status(app, ui);
     });
     row(
@@ -316,7 +316,7 @@ fn engines(app: &mut CraftApp, ui: &mut Ui) {
     );
     ui.label(RichText::new(crate::engine_ui::ghidra_memory_guide()).color(t.text_faint).size(theme::CAPTION));
     ui.add_space(theme::space::SM);
-    row(ui, "Ghidra folder", "Leave empty to use the one Craft Anything sets up.", |ui| {
+    row(ui, "Ghidra folder", "Leave empty to use the one Pickaxe sets up.", |ui| {
         if path_field(ui, &mut app.settings.engines.ghidra.install_dir, "Ghidra folder", "managed") {
             app.settings_changed();
         }
@@ -339,7 +339,7 @@ fn engines(app: &mut CraftApp, ui: &mut Ui) {
     egui::Grid::new("tool-paths").num_columns(2).spacing([12.0, 6.0]).show(ui, |ui| {
         // Names and purposes come from the engine table; the override list matches it (tested).
         for (id, v) in app.settings.engines.tools.entries_mut() {
-            let (name, needed_for) = craft_anything_engines::engine(id).map(|e| (e.name, e.needed_for)).unwrap_or((id, ""));
+            let (name, needed_for) = pickaxe_engines::engine(id).map(|e| (e.name, e.needed_for)).unwrap_or((id, ""));
             ui.label(RichText::new(tr(name)).size(theme::CAPTION)).on_hover_text(format!("{}\n{id}", tr(needed_for)));
             changed |= path_field(ui, v, name, "managed");
             ui.end_row();
@@ -416,8 +416,8 @@ fn ai(app: &mut CraftApp, ui: &mut Ui) {
             });
             {
                 {
-                    let model_in_use = craft_anything_ai::model_in_use(b, app.backend_options.get(&b.name));
-                    let live_catalog = b.kind == BackendKind::AgentCli && craft_anything_ai::cli_agents::adapter_for(&b.model).has_model_catalog();
+                    let model_in_use = pickaxe_ai::model_in_use(b, app.backend_options.get(&b.name));
+                    let live_catalog = b.kind == BackendKind::AgentCli && pickaxe_ai::cli_agents::adapter_for(&b.model).has_model_catalog();
                     // An API's model has its own line below; an agent app is named by its `model`.
                     let what = if model_in_use.is_some() && b.kind != BackendKind::AgentCli { String::new() } else { format!(" · {}", b.model) };
                     let ssh = b.ssh_host.as_ref().map(|h| format!(" · ssh {h}")).unwrap_or_default();
@@ -460,7 +460,7 @@ fn ai(app: &mut CraftApp, ui: &mut Ui) {
                     // The folder it keeps its sign-in in (Claude Code's CLAUDE_CONFIG_DIR), typed
                     // so `~/` and hidden folders work, here or over SSH: another folder is another
                     // account. Saved on Enter or when the field is left; empty is its usual one.
-                    if craft_anything_ai::folder_var(b).is_some() {
+                    if pickaxe_ai::folder_var(b).is_some() {
                         let saved = app.backend_options.get(&b.name).and_then(|o| o.config_dir.clone()).unwrap_or_default();
                         let id = egui::Id::new(("agent-folder", &b.name));
                         // What was typed stays until it's saved (or refused, so it can be fixed).
@@ -493,8 +493,8 @@ fn ai(app: &mut CraftApp, ui: &mut Ui) {
                         ui.add_space(theme::space::XS);
                     }
                     // How hard it thinks: every Claude level for Claude, OpenAI's for the OpenAI-style APIs.
-                    let effort = craft_anything_ai::effort_in_use(b, app.backend_options.get(&b.name));
-                    let effort_levels = craft_anything_ai::effort_levels(b);
+                    let effort = pickaxe_ai::effort_in_use(b, app.backend_options.get(&b.name));
+                    let effort_levels = pickaxe_ai::effort_levels(b);
                     if b.kind == BackendKind::AgentCli && b.ssh_host.as_deref().is_some_and(|h| !h.trim().is_empty()) {
                         let id = egui::Id::new(("remote-agent-program", &b.name));
                         let mut program = ui
@@ -524,7 +524,7 @@ fn ai(app: &mut CraftApp, ui: &mut Ui) {
                         if let Some(picker) = app.agent_model_picker.as_mut().filter(|p| p.context.backend.config.name == b.name) {
                             let previous = picker.model.clone();
                             let apply = crate::builders::agent_model_picker(ui, picker);
-                            if picker.model != previous && craft_anything_ai::cli_agents::adapter_for(&b.model).model_catalog_depends_on_selection() {
+                            if picker.model != previous && pickaxe_ai::cli_agents::adapter_for(&b.model).model_catalog_depends_on_selection() {
                                 pick_agent_model = Some(b.name.clone());
                             } else if apply {
                                 chosen_agent_model = Some((b.name.clone(), picker.model.clone(), picker.thinking));
@@ -561,12 +561,12 @@ fn ai(app: &mut CraftApp, ui: &mut Ui) {
                                     // uses the one its own settings name: `default` is what's shown. An
                                     // API backend's model is its saved `config.model`.
                                     let own_default =
-                                        b.kind == BackendKind::AgentCli && craft_anything_ai::cli_agents::adapter_for(&b.model).offers_own_default();
+                                        b.kind == BackendKind::AgentCli && pickaxe_ai::cli_agents::adapter_for(&b.model).offers_own_default();
                                     let picked = app.backend_options.get(&b.name).and_then(|o| o.cli_model.clone()).unwrap_or_else(|| {
-                                        if own_default { craft_anything_ai::anthropic::CLAUDE_CODE_DEFAULT.to_string() } else { b.model.clone() }
+                                        if own_default { pickaxe_ai::anthropic::CLAUDE_CODE_DEFAULT.to_string() } else { b.model.clone() }
                                     });
                                     let shown = |m: &str| {
-                                        if m == craft_anything_ai::anthropic::CLAUDE_CODE_DEFAULT {
+                                        if m == pickaxe_ai::anthropic::CLAUDE_CODE_DEFAULT {
                                             tr("Default (its own settings)").to_string()
                                         } else {
                                             m.to_string()
@@ -586,12 +586,12 @@ fn ai(app: &mut CraftApp, ui: &mut Ui) {
                             }
                             if !effort_levels.is_empty() {
                                 ui.label(RichText::new(tr("Effort:")).color(t.text_faint).size(theme::CAPTION));
-                                let shown = effort.map_or("default", craft_anything_ai::Effort::as_str);
+                                let shown = effort.map_or("default", pickaxe_ai::Effort::as_str);
                                 widgets::dropdown(("effort", &b.name)).selected_text(shown).show_ui(ui, |ui| {
                                     // Claude always has a level; an OpenAI-style API is sent none until one is chosen.
-                                    let unset = (effort_levels != craft_anything_ai::Effort::ALL).then_some(None);
+                                    let unset = (effort_levels != pickaxe_ai::Effort::ALL).then_some(None);
                                     for e in unset.into_iter().chain(effort_levels.iter().map(|&e| Some(e))) {
-                                        if widgets::menu_item(ui, e == effort, e.map_or("default", craft_anything_ai::Effort::as_str)).clicked() && e != effort
+                                        if widgets::menu_item(ui, e == effort, e.map_or("default", pickaxe_ai::Effort::as_str)).clicked() && e != effort
                                         {
                                             chosen_effort = Some((b.name.clone(), e));
                                         }
@@ -600,7 +600,7 @@ fn ai(app: &mut CraftApp, ui: &mut Ui) {
                             }
                         });
                     }
-                    if craft_anything_ai::model_options::supported(b) {
+                    if pickaxe_ai::model_options::supported(b) {
                         if let Some(draft) = app.model_tuning.get_mut(&b.name) {
                             if let Some(choices) = &draft.choices {
                                 let mut changed = false;
@@ -644,7 +644,7 @@ fn ai(app: &mut CraftApp, ui: &mut Ui) {
             if b.kind != BackendKind::AgentCli {
                 let list = app.backend_options.get(&b.name).and_then(|o| o.tools).unwrap_or_default();
                 // What Auto works out to for this AI, beside the choice (R5.4).
-                let auto = if craft_anything_ai::runs_here(b) {
+                let auto = if pickaxe_ai::runs_here(b) {
                     tr("Auto: building tools only below a 64k window, every tool from there.")
                 } else {
                     tr("Auto: every tool, as this AI is a paid service.")
@@ -663,7 +663,7 @@ fn ai(app: &mut CraftApp, ui: &mut Ui) {
                         widgets::dropdown(("tool-list", &b.name))
                             .selected_text(list.as_str())
                             .show_ui(ui, |ui| {
-                                for l in craft_anything_ai::ToolList::ALL {
+                                for l in pickaxe_ai::ToolList::ALL {
                                     if widgets::menu_item(ui, l == list, l.as_str()).clicked() && l != list {
                                         chosen_tools = Some((b.name.clone(), l, job_id));
                                     }
@@ -882,10 +882,10 @@ fn ai(app: &mut CraftApp, ui: &mut Ui) {
         app.choose_backend(Some(p));
     }
     if let Some(b) = builds {
-        app.set_role(craft_anything_ai::Role::Builder, b);
+        app.set_role(pickaxe_ai::Role::Builder, b);
     }
     if let Some(e) = extracts {
-        app.set_role(craft_anything_ai::Role::Extractor, e);
+        app.set_role(pickaxe_ai::Role::Extractor, e);
     }
     ui.add_space(theme::space::SM);
     let detected = app.detected.clone().unwrap_or_default();
@@ -925,12 +925,12 @@ fn ai(app: &mut CraftApp, ui: &mut Ui) {
             if configured {
                 widgets::pill(&mut right_ui, "Added", t.success, t.raised);
                 // Claude Code once more, to give it another account's folder.
-                if craft_anything_ai::folder_var(&d.suggestion).is_some()
+                if pickaxe_ai::folder_var(&d.suggestion).is_some()
                     && widgets::link(&mut right_ui, "Add another").on_hover_text(tr("Add it again, to choose another account's folder for it.")).clicked()
                 {
                     let taken = |n: &String| app.backends.iter().any(|b| &b.name == n);
                     if let Some(name) = (2..100).map(|i| format!("{} {i}", d.suggestion.name)).find(|n| !taken(n)) {
-                        app.add_backend(craft_anything_ai::BackendConfig { name, ..d.suggestion.clone() }, None);
+                        app.add_backend(pickaxe_ai::BackendConfig { name, ..d.suggestion.clone() }, None);
                     }
                 }
             } else if !d.needs_key && widgets::primary(&mut right_ui, "Add").clicked() {
@@ -948,7 +948,7 @@ fn ai(app: &mut CraftApp, ui: &mut Ui) {
             ui.advance_cursor_after_rect(left_ui.min_rect().union(right));
             // A subscription key is worth pasting even when the environment already has one, so a
             // different key can be used without restarting the app.
-            let pastable = d.needs_key || d.suggestion.base_url.as_deref().is_some_and(craft_anything_ai::openai::is_opencode_go);
+            let pastable = d.needs_key || d.suggestion.base_url.as_deref().is_some_and(pickaxe_ai::openai::is_opencode_go);
             if pastable && !configured {
                 ui.horizontal(|ui| {
                     let key = app.key_inputs.entry(d.suggestion.name.clone()).or_default();
@@ -1073,7 +1073,7 @@ fn builds(app: &mut CraftApp, ui: &mut Ui) {
         changed |= number(ui, &mut b.max_rounds, 0..=20, "", "");
     });
     row(ui, "Website pages", "Other pages of a website studied and compared besides the one you gave.", |ui| {
-        changed |= number(ui, &mut b.max_pages, 0..=craft_anything_ai::rebuild::kinds::website::MAX_ROUTES, "", "");
+        changed |= number(ui, &mut b.max_pages, 0..=pickaxe_ai::rebuild::kinds::website::MAX_ROUTES, "", "");
     });
     row(ui, "Match my pictures", "Apps and games: keep refining until they look this alike to your pictures. Off, the likeness is only reported.", |ui| {
         let mut on = b.picture_good_enough.is_some();
@@ -1091,7 +1091,7 @@ fn builds(app: &mut CraftApp, ui: &mut Ui) {
     ui.add_space(theme::space::SM);
     if let Some(bytes) = app.pinned_copy_bytes {
         row(ui, "Pinned builds", "Size", |ui| {
-            ui.label(craft_anything_engine::evidence::human_bytes(bytes));
+            ui.label(pickaxe_engine::evidence::human_bytes(bytes));
         });
     }
     widgets::caption(ui, "Generated art (games)");
@@ -1104,12 +1104,12 @@ fn builds(app: &mut CraftApp, ui: &mut Ui) {
             changed |= number(ui, &mut a.budget_usd, 0.0..=10_000.0, "$", "");
         },
     );
-    let table = craft_anything_engines::assets::Catalogue::built_in();
+    let table = pickaxe_engines::assets::Catalogue::built_in();
     row(ui, "Picture model", "What pictures and textures are made with.", |ui| {
         let current = table.image_model(a.image_model.as_deref()).or_else(|_| table.image_model(None)).map(|m| m.name.clone()).unwrap_or_default();
         widgets::dropdown("image-model").selected_text(current).show_ui(ui, |ui| {
             for m in table.images() {
-                let price = crate::usage::asset_cost_words(m.cost(craft_anything_engines::assets::Shape::Square));
+                let price = crate::usage::asset_cost_words(m.cost(pickaxe_engines::assets::Shape::Square));
                 let label = format!("{} · {} {}", m.name, price, tr("a picture"));
                 let on = a.image_model.as_deref() == Some(m.id.as_str());
                 if widgets::menu_item(ui, on, label).on_hover_text(&m.licence).clicked() && !on {
@@ -1131,7 +1131,7 @@ fn plugins(app: &mut CraftApp, ui: &mut Ui) {
     ui.add(
         egui::Label::new(
             RichText::new(tr(
-                "Plugins add tools Craft Anything offers as its own: MCP servers (a command or an address; read their tools after adding) or WebAssembly components (a .wasm file, which can't touch your files or the network).",
+                "Plugins add tools Pickaxe offers as its own: MCP servers (a command or an address; read their tools after adding) or WebAssembly components (a .wasm file, which can't touch your files or the network).",
             ))
             .color(t.text_faint)
             .size(theme::CAPTION),
@@ -1273,7 +1273,7 @@ fn safety(app: &mut CraftApp, ui: &mut Ui) {
         "The builder's questions",
         "When the builder needs a choice made: show it to you and wait, or let it decide and say what it chose. Each project can choose for itself under its prompt box.",
         |ui| {
-            use craft_anything_engine::workspace::Questions;
+            use pickaxe_engine::workspace::Questions;
             let sel = usize::from(app.settings.questions() == Questions::Decide);
             if let Some(i) = widgets::segmented(ui, &["Ask me", "Decide yourself"], sel, theme::ControlSize::Medium) {
                 app.settings.questions = Some(if i == 0 { Questions::Ask } else { Questions::Decide });
@@ -1306,15 +1306,15 @@ fn safety(app: &mut CraftApp, ui: &mut Ui) {
 /// What to tell the person at startup when their settings couldn't be loaded: `why` names the
 /// file, and the rest says what that means until it's fixed. `None` when they loaded. English for
 /// now: the wording needs a native speaker's check before it joins the catalogs.
-pub(crate) fn not_loaded_warning(settings: &craft_anything_engine::Settings) -> Option<String> {
+pub(crate) fn not_loaded_warning(settings: &pickaxe_engine::Settings) -> Option<String> {
     let why = settings.not_loaded.as_deref()?;
-    Some(format!("{why}. Until that's fixed, Craft Anything uses its default settings and won't save over it."))
+    Some(format!("{why}. Until that's fixed, Pickaxe uses its default settings and won't save over it."))
 }
 
 /// What a settings save that failed says: a line in the person's language first, then what the
 /// engine said and what to do about it. The engine's message is English; its remediation is the
 /// part that tells the person how to get their settings saved again, so it is never left out.
-pub(crate) fn settings_not_saved(e: &craft_anything_engine::evidence::ToolError) -> String {
+pub(crate) fn settings_not_saved(e: &pickaxe_engine::evidence::ToolError) -> String {
     let mut said = format!("{} {}", tr("Couldn't save your settings."), e.message);
     if let Some(fix) = e.remediation.as_deref().filter(|f| !f.trim().is_empty()) {
         said.push(' ');
@@ -1327,15 +1327,15 @@ pub(crate) fn settings_not_saved(e: &craft_anything_engine::evidence::ToolError)
 mod tests {
     use super::*;
     use crate::{Done, builders::AgentModelPicker, demo, jobs::Finished};
-    use craft_anything_ai::{BackendConfig, BackendKind};
+    use pickaxe_ai::{BackendConfig, BackendKind};
 
     /// Settings that couldn't be loaded say so where the person is looking, with the file's name.
     #[test]
     fn settings_that_didnt_load_are_said_at_startup() {
-        let loaded = craft_anything_engine::Settings::default();
+        let loaded = pickaxe_engine::Settings::default();
         assert_eq!(not_loaded_warning(&loaded), None);
-        let why = r"C:\Users\me\AppData\Roaming\Craft Anything\config.toml couldn't be read (access denied)";
-        let standing_in = craft_anything_engine::Settings { not_loaded: Some(why.into()), ..Default::default() };
+        let why = r"C:\Users\me\AppData\Roaming\Pickaxe\config.toml couldn't be read (access denied)";
+        let standing_in = pickaxe_engine::Settings { not_loaded: Some(why.into()), ..Default::default() };
         let said = not_loaded_warning(&standing_in).unwrap();
         assert!(said.contains("config.toml") && said.contains("access denied"), "{said}");
         assert!(said.contains("won't save over it"), "{said}");
@@ -1348,14 +1348,14 @@ mod tests {
         let dir = tempfile::tempdir().unwrap();
         let path = dir.path().join("config.toml");
         std::fs::create_dir(&path).unwrap(); // Something in config.toml's place that can't be read.
-        let standing_in = craft_anything_engine::Settings::load_from(&path);
+        let standing_in = pickaxe_engine::Settings::load_from(&path);
         let e = standing_in.save_to(&path).unwrap_err();
         let fix = e.remediation.clone().unwrap();
         let said = settings_not_saved(&e);
         assert!(said.starts_with(&tr("Couldn't save your settings.")), "{said}");
         assert!(said.contains(&e.message) && said.ends_with(&fix), "{said}");
         // No remediation: the line and the message, with nothing dangling after them.
-        let bare = craft_anything_engine::evidence::ToolError::invalid("disk full");
+        let bare = pickaxe_engine::evidence::ToolError::invalid("disk full");
         assert_eq!(settings_not_saved(&bare), format!("{} disk full", tr("Couldn't save your settings.")));
         // Korean, the language this was found in, has the line.
         let ko = crate::i18n::LANGUAGES.iter().find(|l| l.code == "ko").unwrap();
@@ -1365,7 +1365,7 @@ mod tests {
     #[test]
     /// A non-Codex local agent gets the same Check action and result presentation.
     fn agent_connection_check_and_its_result_are_visible_in_settings() {
-        let mut app = demo::app(demo::engine(craft_anything_engine::Mode::Experienced, true));
+        let mut app = demo::app(demo::engine(pickaxe_engine::Mode::Experienced, true));
         app.backends = vec![BackendConfig {
             name: "Agent test".into(),
             kind: BackendKind::AgentCli,
@@ -1398,7 +1398,7 @@ mod tests {
     fn a_saved_backend_key_can_be_replaced_or_forgotten() {
         use std::collections::BTreeMap;
 
-        let mut app = demo::app(demo::engine(craft_anything_engine::Mode::Experienced, true));
+        let mut app = demo::app(demo::engine(pickaxe_engine::Mode::Experienced, true));
         app.backends = vec![BackendConfig {
             name: "OpenAI test".into(),
             kind: BackendKind::Openai,
@@ -1468,7 +1468,7 @@ mod tests {
     fn a_stale_backend_key_check_does_not_replace_a_newer_one() {
         use std::collections::BTreeMap;
 
-        let mut app = demo::app(demo::engine(craft_anything_engine::Mode::Experienced, true));
+        let mut app = demo::app(demo::engine(pickaxe_engine::Mode::Experienced, true));
         app.backend_keys_request = 2;
         app.backend_keys = Some(BTreeMap::from([("OpenAI".to_string(), true)]));
         app.handle_done(Finished { job: 1, result: Ok(Done::BackendKeys { request: 1, keys: BTreeMap::from([("OpenAI".to_string(), false)]) }) });
@@ -1483,7 +1483,7 @@ mod tests {
     fn a_key_draft_survives_a_failed_save_and_a_newer_edit() {
         use std::collections::BTreeMap;
 
-        let mut app = demo::app(demo::engine(craft_anything_engine::Mode::Experienced, true));
+        let mut app = demo::app(demo::engine(pickaxe_engine::Mode::Experienced, true));
         app.backend_keys_request = 1;
         app.backend_key_inputs.insert("OpenAI".into(), "sk-draft".into());
         app.handle_done(Finished {
@@ -1559,7 +1559,7 @@ mod tests {
     /// A failed worker frees only its own Check button; unrelated pending/results remain intact.
     #[test]
     fn failed_agent_check_workers_can_be_retried_without_clearing_other_checks() {
-        let mut app = demo::app(demo::engine(craft_anything_engine::Mode::Experienced, true));
+        let mut app = demo::app(demo::engine(pickaxe_engine::Mode::Experienced, true));
         app.agent_connections.insert("Failed agent".into(), None);
         app.agent_connections.insert("Running agent".into(), None);
         app.agent_connections.insert("Finished agent".into(), Some(Ok("already checked".into())));
@@ -1588,7 +1588,7 @@ mod tests {
 
     #[test]
     fn identical_model_names_are_shown_once_in_the_shared_picker() {
-        use craft_anything_ai::{AgentModel, BackendEntry, ModelContext};
+        use pickaxe_ai::{AgentModel, BackendEntry, ModelContext};
         use egui_kittest::{Harness, kittest::Queryable};
         let context = ModelContext {
             backend: BackendEntry {
@@ -1627,7 +1627,7 @@ mod tests {
 
     #[test]
     fn shared_picker_warnings_name_the_configured_agent() {
-        use craft_anything_ai::{BackendEntry, ModelContext};
+        use pickaxe_ai::{BackendEntry, ModelContext};
         use egui_kittest::{Harness, kittest::Queryable};
         for (agent, name) in [("copilot", "GitHub Copilot"), ("opencode", "OpenCode")] {
             let context = ModelContext {
@@ -1660,7 +1660,7 @@ mod tests {
     /// Busy frames retain matching catalogue results, ignore older requests and defer context invalidation until readable.
     #[test]
     fn a_busy_session_keeps_the_picker_and_its_matching_result() {
-        let mut app = demo::app(demo::engine(craft_anything_engine::Mode::Experienced, true));
+        let mut app = demo::app(demo::engine(pickaxe_engine::Mode::Experienced, true));
         app.hub
             .add_backend(
                 BackendConfig { name: "OpenCode".into(), kind: BackendKind::AgentCli, model: "opencode".into(), base_url: None, ssh_host: None, enabled: true },
@@ -1696,7 +1696,7 @@ mod tests {
     /// made while it connected.
     #[test]
     fn a_late_add_does_not_undo_a_choice_made_meanwhile() {
-        let mut app = demo::app(demo::engine(craft_anything_engine::Mode::Beginner, false));
+        let mut app = demo::app(demo::engine(pickaxe_engine::Mode::Beginner, false));
         let added = |choices| Ok(Done::BackendAdded { name: "Home server".into(), result: Ok(()), choices, address: String::new() });
         let started = app.backend_choices;
         app.choose_backend(None);
@@ -1715,7 +1715,7 @@ mod tests {
     /// A chat started while an AI connects is a choice too: the add doesn't switch AI under it.
     #[test]
     fn a_late_add_does_not_stop_a_chat_started_meanwhile() {
-        let mut app = demo::app(demo::engine(craft_anything_engine::Mode::Experienced, true));
+        let mut app = demo::app(demo::engine(pickaxe_engine::Mode::Experienced, true));
         // A closed local port: the chat starts, and its request fails without leaving this computer.
         let config = BackendConfig {
             name: "Box".into(),
@@ -1751,13 +1751,13 @@ mod tests {
 #[cfg(test)]
 mod model_options_tests {
     use super::*;
-    use craft_anything_ai::config::{CliContext, CliReasoningEffort};
-    use craft_anything_ai::model_options::{ModelOption, ModelTuning};
+    use pickaxe_ai::config::{CliContext, CliReasoningEffort};
+    use pickaxe_ai::model_options::{ModelOption, ModelTuning};
 
     fn app_with_backend() -> CraftApp {
-        let mut app = crate::demo::app(crate::demo::engine(craft_anything_engine::Mode::Beginner, false));
+        let mut app = crate::demo::app(crate::demo::engine(pickaxe_engine::Mode::Beginner, false));
         app.engine.session().settings.ai = Default::default();
-        app.backends = vec![craft_anything_ai::BackendConfig {
+        app.backends = vec![pickaxe_ai::BackendConfig {
             name: "Copilot test".into(),
             kind: BackendKind::AgentCli,
             model: "copilot".into(),
@@ -1810,7 +1810,7 @@ mod model_options_tests {
         app.server_form.name = "Npu".into();
         app.server_form.address = A.into();
         let refused = || {
-            craft_anything_engine::evidence::ToolError::invalid("lists 2 chat models")
+            pickaxe_engine::evidence::ToolError::invalid("lists 2 chat models")
                 .with_details(serde_json::json!({ "choose_model": ["deepseek-r1:8b", "qwen3:8b"] }))
         };
         // The form's request, as `add_server` records it, and its answer for the address asked.
@@ -1850,7 +1850,7 @@ mod model_options_tests {
         app.handle_done(answer(10, A, Err(refused())));
         assert!(app.server_form.choices.is_some());
         ask(&mut app, 11);
-        app.handle_done(answer(11, A, Err(craft_anything_engine::evidence::ToolError::invalid("down"))));
+        app.handle_done(answer(11, A, Err(pickaxe_engine::evidence::ToolError::invalid("down"))));
         assert!(app.server_form.choices.is_none(), "an unrelated failure leaves no old list");
     }
 
@@ -1870,7 +1870,7 @@ mod model_options_tests {
         // A different job finishing leaves it alone; this one's failure clears it.
         app.handle_done(crate::jobs::Finished { job: job.wrapping_add(1000), result: Err("other".into()) });
         assert!(app.server_form.connecting.is_some());
-        let refused = craft_anything_engine::evidence::ToolError::invalid("refused");
+        let refused = pickaxe_engine::evidence::ToolError::invalid("refused");
         app.handle_done(crate::jobs::Finished {
             job,
             result: Ok(crate::Done::BackendAdded {
@@ -1904,7 +1904,7 @@ mod model_options_tests {
             job,
             result: Ok(crate::Done::BackendAdded {
                 name: "Home box".into(),
-                result: Err(craft_anything_engine::evidence::ToolError::cancelled()),
+                result: Err(pickaxe_engine::evidence::ToolError::cancelled()),
                 choices: app.backend_choices,
                 address: "http://127.0.0.1:0/v1".into(),
             }),
@@ -1986,11 +1986,11 @@ mod model_options_tests {
         let mut app = app_with_backend();
         app.hub
             .add_backend_with(
-                craft_anything_ai::BackendEntry {
+                pickaxe_ai::BackendEntry {
                     config: app.backends[0].clone(),
-                    options: craft_anything_ai::BackendOptions {
+                    options: pickaxe_ai::BackendOptions {
                         cli_model: Some("old-model".into()),
-                        command: Some("craft-anything-no-such-test-agent".into()),
+                        command: Some("pickaxe-no-such-test-agent".into()),
                         ..Default::default()
                     },
                 },
@@ -2011,7 +2011,7 @@ mod model_options_tests {
         );
         let mut options = app.backend_options["Copilot test"].clone();
         options.cli_model = Some("new-model".into());
-        app.hub.add_backend_with(craft_anything_ai::BackendEntry { config: app.backends[0].clone(), options }, None).unwrap();
+        app.hub.add_backend_with(pickaxe_ai::BackendEntry { config: app.backends[0].clone(), options }, None).unwrap();
         let result = crate::backends(&app.hub);
         app.handle_done(crate::jobs::Finished { job: 0, result: Ok(result) });
         assert_eq!(app.backend_options["Copilot test"].cli_model.as_deref(), Some("new-model"));

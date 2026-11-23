@@ -1,4 +1,4 @@
-use craft_anything_engine::{CallOptions, Caller, Engine};
+use pickaxe_engine::{CallOptions, Caller, Engine};
 use serde_json::{Value, json};
 use std::path::Path;
 
@@ -7,7 +7,7 @@ fn call(engine: &Engine, tool: &str, params: Value) -> Value {
 }
 
 fn export_pages(input: &Path, bundle: &Path, offsets: &[usize]) {
-    let engine = Engine::new(craft_anything_engine::testing::session());
+    let engine = Engine::new(pickaxe_engine::testing::session());
     for offset in offsets {
         call(&engine, "core_text_read", json!({"path": input, "offset": offset, "limit": 1}));
     }
@@ -16,13 +16,13 @@ fn export_pages(input: &Path, bundle: &Path, offsets: &[usize]) {
 }
 
 fn compare(left: &Path, right: &Path) -> Value {
-    let engine = Engine::new(craft_anything_engine::testing::session());
+    let engine = Engine::new(pickaxe_engine::testing::session());
     call(&engine, "core_evidence_exports_compare", json!({"older_bundle": left, "newer_bundle": right, "keep_pairs": true}))
 }
 
 #[test]
 fn identical_exported_pages_are_unchanged_in_either_record_order() {
-    let dir = craft_anything_engine::testing::temp_dir();
+    let dir = pickaxe_engine::testing::temp_dir();
     let input = dir.join("notes.txt");
     let left = dir.join("left.json");
     let right = dir.join("right.json");
@@ -41,7 +41,7 @@ fn identical_exported_pages_are_unchanged_in_either_record_order() {
 
 #[test]
 fn removing_one_exported_page_is_reported() {
-    let dir = craft_anything_engine::testing::temp_dir();
+    let dir = pickaxe_engine::testing::temp_dir();
     let input = dir.join("notes.txt");
     let left = dir.join("left.json");
     let right = dir.join("right.json");
@@ -56,7 +56,7 @@ fn removing_one_exported_page_is_reported() {
 
 #[test]
 fn adding_one_exported_page_is_reported() {
-    let dir = craft_anything_engine::testing::temp_dir();
+    let dir = pickaxe_engine::testing::temp_dir();
     let input = dir.join("notes.txt");
     let left = dir.join("left.json");
     let right = dir.join("right.json");
@@ -71,7 +71,7 @@ fn adding_one_exported_page_is_reported() {
 
 #[test]
 fn a_tampered_page_is_not_hidden_by_another_page_of_the_same_file() {
-    let dir = craft_anything_engine::testing::temp_dir();
+    let dir = pickaxe_engine::testing::temp_dir();
     let input = dir.join("notes.txt");
     let left = dir.join("left.json");
     let right = dir.join("right.json");
@@ -90,7 +90,7 @@ fn a_tampered_page_is_not_hidden_by_another_page_of_the_same_file() {
 
 #[test]
 fn single_record_export_remains_unchanged() {
-    let dir = craft_anything_engine::testing::temp_dir();
+    let dir = pickaxe_engine::testing::temp_dir();
     let input = dir.join("notes.txt");
     let bundle = dir.join("one.json");
     std::fs::write(&input, b"one page\n").unwrap();
@@ -103,15 +103,15 @@ fn single_record_export_remains_unchanged() {
 
 #[test]
 fn multiple_versions_with_identical_parameters_are_retained() {
-    let dir = craft_anything_engine::testing::temp_dir();
+    let dir = pickaxe_engine::testing::temp_dir();
     let input = dir.join("sample.elf");
     let left = dir.join("left.json");
     let right = dir.join("right.json");
-    let (bytes, _) = craft_anything_testkit::elf64(craft_anything_testkit::ElfArch::X86_64, true);
+    let (bytes, _) = pickaxe_testkit::elf64(pickaxe_testkit::ElfArch::X86_64, true);
     std::fs::write(&input, bytes).unwrap();
-    let engine = Engine::new(craft_anything_engine::testing::session());
+    let engine = Engine::new(pickaxe_engine::testing::session());
     call(&engine, "core_target_open", json!({"path": input}));
-    let address = format!("{:#x}", craft_anything_testkit::ELF_BASE + craft_anything_testkit::ELF_TEXT_OFF);
+    let address = format!("{:#x}", pickaxe_testkit::ELF_BASE + pickaxe_testkit::ELF_TEXT_OFF);
     let before = call(&engine, "native_address_show", json!({"address": address}));
     call(&engine, "native_comment_write", json!({"address": address, "comment": "observed later"}));
     let after = call(&engine, "native_address_show", json!({"address": address}));
@@ -131,7 +131,7 @@ fn multiple_versions_with_identical_parameters_are_retained() {
 
 #[test]
 fn repeated_identical_records_keep_their_multiplicity() {
-    let dir = craft_anything_engine::testing::temp_dir();
+    let dir = pickaxe_engine::testing::temp_dir();
     let input = dir.join("notes.txt");
     let once = dir.join("once.json");
     let twice = dir.join("twice.json");
@@ -153,7 +153,7 @@ fn repeated_identical_records_keep_their_multiplicity() {
 
 #[test]
 fn verified_equal_ids_match_before_a_tampered_copy() {
-    let dir = craft_anything_engine::testing::temp_dir();
+    let dir = pickaxe_engine::testing::temp_dir();
     let input = dir.join("notes.txt");
     let left = dir.join("left.json");
     let right = dir.join("right.json");
@@ -177,7 +177,7 @@ fn verified_equal_ids_match_before_a_tampered_copy() {
 
 #[test]
 fn changed_pairs_are_stable_when_both_record_orders_reverse() {
-    let dir = craft_anything_engine::testing::temp_dir();
+    let dir = pickaxe_engine::testing::temp_dir();
     let input = dir.join("notes.txt");
     let left = dir.join("left.json");
     let right = dir.join("right.json");

@@ -1,4 +1,4 @@
-use craft_anything_formats::wasm::{WasmReport, inspect};
+use pickaxe_formats::wasm::{WasmReport, inspect};
 
 fn leb(mut value: usize) -> Vec<u8> {
     let mut out = Vec::new();

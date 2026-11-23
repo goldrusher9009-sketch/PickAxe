@@ -1,5 +1,5 @@
-use craft_anything_formats::pixels::{self, Layout};
-use craft_anything_formats::{FormatError, unity_texture};
+use pickaxe_formats::pixels::{self, Layout};
+use pickaxe_formats::{FormatError, unity_texture};
 
 #[test]
 fn r16_uses_little_endian_unsigned_samples_and_the_full_range() {

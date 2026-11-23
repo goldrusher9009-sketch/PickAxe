@@ -1,9 +1,9 @@
 //! Regression tests for versioned, stubbed, and Darwin-variant import arity resolution.
 
-use craft_anything_disasm::arity::import_arity;
-use craft_anything_disasm::pseudo::lift;
-use craft_anything_disasm::{Image, Limits, NoControl, Program};
-use craft_anything_testkit as tk;
+use pickaxe_disasm::arity::import_arity;
+use pickaxe_disasm::pseudo::lift;
+use pickaxe_disasm::{Image, Limits, NoControl, Program};
+use pickaxe_testkit as tk;
 use std::sync::Arc;
 
 /// Unversioned C, Mach-O, and Win32 stdcall spellings retain their expected argument counts.

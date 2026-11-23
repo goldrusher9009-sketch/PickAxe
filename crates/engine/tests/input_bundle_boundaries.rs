@@ -1,4 +1,4 @@
-use craft_anything_engine::{CallOptions, Caller, Engine};
+use pickaxe_engine::{CallOptions, Caller, Engine};
 use serde_json::{Value, json};
 
 fn call(engine: &Engine, tool: &str, params: Value) -> Value {
@@ -7,14 +7,14 @@ fn call(engine: &Engine, tool: &str, params: Value) -> Value {
 
 #[cfg(target_os = "linux")]
 fn reject_live_pipe(tool: &'static str) {
-    use craft_anything_engine::evidence::ErrorCode;
+    use pickaxe_engine::evidence::ErrorCode;
     use std::os::fd::AsRawFd;
     use std::sync::mpsc;
     use std::time::Duration;
 
-    let directory = craft_anything_engine::testing::temp_dir();
+    let directory = pickaxe_engine::testing::temp_dir();
     let bundle = directory.join("empty-bundle.json");
-    let engine = Engine::new(craft_anything_engine::testing::session());
+    let engine = Engine::new(pickaxe_engine::testing::session());
     call(&engine, "core_evidence_export", json!({"path": bundle}));
     let (reader, writer) = std::io::pipe().unwrap();
     let pipe = format!("/proc/self/fd/{}", reader.as_raw_fd());
@@ -53,15 +53,15 @@ fn bundle_comparison_rejects_a_pipe_before_reading() {
 
 #[test]
 fn ordinary_exported_bundles_still_import_and_compare() {
-    let directory = craft_anything_engine::testing::temp_dir();
+    let directory = pickaxe_engine::testing::temp_dir();
     let text = directory.join("notes.txt");
     let bundle = directory.join("bundle.json");
     std::fs::write(&text, b"evidence remains readable\n").unwrap();
-    let source = Engine::new(craft_anything_engine::testing::session());
+    let source = Engine::new(pickaxe_engine::testing::session());
     let record = call(&source, "core_text_read", json!({"path": text}));
     let exported = call(&source, "core_evidence_export", json!({"path": bundle}));
     assert_eq!(exported["result"]["records"], 1);
-    let receiver = Engine::new(craft_anything_engine::testing::session());
+    let receiver = Engine::new(pickaxe_engine::testing::session());
     let imported = call(&receiver, "core_evidence_import", json!({"path": bundle}));
     assert_eq!(imported["result"]["imported"], 1);
     assert!(imported["result"]["rejected"].as_array().unwrap().is_empty());

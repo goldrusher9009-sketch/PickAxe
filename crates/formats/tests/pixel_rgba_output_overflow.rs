@@ -1,4 +1,4 @@
-use craft_anything_formats::{
+use pickaxe_formats::{
     FormatError,
     pixels::{self, Layout},
 };

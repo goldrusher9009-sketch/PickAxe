@@ -1,5 +1,5 @@
-use craft_anything_formats::arsc::{Limits, parse};
-use craft_anything_testkit::android::resources_arsc_with_config;
+use pickaxe_formats::arsc::{Limits, parse};
+use pickaxe_testkit::android::resources_arsc_with_config;
 
 /// The qualifier string and locale a table gives an entry stored under a 64-byte configuration
 /// that `f` fills in.

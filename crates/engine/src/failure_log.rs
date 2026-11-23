@@ -1,9 +1,9 @@
 //! Logs of failed runs, one file each, to open and inspect when something goes wrong: what ran,
 //! what it printed, and what we made of it. They stay on this computer, readable only by its
 //! owner. The person's message is never written, and secret-looking flags are masked
-//! ([`craft_anything_platform::process::printable_command`]).
+//! ([`pickaxe_platform::process::printable_command`]).
 
-use craft_anything_evidence::{ErrorCode, ToolError};
+use pickaxe_evidence::{ErrorCode, ToolError};
 use std::path::{Path, PathBuf};
 use std::sync::atomic::{AtomicU64, Ordering};
 use std::time::Duration;
@@ -51,7 +51,7 @@ fn stream(name: &str, bytes: &[u8]) -> String {
 }
 
 fn render(r: &Report, date: &str, time: &str) -> String {
-    let mut s = format!("Craft Anything {} failure log\nWhen: {date} {time} UTC\nWhat: {}\n", env!("CARGO_PKG_VERSION"), r.what);
+    let mut s = format!("Pickaxe {} failure log\nWhen: {date} {time} UTC\nWhat: {}\n", env!("CARGO_PKG_VERSION"), r.what);
     if let Some(d) = &r.diagnosis {
         s.push_str(&format!("Diagnosis: {d}\n"));
     }
@@ -81,7 +81,7 @@ pub fn write(dir: &Path, report: &Report) -> Result<PathBuf, ToolError> {
     let n = COUNTER.fetch_add(1, Ordering::Relaxed);
     let name = format!("agent-{date}-{}-{}-{n}.log", time.replace(':', ""), std::process::id());
     let path = dir.join(name);
-    craft_anything_platform::write_atomic_private(&path, render(report, &date, &time).as_bytes())?;
+    pickaxe_platform::write_atomic_private(&path, render(report, &date, &time).as_bytes())?;
     prune(dir, KEEP);
     Ok(path)
 }

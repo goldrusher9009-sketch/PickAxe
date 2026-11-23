@@ -1,5 +1,5 @@
-use craft_anything_formats::arsc::{Limits, parse};
-use craft_anything_testkit::android::resources_arsc;
+use pickaxe_formats::arsc::{Limits, parse};
+use pickaxe_testkit::android::resources_arsc;
 
 fn word(bytes: &[u8], at: usize) -> usize {
     u32::from_le_bytes(bytes[at..at + 4].try_into().unwrap()) as usize

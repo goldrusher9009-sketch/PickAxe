@@ -1,5 +1,5 @@
-use craft_anything_formats::tarcpio::cpio;
-use craft_anything_testkit::firmware::cpio_newc;
+use pickaxe_formats::tarcpio::cpio;
+use pickaxe_testkit::firmware::cpio_newc;
 
 /// Convert a single-member newc fixture to CRC and set the member checksum.
 fn archive(mode: u32, checksum: u32) -> Vec<u8> {

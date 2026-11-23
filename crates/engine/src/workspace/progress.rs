@@ -3,7 +3,7 @@
 
 use super::{OWN_NAMES, Workspace, rebuilt};
 use crate::CancelToken;
-use craft_anything_evidence::{ErrorCode, ToolError};
+use pickaxe_evidence::{ErrorCode, ToolError};
 use schemars::JsonSchema;
 use serde::{Deserialize, Serialize};
 use serde_json::Value;
@@ -88,8 +88,8 @@ impl BuildProgress {
             Some(v) => v.as_u64().and_then(|v| u32::try_from(v).ok()).ok_or_else(|| not_ours(format!("{BUILD_PROGRESS_FILE} has an invalid version.")))?,
         };
         if found > BUILD_PROGRESS_VERSION {
-            return Err(ToolError::unsupported(format!("{BUILD_PROGRESS_FILE} was written by a newer Craft Anything, so this build is left alone."))
-                .with_remediation("Update Craft Anything to continue this build."));
+            return Err(ToolError::unsupported(format!("{BUILD_PROGRESS_FILE} was written by a newer Pickaxe, so this build is left alone."))
+                .with_remediation("Update Pickaxe to continue this build."));
         }
         let version =
             crate::versioned::upgrade(&mut doc, found, 0, STEPS).map_err(|e| not_ours(format!("Couldn't bring {BUILD_PROGRESS_FILE} up to date: {e}")))?;
@@ -147,7 +147,7 @@ impl BuildProgress {
 fn not_ours(message: String) -> ToolError {
     let message = message.trim_end_matches('.');
     ToolError::invalid(format!(
-        "{message}. This file is Craft Anything's record of the build, and something else changed it (a builder may have kept its own notes there)."
+        "{message}. This file is Pickaxe's record of the build, and something else changed it (a builder may have kept its own notes there)."
     ))
     .with_remediation(format!(
         "Rename or delete {BUILD_PROGRESS_FILE} in the project's folder, then try again: the count of builder turns that changed nothing starts over."
@@ -669,7 +669,7 @@ mod tests {
             let e = BuildProgress::load(d.path()).unwrap_err();
             let fix = e.remediation.clone().unwrap_or_default();
             if bad.contains("99") {
-                assert!(fix.contains("Update Craft Anything"), "{bad}: {fix}");
+                assert!(fix.contains("Update Pickaxe"), "{bad}: {fix}");
             } else {
                 assert!(fix.starts_with("Rename or delete inbox/build-progress.json") && e.message.contains("something else changed it"), "{bad}: {e:?}");
             }

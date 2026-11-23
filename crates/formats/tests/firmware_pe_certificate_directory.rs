@@ -1,7 +1,7 @@
 //! The firmware carver's PE region includes the certificate table only when the optional header
 //! that declares it actually holds directory 4.
 
-use craft_anything_formats::firmware::{ScanOptions, scan};
+use pickaxe_formats::firmware::{ScanOptions, scan};
 
 const LEN: usize = 0x2000;
 const PE: usize = 0x40;

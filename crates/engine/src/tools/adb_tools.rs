@@ -1,6 +1,6 @@
 //! A connected Android phone or emulator, through the user's `adb`.
 //!
-//! Every tool runs `adb` via [`craft_anything_platform::process`] (closed stdin, wall and idle
+//! Every tool runs `adb` via [`pickaxe_platform::process`] (closed stdin, wall and idle
 //! deadlines, capped output, process-group kill on timeout/cancel/drop) and returns an [`Evidence`]
 //! record on the authority of an [`Authority::OutsideService`] (the device). Serials, package
 //! names, settings keys, intent actions and components are validated against strict allowlists;
@@ -16,10 +16,10 @@
 use super::artifact_tools::{UnlessWritten, create_absent_dir};
 use super::native_common::spec;
 use crate::tool::{Ctx, Effects, Requires, ToolOutput, ToolSpec, Toolset, parse_params, schema_of};
-use craft_anything_engines::adb::{self, Adb, Device};
-use craft_anything_evidence::{Authority, Confidence, Coverage, Environment, ErrorCode, Evidence, EvidenceBuilder, Limitation, Location, Subject, ToolError};
-use craft_anything_platform::fs::write_atomic;
-use craft_anything_platform::process::{Cancel, Output};
+use pickaxe_engines::adb::{self, Adb, Device};
+use pickaxe_evidence::{Authority, Confidence, Coverage, Environment, ErrorCode, Evidence, EvidenceBuilder, Limitation, Location, Subject, ToolError};
+use pickaxe_platform::fs::write_atomic;
+use pickaxe_platform::process::{Cancel, Output};
 use schemars::JsonSchema;
 use serde::{Deserialize, Serialize};
 use serde_json::{Value, json};
@@ -535,7 +535,7 @@ fn device_env(ctx: &Ctx<'_>) -> Environment {
         clean_room: ctx.session.clean_room(),
         engine: "adb".into(),
         engine_version: None,
-        host: craft_anything_evidence::host_triple(),
+        host: pickaxe_evidence::host_triple(),
         language_id: None,
     }
 }
@@ -586,7 +586,7 @@ fn exec_error(what: &str, out: &Output) -> ToolError {
     let tail = tail_text(&out.stderr_text());
     let msg = tail.lines().rev().find(|l| !l.trim().is_empty()).unwrap_or("no output").trim().to_string();
     ToolError::new(ErrorCode::ProgramFailed, format!("{what} failed: {msg}"))
-        .with_remediation(format!("What adb printed last:\n{}", craft_anything_platform::process::output_excerpt(&tail)))
+        .with_remediation(format!("What adb printed last:\n{}", pickaxe_platform::process::output_excerpt(&tail)))
         .with_details(json!({"exit_code": out.code, "stderr_tail": tail}))
 }
 
@@ -997,7 +997,7 @@ fn adb_app_download(ctx: &mut Ctx<'_>, params: Value) -> Result<ToolOutput, Tool
 pub(crate) fn pull_error(path: &str, out: &Output) -> ToolError {
     ToolError::new(ErrorCode::ProgramFailed, format!("adb pull of {path} failed: {}", tail_text(&out.stderr_text()).trim())).with_remediation(format!(
         "Check the device path exists and is readable. To try it yourself, run:\nadb pull {}",
-        craft_anything_platform::process::printable_command(std::ffi::OsStr::new(path), &[] as &[&str])
+        pickaxe_platform::process::printable_command(std::ffi::OsStr::new(path), &[] as &[&str])
     ))
 }
 
@@ -1406,7 +1406,7 @@ mod tests {
 
     fn adb_locatable(e: &Engine) -> bool {
         let s = e.session();
-        craft_anything_engines::locate("adb", &s.settings.engines.tools, &s.settings.engine_store_dir()).is_some()
+        pickaxe_engines::locate("adb", &s.settings.engines.tools, &s.settings.engine_store_dir()).is_some()
     }
 
     #[test]

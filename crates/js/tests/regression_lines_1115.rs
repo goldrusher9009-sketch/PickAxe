@@ -1,4 +1,4 @@
-use craft_anything_js::{Limits, analyze, util::LineIndex};
+use pickaxe_js::{Limits, analyze, util::LineIndex};
 /// All ECMAScript line terminators advance locations in parsed and fallback facts.
 #[test]
 fn all_line_terminators_locate_imports() {

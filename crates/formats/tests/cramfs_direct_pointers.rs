@@ -1,4 +1,4 @@
-use craft_anything_formats::fsread::{Limits, cramfs};
+use pickaxe_formats::fsread::{Limits, cramfs};
 
 const TABLE: usize = 92;
 const DIRECT: u32 = 0x4000_0000;

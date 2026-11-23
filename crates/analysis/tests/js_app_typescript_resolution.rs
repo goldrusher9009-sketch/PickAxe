@@ -2,7 +2,7 @@
 //! `.js`/`.mjs`/`.cjs`/`.jsx` → `.ts`/`.tsx`/`.mts`/`.cts` source fallback, `.mts`/`.cts`/directory
 //! `index` imports, and Electron preload TypeScript path resolution in `js_app`.
 
-use craft_anything_analysis::js_app::{AppFile, AppGraph, AppInput, AppOptions, analyze_application, is_script};
+use pickaxe_analysis::js_app::{AppFile, AppGraph, AppInput, AppOptions, analyze_application, is_script};
 
 /// Build an `AppGraph` from in-memory `(path, content)` pairs and optional extra listing entries.
 fn build_graph(files: &[(&str, &str)], extra_listed: &[&str]) -> AppGraph {

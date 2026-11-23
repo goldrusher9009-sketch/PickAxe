@@ -1,8 +1,8 @@
 //! Regressions for stale cross-references and quota consumption left behind when overran
 //! functions are re-scanned after later function boundaries are discovered.
 
-use craft_anything_disasm::{Image, Limits, NoControl, Program, XrefKind};
-use craft_anything_formats::{Arch, Binary};
+use pickaxe_disasm::{Image, Limits, NoControl, Program, XrefKind};
+use pickaxe_formats::{Arch, Binary};
 use std::sync::Arc;
 
 /// Verify that a re-scanned switch function drops jump xrefs that pointed past the next function.

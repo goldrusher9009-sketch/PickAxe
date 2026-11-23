@@ -16,7 +16,7 @@ impl AgentAdapter for OpenCode {
     }
 
     fn check_tool_server(&self, stop: &CancelToken) -> Result<(), ToolError> {
-        cli_can_start(craft_anything_platform::self_cli_path().as_deref(), stop)
+        cli_can_start(pickaxe_platform::self_cli_path().as_deref(), stop)
     }
 
     /// `opencode run` takes no MCP flag, and V2 ignores `OPENCODE_CONFIG_CONTENT`: the server
@@ -25,11 +25,11 @@ impl AgentAdapter for OpenCode {
     fn mcp_env(&self, mcp: &McpCommand, access: Access) -> Result<Option<(&'static str, String)>, ToolError> {
         let content = config_content(mcp, access);
         let path = std::env::temp_dir().join(config_name(&content));
-        craft_anything_platform::fs::write_atomic_private(&path, content.as_bytes())?;
+        pickaxe_platform::fs::write_atomic_private(&path, content.as_bytes())?;
         Ok(Some(("OPENCODE_CONFIG", path.to_string_lossy().into_owned())))
     }
 
-    /// The remote helper is the same `craft-anything-cli` the local check starts; a build must
+    /// The remote helper is the same `pickaxe-cli` the local check starts; a build must
     /// not spend hours then find the remote helper missing. A missing program stops with the fix.
     fn check_remote_tool_server(&self, host: &str, stop: &CancelToken) -> Result<(), ToolError> {
         remote_check(host, Some(stop))
@@ -46,7 +46,7 @@ impl AgentAdapter for OpenCode {
         if !output.success {
             return Err(remote_failure(host, &output));
         }
-        Ok(Some(("OPENCODE_CONFIG", format!("~/.cache/craft-anything/{name}"))))
+        Ok(Some(("OPENCODE_CONFIG", format!("~/.cache/pickaxe/{name}"))))
     }
 
     /// Discover enabled chat models and thinking variants from the selected local or SSH installation.
@@ -148,7 +148,7 @@ impl AgentAdapter for OpenCode {
     /// OpenCode 1.x has no `--standalone` and rejects it, so it's refused before it runs (#1111).
     fn missing_flags_error(&self) -> Option<(&'static str, &'static str)> {
         Some((
-            "This OpenCode's `run --help` doesn't list --standalone, so it looks like OpenCode 1.x. Craft Anything needs OpenCode 2.",
+            "This OpenCode's `run --help` doesn't list --standalone, so it looks like OpenCode 1.x. Pickaxe needs OpenCode 2.",
             "Install OpenCode 2 (`npm install -g @opencode/cli`) and remove the old `opencode-ai` package, or choose the OpenCode 2 program in Settings → AI.",
         ))
     }
@@ -212,7 +212,7 @@ impl AgentAdapter for OpenCode {
     }
 }
 
-/// OpenCode permission rules that keep a builder's own edit tool off Craft Anything's records
+/// OpenCode permission rules that keep a builder's own edit tool off Pickaxe's records
 /// (craft.json, feed.json, inbox/…, [`OWN_NAMES`] but checks/, where it keeps its notes), in
 /// either layout: app/ beside them, or the app in the project folder itself. A `--auto` builder
 /// never asks us, but a configured deny holds under `--auto`. Paths in the project are matched
@@ -220,9 +220,9 @@ impl AgentAdapter for OpenCode {
 /// and everything under it. Every other edit is left to OpenCode as before. Its shell isn't
 /// covered: a command can still write anywhere.
 ///
-/// [`OWN_NAMES`]: craft_anything_engine::workspace::OWN_NAMES
+/// [`OWN_NAMES`]: pickaxe_engine::workspace::OWN_NAMES
 fn record_rules() -> Vec<Value> {
-    craft_anything_engine::workspace::OWN_NAMES
+    pickaxe_engine::workspace::OWN_NAMES
         .iter()
         .filter(|name| **name != "checks")
         .flat_map(|name| [name.to_string(), format!("{name}/*")])
@@ -245,7 +245,7 @@ fn config_content(mcp: &McpCommand, access: Access) -> String {
 fn config_name(content: &str) -> String {
     let mut hash = std::collections::hash_map::DefaultHasher::new();
     std::hash::Hash::hash(content, &mut hash);
-    format!("craft-anything-opencode-{:016x}.json", std::hash::Hasher::finish(&hash))
+    format!("pickaxe-opencode-{:016x}.json", std::hash::Hasher::finish(&hash))
 }
 
 /// Every byte as an octal escape for a POSIX `printf` format string, so no byte in `bytes` can
@@ -266,7 +266,7 @@ fn octal_escape(bytes: &[u8]) -> String {
 fn remote_prepare_line(name: &str, content: &str) -> String {
     let escaped = octal_escape(content.as_bytes());
     format!(
-        "command -v craft-anything-cli >/dev/null && mkdir -p \"$HOME/.cache/craft-anything\" && printf '{escaped}' > \"$HOME/.cache/craft-anything/{name}.tmp.$$\" && chmod 600 \"$HOME/.cache/craft-anything/{name}.tmp.$$\" && mv \"$HOME/.cache/craft-anything/{name}.tmp.$$\" \"$HOME/.cache/craft-anything/{name}\""
+        "command -v pickaxe-cli >/dev/null && mkdir -p \"$HOME/.cache/pickaxe\" && printf '{escaped}' > \"$HOME/.cache/pickaxe/{name}.tmp.$$\" && chmod 600 \"$HOME/.cache/pickaxe/{name}.tmp.$$\" && mv \"$HOME/.cache/pickaxe/{name}.tmp.$$\" \"$HOME/.cache/pickaxe/{name}\""
     )
 }
 
@@ -301,7 +301,7 @@ fn error_text(error: &Value) -> String {
 
 /// Whether a failed delete means the session is already gone: `opencode session delete` exits 1
 /// saying "Session not found: ses_…" when it isn't there, which is what a sweep asked for (#1707).
-fn session_already_gone(out: &craft_anything_platform::process::Output) -> bool {
+fn session_already_gone(out: &pickaxe_platform::process::Output) -> bool {
     let said = format!("{}\n{}", out.stdout_end_text(), out.stderr_end_text()).to_lowercase();
     said.contains("session not found") || said.contains("session does not exist")
 }
@@ -351,7 +351,7 @@ mod tests {
     use super::*;
 
     fn args(builder: bool, options: &BackendOptions) -> Vec<String> {
-        let mcp = McpCommand { command: "craft-anything-cli".into(), args: vec!["mcp".into()], notes: None };
+        let mcp = McpCommand { command: "pickaxe-cli".into(), args: vec!["mcp".into()], notes: None };
         OpenCode.args(&ArgsCx {
             options,
             prompt: "make a game",
@@ -474,11 +474,11 @@ mod tests {
 
     #[test]
     fn native_runs_get_the_tool_server_from_a_config_file() {
-        let mcp = McpCommand { command: "craft-anything-cli".into(), args: vec!["mcp".into()], notes: None };
+        let mcp = McpCommand { command: "pickaxe-cli".into(), args: vec!["mcp".into()], notes: None };
         let (var, path) = OpenCode.mcp_env(&mcp, Access::Build).unwrap().unwrap();
         assert_eq!(var, "OPENCODE_CONFIG");
         let v: Value = serde_json::from_slice(&std::fs::read(&path).unwrap()).unwrap();
-        assert_eq!(v["mcp"][MCP_NAME]["command"], json!(["craft-anything-cli", "mcp"]));
+        assert_eq!(v["mcp"][MCP_NAME]["command"], json!(["pickaxe-cli", "mcp"]));
         assert!(v["permissions"].is_array(), "the file a builder is handed has the records fenced");
         let options = BackendOptions { cli_model: Some("test/model".into()), ..Default::default() };
         assert!(OpenCode.check_native_options(&options, None).is_ok());
@@ -486,10 +486,10 @@ mod tests {
 
     #[test]
     fn the_tool_server_config_and_name_are_stable() {
-        let mcp = McpCommand { command: "craft-anything-cli".into(), args: vec!["mcp".into(), "--clean-room".into()], notes: None };
+        let mcp = McpCommand { command: "pickaxe-cli".into(), args: vec!["mcp".into(), "--clean-room".into()], notes: None };
         let content = config_content(&mcp, Access::CleanRoomBuild);
         assert_eq!(content, config_content(&mcp, Access::CleanRoomBuild));
-        assert!(content.contains("craft-anything-cli"));
+        assert!(content.contains("pickaxe-cli"));
         assert!(content.contains("--clean-room"));
         assert_eq!(config_name(&content), config_name(&content));
         let other = config_content(&McpCommand { command: "other".into(), args: vec![], notes: None }, Access::CleanRoomBuild);
@@ -516,7 +516,7 @@ mod tests {
 
     #[test]
     fn a_builders_own_edits_cant_reach_our_records() {
-        let mcp = McpCommand { command: "craft-anything-cli".into(), args: vec!["mcp".into()], notes: None };
+        let mcp = McpCommand { command: "pickaxe-cli".into(), args: vec!["mcp".into()], notes: None };
         let rules_for = |access| serde_json::from_str::<Value>(&config_content(&mcp, access)).unwrap()["permissions"].as_array().cloned();
         let rules = rules_for(Access::Build).expect("a builder gets rules");
         assert_eq!(rules_for(Access::CleanRoomBuild), Some(rules.clone()), "in either mode");
@@ -525,7 +525,7 @@ mod tests {
         for record in ["inbox/build-progress.json", "craft.json", "feed.json", "investigation.cany/journal.jsonl", "reference/1.png"] {
             assert_eq!(edit_effect(&rules, record).as_deref(), Some("deny"), "{record}");
         }
-        for name in craft_anything_engine::workspace::OWN_NAMES.iter().filter(|n| **n != "checks") {
+        for name in pickaxe_engine::workspace::OWN_NAMES.iter().filter(|n| **n != "checks") {
             assert_eq!(edit_effect(&rules, name).as_deref(), Some("deny"), "{name}");
         }
         // The app, wherever it is, and the builder's notes in checks/ are left as they were.
@@ -549,7 +549,7 @@ mod tests {
     #[test]
     #[cfg(unix)]
     fn the_remote_line_runs_on_a_posix_shell() {
-        use craft_anything_platform::process::Process;
+        use pickaxe_platform::process::Process;
         use std::os::unix::fs::{PermissionsExt, symlink};
 
         let root = tempfile::tempdir().unwrap();
@@ -557,19 +557,19 @@ mod tests {
         let missing_bin = root.path().join("missing-bin");
         std::fs::create_dir(&bin).unwrap();
         std::fs::create_dir(&missing_bin).unwrap();
-        // A fake helper on PATH, so `command -v craft-anything-cli` succeeds or fails on purpose.
-        std::fs::write(bin.join("craft-anything-cli"), "#!/bin/sh\nexit 0\n").unwrap();
-        std::fs::set_permissions(bin.join("craft-anything-cli"), std::fs::Permissions::from_mode(0o755)).unwrap();
+        // A fake helper on PATH, so `command -v pickaxe-cli` succeeds or fails on purpose.
+        std::fs::write(bin.join("pickaxe-cli"), "#!/bin/sh\nexit 0\n").unwrap();
+        std::fs::set_permissions(bin.join("pickaxe-cli"), std::fs::Permissions::from_mode(0o755)).unwrap();
         // Keep both paths isolated from any real helper installed on the test machine.
         for utility in ["mkdir", "chmod", "mv"] {
-            let installed = craft_anything_platform::which(utility).unwrap();
+            let installed = pickaxe_platform::which(utility).unwrap();
             let executable = installed.canonicalize().unwrap();
             symlink(&executable, bin.join(utility)).unwrap();
             symlink(&executable, missing_bin.join(utility)).unwrap();
         }
 
         let home = root.path().join("home");
-        let mcp = McpCommand { command: "craft-anything-cli".into(), args: vec!["mcp".into(), "--clean-room".into()], notes: None };
+        let mcp = McpCommand { command: "pickaxe-cli".into(), args: vec!["mcp".into(), "--clean-room".into()], notes: None };
         let content = config_content(&mcp, Access::Build);
         let name = config_name(&content);
         let line = remote_prepare_line(&name, &content);
@@ -589,7 +589,7 @@ mod tests {
         };
         let ok = run(&bin, &home);
         assert!(ok.success, "{}", ok.stderr_text());
-        let target = home.join(".cache/craft-anything").join(&name);
+        let target = home.join(".cache/pickaxe").join(&name);
         assert_eq!(std::fs::read(&target).unwrap(), content.as_bytes());
         assert_eq!(std::fs::metadata(&target).unwrap().permissions().mode() & 0o777, 0o600);
 
@@ -604,13 +604,13 @@ mod tests {
 
     #[test]
     fn the_remote_line_needs_no_input_and_checks_the_helper_first() {
-        let mcp = McpCommand { command: "craft-anything-cli".into(), args: vec!["mcp".into()], notes: None };
+        let mcp = McpCommand { command: "pickaxe-cli".into(), args: vec!["mcp".into()], notes: None };
         let content = config_content(&mcp, Access::Build);
         let name = config_name(&content);
         let line = remote_prepare_line(&name, &content);
-        assert!(line.starts_with("command -v craft-anything-cli "), "{line}");
-        assert!(line.contains("mkdir -p \"$HOME/.cache/craft-anything\""), "{line}");
-        assert!(line.contains(&format!("\"$HOME/.cache/craft-anything/{name}\"")), "{line}");
+        assert!(line.starts_with("command -v pickaxe-cli "), "{line}");
+        assert!(line.contains("mkdir -p \"$HOME/.cache/pickaxe\""), "{line}");
+        assert!(line.contains(&format!("\"$HOME/.cache/pickaxe/{name}\"")), "{line}");
         assert!(line.contains("chmod 600"), "{line}");
         assert!(!line.contains('\n'), "{line}");
         // No byte in the content can end the printf format string: every octet is escaped.
@@ -650,7 +650,7 @@ mod tests {
     /// done its job, while any other failure still needs reporting.
     #[test]
     fn a_delete_that_finds_the_session_gone_has_done_its_job() {
-        let failed = |stdout: &str, stderr: &str| craft_anything_platform::process::Output {
+        let failed = |stdout: &str, stderr: &str| pickaxe_platform::process::Output {
             code: Some(1),
             success: false,
             stdout: stdout.as_bytes().to_vec(),
@@ -701,7 +701,7 @@ mod tests {
             for (model, thinking) in [(Some("test/selected"), None), (None, Some(crate::Effort::High)), (Some("test/selected"), Some(crate::Effort::High))] {
                 let selected = BackendOptions { cli_model: model.map(str::to_string), cli_thinking: thinking, ..options.clone() };
                 let error = OpenCode.validate_model(&config, &selected, None, &Stop::default()).unwrap_err();
-                assert_eq!(error.code, craft_anything_evidence::ErrorCode::BadInput);
+                assert_eq!(error.code, pickaxe_evidence::ErrorCode::BadInput);
             }
         }
     }

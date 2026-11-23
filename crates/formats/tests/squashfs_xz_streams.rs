@@ -1,5 +1,5 @@
-use craft_anything_formats::fsread::{self, Limits};
-use craft_anything_testkit::firmware::{XZ_FIXTURE, XZ_PLAIN, squashfs_image};
+use pickaxe_formats::fsread::{self, Limits};
+use pickaxe_testkit::firmware::{XZ_FIXTURE, XZ_PLAIN, squashfs_image};
 
 fn image_with_xz_readme(block: &[u8], file_size: usize) -> Vec<u8> {
     let mut data = squashfs_image();
@@ -26,7 +26,7 @@ fn readme(block: &[u8], file_size: usize) -> Vec<u8> {
 fn squashfs_stops_after_the_first_xz_stream() {
     let block = [XZ_FIXTURE, XZ_FIXTURE].concat();
     assert_eq!(readme(&block, XZ_PLAIN.len()), XZ_PLAIN);
-    assert_eq!(craft_anything_formats::decompress::xz(&block, 1024).unwrap(), [XZ_PLAIN, XZ_PLAIN].concat());
+    assert_eq!(pickaxe_formats::decompress::xz(&block, 1024).unwrap(), [XZ_PLAIN, XZ_PLAIN].concat());
 }
 
 #[test]

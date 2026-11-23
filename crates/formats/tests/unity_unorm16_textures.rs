@@ -1,4 +1,4 @@
-use craft_anything_formats::{FormatError, unity_texture};
+use pickaxe_formats::{FormatError, unity_texture};
 
 fn samples(values: &[u16]) -> Vec<u8> {
     values.iter().flat_map(|v| v.to_le_bytes()).collect()
@@ -66,7 +66,7 @@ fn serialized_unity_textures_reach_each_multichannel_decoder() {
     let version = "2022.3.12f1";
     for (format, channels) in [(72, 2), (73, 3), (74, 4)] {
         let pixel = samples(&vec![32768; channels]);
-        let object = craft_anything_testkit::games::unity_texture2d(version, "DetailedChannels", 1, 1, format, Some(&pixel), None);
+        let object = pickaxe_testkit::games::unity_texture2d(version, "DetailedChannels", 1, 1, format, Some(&pixel), None);
         let texture = unity_texture::parse(&object, version, false).unwrap();
         let (start, length) = texture.inline.unwrap();
         assert_eq!(unity_texture::mip0_size(texture.format, texture.width, texture.height), Some(length));

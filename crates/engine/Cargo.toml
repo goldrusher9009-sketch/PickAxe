@@ -1,6 +1,6 @@
 [package]
-name = "craft-anything-engine"
-description = "Craft Anything engine: session, projects, the tool registry every surface dispatches through, settings and jobs"
+name = "pickaxe-engine"
+description = "Pickaxe engine: session, projects, the tool registry every surface dispatches through, settings and jobs"
 version.workspace = true
 edition.workspace = true
 license.workspace = true
@@ -10,13 +10,13 @@ publish = false
 workspace = true
 
 [dependencies]
-craft-anything-evidence = { workspace = true }
-craft-anything-formats = { workspace = true }
-craft-anything-disasm = { workspace = true }
-craft-anything-js = { workspace = true }
-craft-anything-analysis = { workspace = true }
-craft-anything-platform = { workspace = true }
-craft-anything-engines = { workspace = true }
+pickaxe-evidence = { workspace = true }
+pickaxe-formats = { workspace = true }
+pickaxe-disasm = { workspace = true }
+pickaxe-js = { workspace = true }
+pickaxe-analysis = { workspace = true }
+pickaxe-platform = { workspace = true }
+pickaxe-engines = { workspace = true }
 craft-sniff = { workspace = true }
 serde = { workspace = true }
 serde_json = { workspace = true }
@@ -39,9 +39,9 @@ image = { version = "0.25", default-features = false, features = ["jpeg", "webp"
 
 [features]
 # WASM component plugins (R1.8): compiles wasmtime, so off by default.
-wasm-plugins = ["craft-anything-engines/wasm-plugins"]
+wasm-plugins = ["pickaxe-engines/wasm-plugins"]
 
 [dev-dependencies]
 sha1 = "0.10"
-craft-anything-testkit = { workspace = true }
+pickaxe-testkit = { workspace = true }
 tempfile = "3"

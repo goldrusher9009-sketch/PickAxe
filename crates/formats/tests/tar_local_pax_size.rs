@@ -1,5 +1,5 @@
-use craft_anything_formats::tarcpio::{member_data, tar};
-use craft_anything_testkit::firmware::tar_entries;
+use pickaxe_formats::tarcpio::{member_data, tar};
+use pickaxe_testkit::firmware::tar_entries;
 
 /// Encode the decimal byte count that includes the PAX record itself.
 fn record(value: &str) -> String {

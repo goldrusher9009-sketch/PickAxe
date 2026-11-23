@@ -1,4 +1,4 @@
-use craft_anything_formats::java_class::{self, ClassFile, Const};
+use pickaxe_formats::java_class::{self, ClassFile, Const};
 
 #[derive(Clone, Copy, Debug)]
 enum Scope {

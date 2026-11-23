@@ -3,11 +3,11 @@
 
 use crate::state::{CenterTab, ChatItem, Fill, RailKind, RightTab, Screen};
 use crate::{CraftApp, TargetInfo};
-use craft_anything_ai::{AiHub, BackendConfig, BackendKind, Detected};
-use craft_anything_engine::evidence::{Confidence, Coverage, Environment, Evidence, EvidenceBuilder, Limitation, Location, Severity, Unknown};
-use craft_anything_engine::target::Target;
-use craft_anything_engine::workspace::{CheckResult, Claim, Manifest, Status, TargetRef, Workspace};
-use craft_anything_engine::{Engine, Mode, Session, Settings};
+use pickaxe_ai::{AiHub, BackendConfig, BackendKind, Detected};
+use pickaxe_engine::evidence::{Confidence, Coverage, Environment, Evidence, EvidenceBuilder, Limitation, Location, Severity, Unknown};
+use pickaxe_engine::target::Target;
+use pickaxe_engine::workspace::{CheckResult, Claim, Manifest, Status, TargetRef, Workspace};
+use pickaxe_engine::{Engine, Mode, Session, Settings};
 use serde_json::json;
 use std::path::PathBuf;
 use std::sync::Arc;
@@ -122,8 +122,8 @@ pub fn app(engine: Arc<Engine>) -> CraftApp {
     // its own, never the person's settings or system keychain.
     static N: std::sync::atomic::AtomicU64 = std::sync::atomic::AtomicU64::new(0);
     let now = std::time::SystemTime::now().duration_since(std::time::UNIX_EPOCH).map_or(0, |d| d.as_nanos());
-    let store = std::env::temp_dir().join(format!("craft-anything-demo-{now}-{}", N.fetch_add(1, std::sync::atomic::Ordering::Relaxed)));
-    let keys = craft_anything_ai::KeyStore::file_only(store.join("keys.toml"));
+    let store = std::env::temp_dir().join(format!("pickaxe-demo-{now}-{}", N.fetch_add(1, std::sync::atomic::Ordering::Relaxed)));
+    let keys = pickaxe_ai::KeyStore::file_only(store.join("keys.toml"));
     let hub = Arc::new(AiHub::with_stores(engine.clone(), store.join("config.toml"), keys));
     let mut app = CraftApp::new(engine, hub);
     app.persist = false;
@@ -215,11 +215,11 @@ pub fn detected() -> Vec<Detected> {
 
 /// A demo workspace with the given fields and no saved session.
 fn workspace(slug: &str, name: &str, request: &str, target: TargetRef, status: Status, age_min: u64) -> Workspace {
-    let at = craft_anything_engine::inbox::now_ms().saturating_sub(age_min * 60_000);
+    let at = pickaxe_engine::inbox::now_ms().saturating_sub(age_min * 60_000);
     Workspace {
-        root: PathBuf::from(format!("/demo/Craft Anything/{slug}")),
+        root: PathBuf::from(format!("/demo/Pickaxe/{slug}")),
         manifest: Manifest {
-            version: craft_anything_engine::workspace::MANIFEST_VERSION,
+            version: pickaxe_engine::workspace::MANIFEST_VERSION,
             name: name.into(),
             request: request.into(),
             target,
@@ -235,7 +235,7 @@ fn workspace(slug: &str, name: &str, request: &str, target: TargetRef, status: S
             capture_deep: None,
             allowed_actions: Vec::new(),
             last_reply: String::new(),
-            asset_budget_usd: craft_anything_engine::workspace::ASSET_BUDGET_USD,
+            asset_budget_usd: pickaxe_engine::workspace::ASSET_BUDGET_USD,
             generate_assets: false,
             app_in_root: false,
             start_files: Vec::new(),
@@ -271,10 +271,10 @@ pub fn fill_projects(app: &mut CraftApp) {
 /// A project mid-build: steps, the agent's words, collapsed tool work, a question and a check.
 pub fn fill_project(app: &mut CraftApp) {
     use crate::state::{FeedItem, UserItem};
-    use craft_anything_ai::rebuild::Step;
-    use craft_anything_engine::inbox::{Request, RequestKind};
+    use pickaxe_ai::rebuild::Step;
+    use pickaxe_engine::inbox::{Request, RequestKind};
     let mut ws = workspace("example-com", "example.com", "Recreate this website", TargetRef::Website { url: "https://example.com".into() }, Status::Ready, 2);
-    let page = |name: &str, dir: &str, similarity| craft_anything_engine::workspace::PageLikeness { name: name.into(), dir: dir.into(), similarity };
+    let page = |name: &str, dir: &str, similarity| pickaxe_engine::workspace::PageLikeness { name: name.into(), dir: dir.into(), similarity };
     let check = CheckResult {
         similarity: Some(93.4),
         at_ms: 0,

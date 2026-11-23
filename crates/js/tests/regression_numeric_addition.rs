@@ -2,7 +2,7 @@
 //! is not JavaScript's `+`: `'/v' + (1 + 2)` read as `/v12` and `'/w' + 0x10` as `/w0x10`, both
 //! marked literal. Two numbers add, and a number reads as JavaScript turns it into text.
 
-use craft_anything_js::{Analysis, Limits, ParseMode, analyze};
+use pickaxe_js::{Analysis, Limits, ParseMode, analyze};
 
 fn parsed(src: &str) -> Analysis {
     let analysis = analyze("app.js", src, &Limits::default());

@@ -2,23 +2,23 @@
 //!
 //! **The rule:** a new action in the app (a `CraftApp` method that does something, a button,
 //! a setting) gets a row in [`ACTIONS`] naming its headless counterpart: a tool id (MCP and
-//! `craft-anything-cli <tool-id-in-kebab-case>`) or a built-in CLI command (`rebuild …`). An
+//! `pickaxe-cli <tool-id-in-kebab-case>`) or a built-in CLI command (`rebuild …`). An
 //! action with no counterpart yet is `Pending`, naming the tool it waits for and the roadmap item;
 //! a pure view action (theme, panels, the palette) is `UiOnly` with the reason.
 //!
 //! The tests check that:
 //! - every tool named here is registered and reachable by its CLI spelling;
-//! - every CLI command and flag named here exists in `apps/craft-anything-cli/src`;
+//! - every CLI command and flag named here exists in `apps/pickaxe-cli/src`;
 //! - a pending tool that now exists fails the test, so its row is moved to `Tool`;
 //! - every `&mut self` method on `CraftApp` is either a row here or in [`PLUMBING`], so a new
 //!   method can't slip in without a decision.
 
-use craft_anything_engine::Registry;
+use pickaxe_engine::Registry;
 use std::path::{Path, PathBuf};
 
 /// How a person does the same thing without the app.
 enum Headless {
-    /// Tool ids (MCP, and the CLI as `craft-anything-cli <id-in-kebab-case>`).
+    /// Tool ids (MCP, and the CLI as `pickaxe-cli <id-in-kebab-case>`).
     Tool(&'static [&'static str]),
     /// A built-in CLI command; `<…>` are arguments, `--flags` must exist.
     Cli(&'static str),
@@ -215,7 +215,7 @@ fn is_method_row(ui: &str) -> bool {
 
 /// Every tool the shipped apps have: the engine's plus the AI and setup layers' (as `Engine::shared`).
 fn registry() -> Registry {
-    Registry::new(craft_anything_engine::tools::all().into_iter().chain(craft_anything_ai::tools()).chain(craft_anything_setup::tools::specs()).collect())
+    Registry::new(pickaxe_engine::tools::all().into_iter().chain(pickaxe_ai::tools()).chain(pickaxe_setup::tools::specs()).collect())
 }
 
 #[test]
@@ -231,7 +231,7 @@ fn named_tools_exist_and_are_reachable_from_the_cli() {
                 }
                 let cli = id.replace('_', "-");
                 if r.get(&cli).map(|s| s.id) != Some(*id) {
-                    missing.push(format!("{} -> {id}: `craft-anything-cli {cli}` doesn't reach it", act.ui));
+                    missing.push(format!("{} -> {id}: `pickaxe-cli {cli}` doesn't reach it", act.ui));
                 }
             }
         }
@@ -254,7 +254,7 @@ fn pending_tools_do_not_exist_yet() {
 
 #[test]
 fn named_cli_commands_and_flags_exist() {
-    let cli_src = crate_dir().join("../../apps/craft-anything-cli/src");
+    let cli_src = crate_dir().join("../../apps/pickaxe-cli/src");
     let text: String = rust_files(&cli_src).iter().map(|f| std::fs::read_to_string(f).unwrap()).collect::<Vec<_>>().join("\n");
     let mut missing = Vec::new();
     for act in ACTIONS {
@@ -305,7 +305,7 @@ fn every_row_says_why_when_there_is_no_counterpart() {
     }
 }
 
-/// Counts, for the PR and the roadmap: `cargo test -p craft-anything-ui-egui --test headless_parity -- --nocapture`.
+/// Counts, for the PR and the roadmap: `cargo test -p pickaxe-ui-egui --test headless_parity -- --nocapture`.
 #[test]
 fn summary() {
     let (mut covered, mut pending, mut ui_only) = (0, 0, 0);

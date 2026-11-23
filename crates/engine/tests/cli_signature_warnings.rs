@@ -1,5 +1,5 @@
-use craft_anything_engine::{CallOptions, Caller, Engine, ToolOutput};
-use craft_anything_testkit::managed as fx;
+use pickaxe_engine::{CallOptions, Caller, Engine, ToolOutput};
+use pickaxe_testkit::managed as fx;
 use serde_json::{Value, json};
 
 fn call(engine: &Engine, tool: &str, params: Value) -> Value {
@@ -25,7 +25,7 @@ fn padded_signatures_keep_types_and_surface_a_limitation() {
     for padded in [false, true] {
         let bytes = if padded { fx::managed_assembly_with_padded_signatures(1) } else { fx::managed_assembly(1) };
         std::fs::write(&path, &bytes).unwrap();
-        let engine = Engine::new(craft_anything_engine::testing::session());
+        let engine = Engine::new(pickaxe_engine::testing::session());
         for tool in ["managed_assembly_show", "managed_members_list", "managed_native_calls_list"] {
             let result = call(&engine, tool, json!({"path": path}));
             assert_eq!(has_signature_note(&result), padded, "{tool}: {result}");
@@ -49,17 +49,17 @@ fn graph_retains_attribute_only_signature_warnings() {
     let mut clean_graph = None;
     for padded in [false, true] {
         let bytes = if padded { fx::managed_assembly_with_padded_target_framework_signature(1) } else { fx::managed_assembly(1) };
-        let assembly = craft_anything_formats::dotnet::open(&bytes).unwrap();
-        let inventory = craft_anything_formats::dotnet::inventory(&assembly);
-        let members = craft_anything_formats::dotnet::members(&assembly, &Default::default());
-        let native = craft_anything_formats::dotnet::native_boundaries(&assembly);
+        let assembly = pickaxe_formats::dotnet::open(&bytes).unwrap();
+        let inventory = pickaxe_formats::dotnet::inventory(&assembly);
+        let members = pickaxe_formats::dotnet::members(&assembly, &Default::default());
+        let native = pickaxe_formats::dotnet::native_boundaries(&assembly);
         assert_eq!(inventory.target_frameworks, [fx::TFM]);
         assert_eq!(inventory.warnings.len(), usize::from(padded));
         assert!(members.warnings.is_empty());
         assert!(native.warnings.is_empty());
 
         std::fs::write(&path, &bytes).unwrap();
-        let engine = Engine::new(craft_anything_engine::testing::session());
+        let engine = Engine::new(pickaxe_engine::testing::session());
         let graph = call(&engine, "managed_app_graph_build", json!({"input": path}));
         assert_eq!(signature_note_count(&graph), usize::from(padded));
         if padded {
@@ -78,10 +78,10 @@ fn graph_deduplicates_view_warnings_before_the_display_cap() {
     let mut baseline_graph = None;
     for invalid_mappings in [false, true] {
         let bytes = if invalid_mappings { fx::managed_assembly_with_native_mapping_warnings(1) } else { fx::managed_assembly_with_padded_signatures(1) };
-        let assembly = craft_anything_formats::dotnet::open(&bytes).unwrap();
-        let inventory = craft_anything_formats::dotnet::inventory(&assembly);
-        let members = craft_anything_formats::dotnet::members(&assembly, &Default::default());
-        let native = craft_anything_formats::dotnet::native_boundaries(&assembly);
+        let assembly = pickaxe_formats::dotnet::open(&bytes).unwrap();
+        let inventory = pickaxe_formats::dotnet::inventory(&assembly);
+        let members = pickaxe_formats::dotnet::members(&assembly, &Default::default());
+        let native = pickaxe_formats::dotnet::native_boundaries(&assembly);
         for warnings in [&inventory.warnings, &members.warnings, &native.warnings] {
             assert_eq!(warnings.iter().filter(|warning| warning.contains("trailing bytes")).count(), 1);
         }
@@ -91,7 +91,7 @@ fn graph_deduplicates_view_warnings_before_the_display_cap() {
         assert_eq!(native.warnings[1..], mapping_warnings);
 
         std::fs::write(&path, &bytes).unwrap();
-        let engine = Engine::new(craft_anything_engine::testing::session());
+        let engine = Engine::new(pickaxe_engine::testing::session());
         let graph = call(&engine, "managed_app_graph_build", json!({"input": path}));
         assert_eq!(signature_note_count(&graph), 1);
         let messages: Vec<_> = graph["limitations"]
@@ -122,8 +122,8 @@ fn derived_managed_views_retain_the_signature_limitation() {
     let native = dir.path().join("craft.dll");
     std::fs::write(&padded, fx::managed_assembly_with_padded_signatures(1)).unwrap();
     std::fs::write(&clean, fx::managed_assembly(1)).unwrap();
-    std::fs::write(&native, craft_anything_testkit::pe64()).unwrap();
-    let engine = Engine::new(craft_anything_engine::testing::session());
+    std::fs::write(&native, pickaxe_testkit::pe64()).unwrap();
+    let engine = Engine::new(pickaxe_engine::testing::session());
     let compare = call(&engine, "managed_assemblies_compare", json!({"left": padded, "right": clean}));
     assert!(has_signature_note(&compare));
     for change in ["changed", "renamed_or_moved", "added", "removed", "field_changes"] {

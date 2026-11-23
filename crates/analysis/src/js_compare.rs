@@ -394,7 +394,7 @@ pub fn compare_export_outlines(l: &AppGraph, r: &AppGraph) -> Value {
 mod tests {
     use super::*;
     use crate::js_app::tests_support::{graph_of, notes_graph};
-    use craft_anything_testkit::electron as fx;
+    use pickaxe_testkit::electron as fx;
 
     #[test]
     fn build_hashes_in_names_are_recognised_and_plain_words_are_not() {
@@ -448,7 +448,7 @@ mod tests {
                 kind: "script".into(),
                 sha256: sha.into(),
                 functions: (0..2001).map(|i| format!("{prefix}f{i}")).collect(),
-                exports: craft_anything_js::ExportShape { cjs: (0..2001).map(|i| format!("{prefix}e{i}")).collect(), ..Default::default() },
+                exports: pickaxe_js::ExportShape { cjs: (0..2001).map(|i| format!("{prefix}e{i}")).collect(), ..Default::default() },
                 ..Default::default()
             }],
             ..Default::default()

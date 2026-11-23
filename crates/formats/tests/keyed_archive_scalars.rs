@@ -1,8 +1,8 @@
 //! Regression tests for `NSString` (`NS.bytes`) and `NSDate` (`NS.time`) projection in `keyed_archive`.
 
-use craft_anything_formats::keyed_archive::{KeyedArchive, from_plist, parse};
-use craft_anything_formats::plist::Value;
-use craft_anything_testkit::apple as fx;
+use pickaxe_formats::keyed_archive::{KeyedArchive, from_plist, parse};
+use pickaxe_formats::plist::Value;
+use pickaxe_testkit::apple as fx;
 use serde_json::json;
 
 /// Build a `$class` dictionary entry in `$objects`.
@@ -153,7 +153,7 @@ fn out_of_range_integer_nstime_falls_back_to_exact_integer_string() {
 
     let projected = archive.project(1);
     assert_eq!(projected["at_limit"], json!({"$date": "318888-05-20T17:46:40Z"}), "{projected}");
-    assert_eq!(projected["at_limit"], json!({"$date": craft_anything_formats::plist::apple_date_iso(10_000_000_000_000.0)}), "{projected}");
+    assert_eq!(projected["at_limit"], json!({"$date": pickaxe_formats::plist::apple_date_iso(10_000_000_000_000.0)}), "{projected}");
     assert_eq!(projected["over_limit"], json!({"$date": "10000000000001"}), "{projected}");
     assert_eq!(projected["under_neg_limit"], json!({"$date": "-10000000000001"}), "{projected}");
     assert_eq!(projected["beyond_f64_exact"], json!({"$date": "100000000000000001"}), "{projected}");

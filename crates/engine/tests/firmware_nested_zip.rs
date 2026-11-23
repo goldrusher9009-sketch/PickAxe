@@ -1,5 +1,5 @@
-use craft_anything_engine::{CallOptions, Caller, Consent, Engine};
-use craft_anything_testkit::electron::zip_stored;
+use pickaxe_engine::{CallOptions, Caller, Consent, Engine};
+use pickaxe_testkit::electron::zip_stored;
 use serde_json::{Value, json};
 
 fn call(engine: &Engine, tool: &str, params: Value) -> Value {
@@ -12,10 +12,10 @@ fn firmware_listing_keeps_nested_zip_members_in_one_outer_region() {
     let archive = zip_stored(&[("nested.zip", &inner), ("sibling", b"preserved")]);
     let mut firmware = vec![0; 37];
     firmware.extend_from_slice(&archive);
-    let directory = craft_anything_engine::testing::temp_dir();
+    let directory = pickaxe_engine::testing::temp_dir();
     let input = directory.join("firmware.bin");
     std::fs::write(&input, &firmware).unwrap();
-    let engine = Engine::new(craft_anything_engine::testing::session());
+    let engine = Engine::new(pickaxe_engine::testing::session());
     let evidence = call(&engine, "firmware_regions_list", json!({"path": input}));
     assert_eq!(evidence["result"]["regions_total"], 1, "{evidence}");
     let region = &evidence["result"]["regions"][0];
@@ -30,11 +30,11 @@ fn firmware_listing_keeps_nested_zip_members_in_one_outer_region() {
 fn firmware_extraction_preserves_outer_members_and_nested_parent_paths() {
     let inner = zip_stored(&[("leaf", b"ok")]);
     let archive = zip_stored(&[("nested.zip", &inner), ("sibling", b"preserved")]);
-    let directory = craft_anything_engine::testing::temp_dir();
+    let directory = pickaxe_engine::testing::temp_dir();
     let input = directory.join("firmware.zip");
     let output = directory.join("output");
     std::fs::write(&input, &archive).unwrap();
-    let engine = Engine::new(craft_anything_engine::testing::session());
+    let engine = Engine::new(pickaxe_engine::testing::session());
     let evidence = call(&engine, "firmware_image_extract", json!({"path": input, "output_directory": output, "max_depth": 2}));
     let rows = evidence["result"]["outputs"].as_array().unwrap();
     assert_eq!(rows.len(), 4, "{evidence}");
@@ -58,11 +58,11 @@ fn firmware_extraction_keeps_adjacent_zip_archives_separate() {
     let second = zip_stored(&[("second", b"two")]);
     let mut firmware = first.clone();
     firmware.extend_from_slice(&second);
-    let directory = craft_anything_engine::testing::temp_dir();
+    let directory = pickaxe_engine::testing::temp_dir();
     let input = directory.join("firmware.bin");
     let output = directory.join("output");
     std::fs::write(&input, &firmware).unwrap();
-    let engine = Engine::new(craft_anything_engine::testing::session());
+    let engine = Engine::new(pickaxe_engine::testing::session());
     let evidence = call(&engine, "firmware_image_extract", json!({"path": input, "output_directory": output, "max_depth": 1}));
     assert_eq!(evidence["result"]["files_written"], 4, "{evidence}");
     assert_eq!(std::fs::read(output.join("0-zip.bin")).unwrap(), first);

@@ -37,13 +37,8 @@ texts are in the crate's `fonts/` folder.
 
 ## App icon (`assets/app-icon/`)
 
-The raven, the Crafting Apps' shared icon, made by the ArtCraft team; not open source, used on the
-brand terms below. See `assets/app-icon/LICENSE.txt`.
-
-## Brand (`docs/brand/`)
-
-The ArtCraft name, wordmark and logos are trademarks of the ArtCraft Team and are not covered by
-the open-source licence; see `docs/brand/LICENSE-brand.txt`.
+The Pickaxe icon is original artwork made for this project, under MIT OR Apache-2.0. The ArtCraft
+raven and brand assets from the upstream project are not included.
 
 ## Optional build-time fonts
 

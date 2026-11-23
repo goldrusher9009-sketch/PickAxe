@@ -5,8 +5,8 @@
 use crate::pins::{self, Opened, PinMode, Runs};
 use crate::tool::{Ctx, Effects, Requires, ToolOutput, ToolSpec, Toolset, parse_params, schema_of};
 use crate::workspace::Workspace;
-use craft_anything_evidence::{ErrorCode, ToolError};
-use craft_anything_platform::Launch;
+use pickaxe_evidence::{ErrorCode, ToolError};
+use pickaxe_platform::Launch;
 use schemars::JsonSchema;
 use serde::Deserialize;
 use serde_json::{Value, json};
@@ -163,8 +163,8 @@ fn open_project(project: &Path) -> Result<Workspace, ToolError> {
 /// The Godot a Godot project opens in.
 pub(crate) fn godot(ctx: &Ctx<'_>) -> Option<PathBuf> {
     let store = ctx.session.settings.engine_store_dir();
-    craft_anything_engines::game::inventory(&craft_anything_engines::game::Places::here(store))
-        .best(craft_anything_engines::game::Builder::Godot)
+    pickaxe_engines::game::inventory(&pickaxe_engines::game::Places::here(store))
+        .best(pickaxe_engines::game::Builder::Godot)
         .map(|i| i.program.clone())
 }
 

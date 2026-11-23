@@ -1,10 +1,10 @@
 //! Regressions for argument loads and outgoing stack arguments that pseudo-C folds into a call:
 //! a memory write that may change the bytes they read keeps them in place.
 
-use craft_anything_disasm::pseudo::lift;
-use craft_anything_disasm::{Image, Limits, NoControl, Program};
-use craft_anything_formats::{Arch, Binary};
-use craft_anything_testkit as tk;
+use pickaxe_disasm::pseudo::lift;
+use pickaxe_disasm::{Image, Limits, NoControl, Program};
+use pickaxe_formats::{Arch, Binary};
+use pickaxe_testkit as tk;
 use std::sync::Arc;
 
 /// The pseudo-C of the function at 0x1000 in a raw image.
@@ -269,7 +269,7 @@ fn resolved_unscaled_and_narrow_loads_keep_their_type() {
 /// A pair writes through the old base and then updates it. The memory address is not the register result.
 #[test]
 fn pair_writeback_keeps_its_address_separate_from_register_values() {
-    use craft_anything_disasm::{ArmConsts, Mode, Op, decode};
+    use pickaxe_disasm::{ArmConsts, Mode, Op, decode};
     let mut known = ArmConsts::default();
     let mut adr = decode(Mode::A64, &0x1000_0200u32.to_le_bytes(), 0x1000, false).expect("adr x0,0x1040");
     known.apply(&mut adr);

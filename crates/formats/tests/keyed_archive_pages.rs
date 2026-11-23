@@ -1,5 +1,5 @@
-use craft_anything_formats::keyed_archive;
-use craft_anything_testkit::apple as fx;
+use pickaxe_formats::keyed_archive;
+use pickaxe_testkit::apple as fx;
 
 #[test]
 fn pages_preserve_row_contents_order_and_absolute_indices() {

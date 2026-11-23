@@ -1,4 +1,4 @@
-use craft_anything_engine::{CallOptions, Caller, Consent, Engine};
+use pickaxe_engine::{CallOptions, Caller, Consent, Engine};
 use serde_json::json;
 
 fn romfs_entry(kind: u32, name: &str, payload: &[u8], declared_size: u32) -> Vec<u8> {
@@ -28,11 +28,11 @@ fn filesystem_extraction_keeps_skips_and_empty_classification() {
         (2, "missing", b"abc".as_slice(), 4096, false),
         (2, "kept", b"abc".as_slice(), 3, true),
     ] {
-        let directory = craft_anything_engine::testing::temp_dir();
+        let directory = pickaxe_engine::testing::temp_dir();
         let input = directory.join("firmware.romfs");
         let output = directory.join("output");
         std::fs::write(&input, romfs_entry(kind, name, payload, size)).unwrap();
-        let engine = Engine::new(craft_anything_engine::testing::session());
+        let engine = Engine::new(pickaxe_engine::testing::session());
         let evidence = engine
             .call("firmware_image_extract", json!({"path": input, "output_directory": output}), CallOptions::new(Caller::Cli).with_consent(Consent::Granted))
             .unwrap()

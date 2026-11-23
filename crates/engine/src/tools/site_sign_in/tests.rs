@@ -503,8 +503,8 @@ fn opening_a_site_with_a_saved_sign_in_starts_from_a_copy() {
 
 // ---------------------------------------------------------------------------------------------
 // Live tests: a real Chromium-based browser, a desktop for the window (`xvfb-run -a` works) and a
-// local test site. Run one at a time: `cargo test -p craft-anything-engine --lib site_sign_in::
-// -- --ignored --test-threads=1`. `CRAFT_ANYTHING_TEST_CHROMIUM` points at a browser the usual
+// local test site. Run one at a time: `cargo test -p pickaxe-engine --lib site_sign_in::
+// -- --ignored --test-threads=1`. `PICKAXE_TEST_CHROMIUM` points at a browser the usual
 // search doesn't find.
 
 /// A live session whose config lives in `dir`.
@@ -693,7 +693,7 @@ fn a_sign_in_made_in_a_window_is_seen_by_a_headless_capture() {
     assert_eq!((check["done"].as_bool(), check["sign_in_page"].as_bool()), (Some(true), Some(false)), "{check}");
     let picture = PathBuf::from(check["picture"]["path"].as_str().unwrap());
     assert!(std::fs::metadata(&picture).unwrap().len() > 1000, "a real picture of the page");
-    assert!(picture.starts_with(cfg.path()), "the picture stays in Craft Anything's folder");
+    assert!(picture.starts_with(cfg.path()), "the picture stays in Pickaxe's folder");
 
     let out = tempfile::tempdir().unwrap();
     let opened = e.call("web_site_open", json!({"url": format!("{base}/account")}), granted()).unwrap().to_json();

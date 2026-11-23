@@ -1,5 +1,5 @@
-use craft_anything_js::recover::{RecoveredModule, RewriteLevel, recover_modules};
-use craft_anything_js::{Limits, ParseMode, analyze};
+use pickaxe_js::recover::{RecoveredModule, RewriteLevel, recover_modules};
+use pickaxe_js::{Limits, ParseMode, analyze};
 
 /// Recover the target factory alongside an ordinary module as a control.
 fn recover(body: &str) -> Vec<RecoveredModule> {

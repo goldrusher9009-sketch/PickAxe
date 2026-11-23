@@ -8,12 +8,12 @@ use crate::make::{self, resolve_target};
 use crate::state::{FeedItem, MakeDraft, Modal, PlanStatus, PlanStep, Screen, UserItem};
 use crate::theme::{self, Tokens};
 use crate::{CraftApp, Done, chat, icons, prompt_box, widgets};
-use craft_anything_ai::AgentEvent;
-use craft_anything_ai::rebuild::activity::{Action, ActivityNow, LineKind};
-use craft_anything_ai::rebuild::feed::{self, apply};
-use craft_anything_ai::rebuild::{self, AppKind, KindRegistry, KindWords, Note, RebuildRun, RunEvent, RunOptions, Started, Step, Stopped, TargetKind};
-use craft_anything_engine::inbox::{Answer, Inbox, Request, RequestKind};
-use craft_anything_engine::workspace::{CheckResult, Status, TargetRef, Workspace, suggest_name};
+use pickaxe_ai::AgentEvent;
+use pickaxe_ai::rebuild::activity::{Action, ActivityNow, LineKind};
+use pickaxe_ai::rebuild::feed::{self, apply};
+use pickaxe_ai::rebuild::{self, AppKind, KindRegistry, KindWords, Note, RebuildRun, RunEvent, RunOptions, Started, Step, Stopped, TargetKind};
+use pickaxe_engine::inbox::{Answer, Inbox, Request, RequestKind};
+use pickaxe_engine::workspace::{CheckResult, Status, TargetRef, Workspace, suggest_name};
 use egui::{Color32, RichText, Ui, Vec2};
 use std::path::{Path, PathBuf};
 
@@ -39,9 +39,9 @@ impl CraftApp {
     /// the steps, and a later run's checklist shows again.
     fn fold_plan(&mut self) {
         let Some(ws) = &self.workspace else { return };
-        match craft_anything_engine::feed::dismiss_plan_saved(ws) {
+        match pickaxe_engine::feed::dismiss_plan_saved(ws) {
             Ok(_) => {
-                craft_anything_engine::feed::dismiss_plan(&mut self.state.feed);
+                pickaxe_engine::feed::dismiss_plan(&mut self.state.feed);
             }
             Err(e) => self.toast(e.message, true),
         }
@@ -182,7 +182,7 @@ impl CraftApp {
     }
 
     /// Start a run, or queue it when as many as Settings allows are already building.
-    fn launch(&mut self, ws: Workspace, opts: RunOptions) -> Result<Started, craft_anything_engine::evidence::ToolError> {
+    fn launch(&mut self, ws: Workspace, opts: RunOptions) -> Result<Started, pickaxe_engine::evidence::ToolError> {
         self.runs.set_limit(self.settings.build.parallel);
         self.runs.start(&self.hub, ws, opts)
     }
@@ -428,7 +428,7 @@ impl CraftApp {
     fn attach_checked(&mut self, files: Vec<PathBuf>) {
         let list = &mut self.state.project_attachments;
         for f in files {
-            if craft_anything_engine::workspace::is_picture(&f) && !list.contains(&f) {
+            if pickaxe_engine::workspace::is_picture(&f) && !list.contains(&f) {
                 list.push(f);
             }
         }
@@ -449,7 +449,7 @@ impl CraftApp {
     fn add_pictures_checked(&mut self, files: Vec<PathBuf>) {
         let d = &mut self.state.make.pictures;
         for f in files {
-            if craft_anything_engine::workspace::is_picture(&f) && !d.contains(&f) {
+            if pickaxe_engine::workspace::is_picture(&f) && !d.contains(&f) {
                 d.push(f);
             }
         }
@@ -480,7 +480,7 @@ impl CraftApp {
             PictureTarget::Make => {
                 if let Some(draft) = self.start_after_pictures.as_mut() {
                     for f in &files {
-                        if craft_anything_engine::workspace::is_picture(f) && !draft.pictures.contains(f) {
+                        if pickaxe_engine::workspace::is_picture(f) && !draft.pictures.contains(f) {
                             draft.pictures.push(f.clone());
                         }
                     }
@@ -547,7 +547,7 @@ impl CraftApp {
 
     /// Start a program this project built, in its own window (only ever on the person's click).
     /// Choose what the builder's questions get in this project. Shown at once; saved by the tool.
-    pub fn set_questions(&mut self, root: &Path, mode: craft_anything_engine::workspace::Questions) {
+    pub fn set_questions(&mut self, root: &Path, mode: pickaxe_engine::workspace::Questions) {
         if let Some(ws) = self.workspace.as_mut().filter(|w| w.root == root) {
             ws.manifest.questions = Some(mode);
         }
@@ -572,7 +572,7 @@ impl CraftApp {
         self.thumbs.insert(path.to_path_buf(), Thumb::Loading);
         let (p, ctx) = (path.to_path_buf(), ctx.clone());
         self.jobs.spawn("Load a screenshot", false, move |_| {
-            use craft_anything_engine::tools::web_common::{crop, decode_png, resize};
+            use pickaxe_engine::tools::web_common::{crop, decode_png, resize};
             let image = std::fs::read(&p).ok().and_then(|b| decode_png(&b).ok()).map(|img| {
                 let top = crop(&img, img.width, img.height.min(THUMB_TOP));
                 // Shown at most half the feed wide: twice that is sharp on a high-density screen.
@@ -603,7 +603,7 @@ impl CraftApp {
         self.previews.insert(path.to_path_buf(), Thumb::Loading);
         let (p, ctx) = (path.to_path_buf(), ctx.clone());
         self.jobs.spawn(tr("Load a picture"), false, move |_| {
-            use craft_anything_engine::tools::web_common::{decode_picture, resize};
+            use pickaxe_engine::tools::web_common::{decode_picture, resize};
             // The same size limit as attaching: a larger file wouldn't be sent anyway.
             let small = std::fs::metadata(&p).is_ok_and(|m| m.len() <= 20 * 1024 * 1024);
             let image =
@@ -646,7 +646,7 @@ pub enum Thumb {
 
 /// The open project's checklist, if the builder made one and the person hasn't folded it (#504).
 fn plan(feed: &[FeedItem]) -> Option<&[PlanStep]> {
-    craft_anything_engine::feed::visible_plan(feed)
+    pickaxe_engine::feed::visible_plan(feed)
 }
 
 /// How tall the plan's steps get before they scroll, unless the person dragged the divider above
@@ -782,7 +782,7 @@ impl Facts {
             references: ws.references().len(),
             // Summed from +0.0: an empty f64 `sum()` is -0.0, shown as "$-0.00".
             assets: (a.len(), a.iter().fold(0.0, |s, x| s + x.cost_usd)),
-            open_questions: craft_anything_ai::rebuild::self_check::open_questions(ws).into_iter().map(|u| u.question).collect(),
+            open_questions: pickaxe_ai::rebuild::self_check::open_questions(ws).into_iter().map(|u| u.question).collect(),
         }
     }
 }
@@ -810,7 +810,7 @@ impl CraftApp {
             ctx.request_repaint_after(wait);
             return;
         }
-        let godot = self.game_engines.as_ref().and_then(|i| i.best(craft_anything_engines::game::Builder::Godot)).map(|i| i.program.clone());
+        let godot = self.game_engines.as_ref().and_then(|i| i.best(pickaxe_engines::game::Builder::Godot)).map(|i| i.program.clone());
         r.wanted = false;
         r.at = Some(std::time::Instant::now());
         r.job = Some(self.jobs.spawn("Read the project", false, move |_| Ok(Done::Facts(Facts::read(&ws, godot.as_deref())))));
@@ -828,7 +828,7 @@ impl CraftApp {
     /// What "Raise the budget" adds: the default budget from Settings (or $5 when that is 0).
     pub(crate) fn asset_budget_step(&self) -> f64 {
         let b = self.settings.assets.budget();
-        if b > 0.0 { b } else { craft_anything_engine::workspace::ASSET_BUDGET_USD }
+        if b > 0.0 { b } else { pickaxe_engine::workspace::ASSET_BUDGET_USD }
     }
 
     /// Give the open project another [`Self::asset_budget_step`] for generated assets, through
@@ -854,7 +854,7 @@ impl CraftApp {
 /// A game project's generated-assets switch, and "7 · $2.10 of $5.00" once it's on or assets were made.
 fn asset_line(app: &mut CraftApp, ui: &mut Ui, ws: &Workspace) {
     let t = Tokens::get(ui.ctx());
-    if craft_anything_engines::game::Builder::from_stack(&ws.manifest.stack).is_none() {
+    if pickaxe_engines::game::Builder::from_stack(&ws.manifest.stack).is_none() {
         return;
     }
     widgets::caption(ui, "Generated assets");
@@ -868,7 +868,7 @@ fn asset_line(app: &mut CraftApp, ui: &mut Ui, ws: &Workspace) {
     let budget = ws.manifest.asset_budget_usd;
     let amount = trf("{n} · ${spent} of ${budget}", &[("n", &n.to_string()), ("spent", &format!("{spent:.2}")), ("budget", &format!("{budget:.2}"))]);
     ui.label(RichText::new(amount).font(theme::mono(theme::CODE)).color(if spent >= budget { t.warning } else { t.text_dim }));
-    let step = craft_anything_engines::assets::usd(app.asset_budget_step());
+    let step = pickaxe_engines::assets::usd(app.asset_budget_step());
     if widgets::link(ui, &trf("Raise the budget by {amount}", &[("amount", &step)])).clicked() {
         app.raise_asset_budget();
     }
@@ -981,7 +981,7 @@ fn side(app: &mut CraftApp, ui: &mut Ui, ws: &Workspace) {
     steps(app, ui, ws);
     ui.add_space(theme::space::LG);
     open_questions(app, ui);
-    if craft_anything_engines::game::Builder::from_stack(&m.stack).is_some() {
+    if pickaxe_engines::game::Builder::from_stack(&m.stack).is_some() {
         widgets::card(&t).inner_margin(theme::pad::ROW).show(ui, |ui| {
             ui.set_width(ui.available_width());
             asset_line(app, ui, ws);
@@ -1549,7 +1549,7 @@ fn continue_card(app: &mut CraftApp, ui: &mut Ui, ws: &Workspace) {
     let (title, body) = if interrupted(app, ws) {
         (
             "This build stopped part-way",
-            "Craft Anything or the computer closed while it was working. Everything so far is kept; Continue picks up where it stopped.",
+            "Pickaxe or the computer closed while it was working. Everything so far is kept; Continue picks up where it stopped.",
         )
     } else {
         ("Paused", "Everything so far is kept. Continue picks up where it stopped.")
@@ -1988,8 +1988,8 @@ fn questions_switch(app: &mut CraftApp, ui: &mut Ui) {
 
 const QUESTIONS_TITLE: &str = "Builder's questions:";
 
-fn questions_controls(app: &mut CraftApp, ui: &mut Ui, now: craft_anything_engine::workspace::Questions, root: &Path, t: &Tokens) {
-    use craft_anything_engine::workspace::Questions;
+fn questions_controls(app: &mut CraftApp, ui: &mut Ui, now: pickaxe_engine::workspace::Questions, root: &Path, t: &Tokens) {
+    use pickaxe_engine::workspace::Questions;
     // Right to left: the approvals menu at the end of the row.
     crate::approvals::menu(app, ui, root);
     ui.add_space(theme::space::SM);
@@ -2030,7 +2030,7 @@ pub enum PictureTarget {
 fn oversized_picture_name(files: &[PathBuf]) -> Option<String> {
     files
         .iter()
-        .find(|f| craft_anything_engine::workspace::picture_too_large(f))
+        .find(|f| pickaxe_engine::workspace::picture_too_large(f))
         .map(|f| f.file_name().map(|n| n.to_string_lossy().into_owned()).unwrap_or_else(|| f.display().to_string()))
 }
 
@@ -2090,7 +2090,7 @@ impl CraftApp {
         {
             let root = project.clone();
             let job = self.jobs.spawn(tr("Paste pictures"), false, move |_| {
-                let files = crate::paste::read_pictures(&craft_anything_engine::workspace::pasted_dir(), &keep)?;
+                let files = crate::paste::read_pictures(&pickaxe_engine::workspace::pasted_dir(), &keep)?;
                 if files.is_empty() {
                     return Err(tr("There's no picture on the clipboard to paste."));
                 }
@@ -2236,11 +2236,11 @@ impl CraftApp {
 #[cfg(test)]
 mod tests {
     use super::*;
-    use craft_anything_ai::AgentEvent;
+    use pickaxe_ai::AgentEvent;
 
     #[test]
     fn the_app_starts_with_the_persons_settings_while_the_engine_is_busy() {
-        let engine = crate::demo::engine(craft_anything_engine::Mode::Beginner, true);
+        let engine = crate::demo::engine(pickaxe_engine::Mode::Beginner, true);
         engine.session().settings.deep_mode = true;
         let (held, release) = (std::sync::mpsc::channel(), std::sync::mpsc::channel::<()>());
         let busy = {
@@ -2265,7 +2265,7 @@ mod tests {
         let d = tempfile::tempdir().unwrap();
         let ws = Workspace::create(d.path(), "Notes", "A notes app", TargetRef::None).unwrap();
         let root = ws.root.clone();
-        let mut app = crate::demo::app(crate::demo::engine(craft_anything_engine::Mode::Beginner, true));
+        let mut app = crate::demo::app(crate::demo::engine(pickaxe_engine::Mode::Beginner, true));
         app.open_workspace(ws);
         app.state.screen = Screen::Project;
         let shot = d.path().join("shot.png");
@@ -2298,7 +2298,7 @@ mod tests {
     #[test]
     fn a_make_picture_checked_after_opening_a_project_stays_in_the_draft() {
         let pic = PathBuf::from("shot.png");
-        let mut app = crate::demo::app(crate::demo::engine(craft_anything_engine::Mode::Beginner, true));
+        let mut app = crate::demo::app(crate::demo::engine(pickaxe_engine::Mode::Beginner, true));
         app.state.screen = Screen::Project;
         app.pictures_checked(vec![pic.clone()], None, PictureTarget::Make);
         assert_eq!(app.state.make.pictures, vec![pic]);
@@ -2311,7 +2311,7 @@ mod tests {
         let d = tempfile::tempdir().unwrap();
         let big = d.path().join("big.png");
         std::fs::File::create(&big).unwrap().set_len(20 * 1024 * 1024 + 1).unwrap();
-        let mut app = crate::demo::app(crate::demo::engine(craft_anything_engine::Mode::Beginner, true));
+        let mut app = crate::demo::app(crate::demo::engine(pickaxe_engine::Mode::Beginner, true));
         app.restore_attachments(vec![big.clone()]);
         assert_eq!(app.state.project_attachments, vec![big]);
     }
@@ -2322,7 +2322,7 @@ mod tests {
     fn sending_while_pictures_are_checked_waits_for_them() {
         let d = tempfile::tempdir().unwrap();
         let ws = Workspace::create(d.path(), "Notes", "A notes app", TargetRef::None).unwrap();
-        let mut app = crate::demo::app(crate::demo::engine(craft_anything_engine::Mode::Beginner, true));
+        let mut app = crate::demo::app(crate::demo::engine(pickaxe_engine::Mode::Beginner, true));
         app.open_workspace(ws);
         app.state.screen = Screen::Project;
         let shot = d.path().join("shot.png");
@@ -2353,7 +2353,7 @@ mod tests {
         let a = Workspace::create(&d.path().join("a"), "Alpha", "A notes app", TargetRef::None).unwrap();
         let b = Workspace::create(&d.path().join("b"), "Beta", "A notes app", TargetRef::None).unwrap();
         let ra = a.root.clone();
-        let mut app = crate::demo::app(crate::demo::engine(craft_anything_engine::Mode::Beginner, true));
+        let mut app = crate::demo::app(crate::demo::engine(pickaxe_engine::Mode::Beginner, true));
         app.open_workspace(a.clone());
         app.state.screen = Screen::Project;
         app.pending_attach_checks.insert(ra.clone(), 1);
@@ -2392,7 +2392,7 @@ mod tests {
         let d = tempfile::tempdir().unwrap();
         let ws = Workspace::create(d.path(), "Notes", "A notes app", TargetRef::None).unwrap();
         let root = ws.root.clone();
-        let mut app = crate::demo::app(crate::demo::engine(craft_anything_engine::Mode::Beginner, true));
+        let mut app = crate::demo::app(crate::demo::engine(pickaxe_engine::Mode::Beginner, true));
         app.open_workspace(ws);
         app.state.screen = Screen::Project;
         app.pending_attach_checks.insert(root.clone(), 1);
@@ -2408,10 +2408,10 @@ mod tests {
     /// Make Start waits for the Make size checks instead of starting without the pictures.
     #[test]
     fn make_start_waits_for_picture_checks() {
-        let mut app = crate::demo::app(crate::demo::engine(craft_anything_engine::Mode::Beginner, true));
-        app.backends.push(craft_anything_ai::BackendConfig {
+        let mut app = crate::demo::app(crate::demo::engine(pickaxe_engine::Mode::Beginner, true));
+        app.backends.push(pickaxe_ai::BackendConfig {
             name: "Claude Code".into(),
-            kind: craft_anything_ai::BackendKind::AgentCli,
+            kind: pickaxe_ai::BackendKind::AgentCli,
             model: "claude-code".into(),
             base_url: None,
             ssh_host: None,
@@ -2431,11 +2431,11 @@ mod tests {
     #[test]
     fn make_start_fires_the_draft_it_deferred() {
         let d = tempfile::tempdir().unwrap();
-        let mut app = crate::demo::app(crate::demo::engine(craft_anything_engine::Mode::Beginner, true));
+        let mut app = crate::demo::app(crate::demo::engine(pickaxe_engine::Mode::Beginner, true));
         app.settings.projects_dir = Some(d.path().join("projects"));
-        app.backends.push(craft_anything_ai::BackendConfig {
+        app.backends.push(pickaxe_ai::BackendConfig {
             name: "Claude Code".into(),
-            kind: craft_anything_ai::BackendKind::AgentCli,
+            kind: pickaxe_ai::BackendKind::AgentCli,
             model: "claude-code".into(),
             base_url: None,
             ssh_host: None,
@@ -2457,11 +2457,11 @@ mod tests {
     #[test]
     fn changing_the_make_draft_cancels_the_deferred_start() {
         let d = tempfile::tempdir().unwrap();
-        let mut app = crate::demo::app(crate::demo::engine(craft_anything_engine::Mode::Beginner, true));
+        let mut app = crate::demo::app(crate::demo::engine(pickaxe_engine::Mode::Beginner, true));
         app.settings.projects_dir = Some(d.path().join("projects"));
-        app.backends.push(craft_anything_ai::BackendConfig {
+        app.backends.push(pickaxe_ai::BackendConfig {
             name: "Claude Code".into(),
-            kind: craft_anything_ai::BackendKind::AgentCli,
+            kind: pickaxe_ai::BackendKind::AgentCli,
             model: "claude-code".into(),
             base_url: None,
             ssh_host: None,
@@ -2485,7 +2485,7 @@ mod tests {
         let d = tempfile::tempdir().unwrap();
         let ws = Workspace::create(d.path(), "Notes", "A notes app", TargetRef::None).unwrap();
         let root = ws.root.clone();
-        let mut app = crate::demo::app(crate::demo::engine(craft_anything_engine::Mode::Beginner, true));
+        let mut app = crate::demo::app(crate::demo::engine(pickaxe_engine::Mode::Beginner, true));
         app.open_workspace(ws);
         app.state.screen = Screen::Project;
         let big = d.path().join("big.png");
@@ -2520,7 +2520,7 @@ mod tests {
         let d = tempfile::tempdir().unwrap();
         let ws = Workspace::create(d.path(), "Notes", "A notes app", TargetRef::None).unwrap();
         let root = ws.root.clone();
-        let mut app = crate::demo::app(crate::demo::engine(craft_anything_engine::Mode::Beginner, true));
+        let mut app = crate::demo::app(crate::demo::engine(pickaxe_engine::Mode::Beginner, true));
         app.open_workspace(ws);
         let shot = vec![PathBuf::from("pasted-1.png")];
         app.state.screen = Screen::Home;
@@ -2534,7 +2534,7 @@ mod tests {
 
     #[test]
     fn a_fix_that_names_a_command_offers_it() {
-        let hint = craft_anything_ai::cli_agents::sign_in_hint("Not logged in").unwrap();
+        let hint = pickaxe_ai::cli_agents::sign_in_hint("Not logged in").unwrap();
         assert_eq!(command_in(&hint), Some("claude auth login"));
         assert_eq!(command_in("Run `codex login` in a terminal."), Some("codex login"));
         for none in ["Try again later.", "Files go in `app/`.", "An `unclosed quote"] {
@@ -2578,7 +2578,7 @@ mod tests {
     fn created_project_appears_in_projects_list_immediately() {
         let d = tempfile::tempdir().unwrap();
         let ws = Workspace::create(d.path(), "Notes", "A notes app", TargetRef::None).unwrap();
-        let mut app = crate::demo::app(crate::demo::engine(craft_anything_engine::Mode::Beginner, true));
+        let mut app = crate::demo::app(crate::demo::engine(pickaxe_engine::Mode::Beginner, true));
         assert!(app.projects.is_empty());
         app.created(ws.clone(), "A notes app".into(), "test-backend".into(), None, false);
         assert!(!app.projects.is_empty(), "project is added to app.projects immediately");
@@ -2590,7 +2590,7 @@ mod tests {
     fn opening_project_adds_to_projects_list() {
         let d = tempfile::tempdir().unwrap();
         let ws = Workspace::create(d.path(), "Timer", "A timer app", TargetRef::None).unwrap();
-        let mut app = crate::demo::app(crate::demo::engine(craft_anything_engine::Mode::Beginner, true));
+        let mut app = crate::demo::app(crate::demo::engine(pickaxe_engine::Mode::Beginner, true));
         assert!(app.projects.is_empty());
         app.open_workspace(ws.clone());
         assert!(!app.projects.is_empty(), "open project is listed in app.projects");
@@ -2601,7 +2601,7 @@ mod tests {
     /// follow-up instead of being dropped.
     #[test]
     fn an_attached_project_starts_with_the_typed_request() {
-        use craft_anything_ai::{AiConfig, BackendConfig, BackendEntry, BackendKind};
+        use pickaxe_ai::{AiConfig, BackendConfig, BackendEntry, BackendKind};
         let d = tempfile::tempdir().unwrap();
         let mut ws = Workspace::create(d.path(), "Notes", "A notes app", TargetRef::None).unwrap();
         ws.set_person(|m| {
@@ -2612,8 +2612,8 @@ mod tests {
         .unwrap();
         ws.manifest.stack = "Godot".into();
         ws.save().unwrap();
-        craft_anything_ai::rebuild::feed::save(&ws.root, &[FeedItem::User(UserItem::Text("earlier message".into()))]).unwrap();
-        let mut app = crate::demo::app(crate::demo::engine(craft_anything_engine::Mode::Beginner, true));
+        pickaxe_ai::rebuild::feed::save(&ws.root, &[FeedItem::User(UserItem::Text("earlier message".into()))]).unwrap();
+        let mut app = crate::demo::app(crate::demo::engine(pickaxe_engine::Mode::Beginner, true));
         let local = BackendConfig {
             name: "Local".into(),
             kind: BackendKind::OpenaiCompatible,
@@ -2631,7 +2631,7 @@ mod tests {
         app.created(ws.clone(), "add a jump".into(), "Off".into(), None, true);
         assert!(app.state.feed.iter().any(|i| matches!(i, FeedItem::User(u) if u.text() == "earlier message")), "the saved feed is kept: {:?}", app.state.feed);
         assert!(app.state.feed.iter().any(|i| matches!(i, FeedItem::User(u) if u.text() == "add a jump")), "the new request is appended: {:?}", app.state.feed);
-        let saved_feed = craft_anything_ai::rebuild::feed::load(&ws);
+        let saved_feed = pickaxe_ai::rebuild::feed::load(&ws);
         assert!(
             saved_feed.iter().any(|i| matches!(i, FeedItem::User(u) if u.text() == "add a jump")),
             "the run recorded the request in the feed: {saved_feed:?}"

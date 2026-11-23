@@ -1,7 +1,7 @@
 //! Keep locale-changing UI checks in one integration-test executable: i18n is process-wide.
 
-use craft_anything_engine::{Mode, Session, Settings};
-use craft_anything_ui_egui::{CraftApp, demo, i18n};
+use pickaxe_engine::{Mode, Session, Settings};
+use pickaxe_ui_egui::{CraftApp, demo, i18n};
 use egui_kittest::Harness;
 use egui_kittest::kittest::Queryable;
 use std::path::Path;
@@ -51,12 +51,12 @@ fn chinese_startup_language_menu_and_saved_selection() {
         assert_eq!(i18n::trf("Opened {name}", &[("name", "sample.exe")]), translated_open);
         assert_eq!(i18n::tr("A deliberately uncatalogued message"), "A deliberately uncatalogued message");
         assert_eq!(i18n::trf("Uncatalogued {name}", &[("name", "sample.exe")]), "Uncatalogued sample.exe");
-        assert_eq!(craft_anything_ui_egui::usage::asset_cost_words(0.0031), if initial == "zh-hans" { "低于 $0.01" } else { "低於 $0.01" });
-        let kinds = craft_anything_ai::rebuild::KindRegistry::built_in();
+        assert_eq!(pickaxe_ui_egui::usage::asset_cost_words(0.0031), if initial == "zh-hans" { "低于 $0.01" } else { "低於 $0.01" });
+        let kinds = pickaxe_ai::rebuild::KindRegistry::built_in();
         for (suggestion, expected) in [("A website for my bakery", "website"), ("A simple snake game", "game")] {
             let translated = i18n::tr(suggestion);
             assert_ne!(translated, suggestion);
-            let (kind, _) = kinds.choose(&translated, &craft_anything_engine::workspace::TargetRef::None, false).unwrap();
+            let (kind, _) = kinds.choose(&translated, &pickaxe_engine::workspace::TargetRef::None, false).unwrap();
             assert_eq!(kind.id(), expected, "{initial}: {translated}");
         }
         let title = h.state().engine.registry().get("native_functions_list").unwrap().title;
@@ -149,7 +149,7 @@ fn chinese_startup_language_menu_and_saved_selection() {
 
 /// Run alongside the other locale checks in this test, never concurrently with them.
 fn builder_replacement_notices(dir: &Path) {
-    use craft_anything_ai::{AiHub, BackendConfig, BackendKind, Detected, KeyStore};
+    use pickaxe_ai::{AiHub, BackendConfig, BackendKind, Detected, KeyStore};
     use std::sync::Arc;
 
     for code in i18n::LANGUAGES.iter().map(|l| l.code).chain(["tr-TR", "unsupported-locale"]) {
@@ -164,11 +164,11 @@ fn builder_replacement_notices(dir: &Path) {
                     "Bu proje için seçilen yapay zekâ ({saved}) devre dışı bırakılmış veya artık yapılandırılmamış. Projeyi bunun yerine {used} oluşturacak."
                 )
             } else {
-                craft_anything_ai::rebuild::replaced_builder_notice(saved, used)
+                pickaxe_ai::rebuild::replaced_builder_notice(saved, used)
             }
         };
         assert_eq!(
-            craft_anything_ai::rebuild::replaced_builder_notice("Off", "Claude"),
+            pickaxe_ai::rebuild::replaced_builder_notice("Off", "Claude"),
             "The AI chosen for this project (Off) is turned off or no longer set up. Claude builds instead.",
             "{code}: changing the UI language must not change the headless notice",
         );
@@ -244,7 +244,7 @@ fn builder_replacement_notices(dir: &Path) {
                 }
             });
             h.state_mut().jobs.spawn("Question fixture", false, move |_| {
-                Ok(craft_anything_ui_egui::Done::Acted { tool: "rebuild_question_ask", params: serde_json::Value::Null, result: Ok(result) })
+                Ok(pickaxe_ui_egui::Done::Acted { tool: "rebuild_question_ask", params: serde_json::Value::Null, result: Ok(result) })
             });
             let deadline = std::time::Instant::now() + std::time::Duration::from_secs(10);
             while h.state().state.toasts.is_empty() && std::time::Instant::now() < deadline {

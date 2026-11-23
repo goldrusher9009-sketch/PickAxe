@@ -1,7 +1,7 @@
 //! Regression tests for lexer-fallback list caps, URL endpoint deduplication, and `truncated`
 //! reporting in `fallback::facts_from_tokens`.
 
-use craft_anything_js::{Limits, ParseMode, analyze};
+use pickaxe_js::{Limits, ParseMode, analyze};
 use std::fmt::Write;
 
 /// Limits that force every source onto the lexer fallback path.

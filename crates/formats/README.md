@@ -1,13 +1,13 @@
-# `craft-anything-formats`
+# `pickaxe-formats`
 
-Pure, standalone, panic-free (`unsafe_code = "forbid"`, `#![deny(clippy::unwrap_used, ...)]`) file-format parsers for **Craft Anything**.
+Pure, standalone, panic-free (`unsafe_code = "forbid"`, `#![deny(clippy::unwrap_used, ...)]`) file-format parsers for **Pickaxe**.
 
 ## Format Classification (`storytold/craft-libs#778`)
 
 Formats in this crate fall into two categories:
 
 1. **Already-shared formats (`craft-libs`)**: thin wrappers or re-exports over shared `craft-*` crates in `craft-libs`. Do not re-extract or duplicate these.
-2. **Single-app inspector formats (Craft Anything only)**: proprietary or domain-specific asset, package, and binary readers that have no external `storytold` consumer. Keep these in `craft-anything-formats` unless a concrete shared consumer in another `storytold` repository is identified.
+2. **Single-app inspector formats (Pickaxe only)**: proprietary or domain-specific asset, package, and binary readers that have no external `storytold` consumer. Keep these in `pickaxe-formats` unless a concrete shared consumer in another `storytold` repository is identified.
 
 ### Already-Shared Formats (`craft-libs`)
 
@@ -32,9 +32,9 @@ Formats in this crate fall into two categories:
 
 (`*_legacy.rs` and `*_legacy_tests.rs` files alongside the wrappers above are retained solely for parity/regression tests against the `craft-libs` cutover.)
 
-### Single-App Inspector Formats (Craft Anything Only)
+### Single-App Inspector Formats (Pickaxe Only)
 
-Verified across `storytold` repositories: **ASAR** (`asar.rs`) has no consumers outside `storytold/craft-anything`. The Android AXML/ARSC wire readers moved to `craft-android-res` in craft-libs; `axml.rs` keeps the manifest facts on top of them.
+Verified across `storytold` repositories: **ASAR** (`asar.rs`) has no consumers outside `storytold/pickaxe`. The Android AXML/ARSC wire readers moved to `craft-android-res` in craft-libs; `axml.rs` keeps the manifest facts on top of them.
 
 - **Desktop / JS / Scripting App Packages**
   - `asar.rs` — Electron ASAR archive reader & test builder

@@ -1,9 +1,9 @@
 //! UI smoke tests: every screen draws, the main controls work, and nothing blocks or panics.
 
-use craft_anything_ai::{BackendConfig, BackendKind};
-use craft_anything_engine::{Mode, TargetKind};
-use craft_anything_ui_egui::state::{ChatItem, FirstRunStep, RailKind, Screen};
-use craft_anything_ui_egui::{CraftApp, demo};
+use pickaxe_ai::{BackendConfig, BackendKind};
+use pickaxe_engine::{Mode, TargetKind};
+use pickaxe_ui_egui::state::{ChatItem, FirstRunStep, RailKind, Screen};
+use pickaxe_ui_egui::{CraftApp, demo};
 use egui_kittest::Harness;
 use egui_kittest::kittest::Queryable;
 use std::time::{Duration, Instant};
@@ -38,7 +38,7 @@ fn first_run_walks_through_four_screens() {
     let mut h = harness(|| demo::app(demo::engine(Mode::Beginner, false)));
     h.run_steps(3);
     // The window controls are there from the first screen (the native frame is off; macOS draws its own).
-    if !craft_anything_ui_egui::titlebar::NATIVE_FRAME {
+    if !pickaxe_ui_egui::titlebar::NATIVE_FRAME {
         h.get_by_label("Close");
     }
     h.get_by_label("I'm new to this").click();
@@ -121,9 +121,9 @@ fn simple_title_bar_keeps_only_the_essentials() {
 
 #[test]
 fn a_game_is_built_with_its_engine_and_a_missing_engine_is_got_first() {
-    use craft_anything_engine::workspace::TargetRef;
-    use craft_anything_engines::game::{Builder, Found, Installed, Inventory, Made};
-    use craft_anything_ui_egui::state::Modal;
+    use pickaxe_engine::workspace::TargetRef;
+    use pickaxe_engines::game::{Builder, Found, Installed, Inventory, Made};
+    use pickaxe_ui_egui::state::Modal;
     let d = tempfile::tempdir().unwrap();
     let game = d.path().join("game");
     std::fs::create_dir_all(&game).unwrap();
@@ -157,14 +157,14 @@ fn a_game_is_built_with_its_engine_and_a_missing_engine_is_got_first() {
 
 /// Whether the fal.ai key is set up, as the app keeps it.
 fn fal_key(stored: bool) -> std::collections::BTreeMap<String, bool> {
-    [(craft_anything_engines::assets::fal::ID.to_string(), stored)].into()
+    [(pickaxe_engines::assets::fal::ID.to_string(), stored)].into()
 }
 
 #[test]
 fn turning_on_generated_assets_without_a_fal_key_asks_for_one() {
-    use craft_anything_engine::workspace::TargetRef;
-    use craft_anything_engines::game::{Builder, Installed, Inventory};
-    use craft_anything_ui_egui::state::Modal;
+    use pickaxe_engine::workspace::TargetRef;
+    use pickaxe_engines::game::{Builder, Installed, Inventory};
+    use pickaxe_ui_egui::state::Modal;
     let d = tempfile::tempdir().unwrap();
     let game = d.path().join("game");
     std::fs::create_dir_all(&game).unwrap();
@@ -234,9 +234,9 @@ fn ghidra_is_looked_up_once_and_again_only_when_asked() {
 
 #[test]
 fn deep_mode_without_ghidra_asks_to_get_it_before_using_it() {
-    use craft_anything_engine::workspace::TargetRef;
-    use craft_anything_engines::game::{Builder, Installed, Inventory};
-    use craft_anything_ui_egui::state::Modal;
+    use pickaxe_engine::workspace::TargetRef;
+    use pickaxe_engines::game::{Builder, Installed, Inventory};
+    use pickaxe_ui_egui::state::Modal;
     let d = tempfile::tempdir().unwrap();
     let (store, game) = (d.path().join("engines"), d.path().join("game"));
     std::fs::create_dir_all(&game).unwrap();
@@ -260,12 +260,12 @@ fn deep_mode_without_ghidra_asks_to_get_it_before_using_it() {
     h.run_steps(3);
     // An app or a game offers Clean room or Deep right on the Make screen; picking Deep offers
     // Ghidra instead of quietly going without it.
-    h.get_by_label("How closely may Craft Anything look at it?");
+    h.get_by_label("How closely may Pickaxe look at it?");
     h.get_by_label("Deep").click();
     h.run_steps(3);
     assert_eq!(h.state().state.modal, Some(Modal::Ghidra));
     h.get_by_label("Get Ghidra for Deep mode");
-    if craft_anything_engines::ghidra::get::can_install() {
+    if pickaxe_engines::ghidra::get::can_install() {
         h.get_by_label("Download and use Ghidra");
     }
     h.get_by_label("I have Ghidra");
@@ -296,7 +296,7 @@ fn a_long_game_folder_stays_inside_the_window() {
     });
     h.run_steps(4);
     let width = h.ctx.content_rect().width();
-    let shown = craft_anything_ui_egui::short_path(std::path::Path::new(&folder));
+    let shown = pickaxe_ui_egui::short_path(std::path::Path::new(&folder));
     let r = h.get_by_label(&shown).rect();
     assert!(r.right() <= width, "the folder ({r:?}) stays inside the {width}px window");
     assert!(r.height() < 30.0, "it's cut to one line, not wrapped ({r:?})");
@@ -304,7 +304,7 @@ fn a_long_game_folder_stays_inside_the_window() {
 
 #[test]
 fn a_long_prompt_wraps_inside_the_window_in_the_project_and_the_chat() {
-    use craft_anything_ui_egui::state::{ChatItem, FeedItem, UserItem};
+    use pickaxe_ui_egui::state::{ChatItem, FeedItem, UserItem};
     // Long sentences and one very long unbroken address.
     let long = format!("{}https://example.com/{}", "Make it exactly like the original, with the same menus, weapons and maps. ".repeat(8), "a".repeat(300));
     for in_chat in [false, true] {
@@ -334,7 +334,7 @@ fn a_long_prompt_wraps_inside_the_window_in_the_project_and_the_chat() {
 
 #[test]
 fn a_game_project_shows_its_asset_spending_and_can_raise_the_budget() {
-    use craft_anything_engine::workspace::{AssetRecord, TargetRef, Workspace};
+    use pickaxe_engine::workspace::{AssetRecord, TargetRef, Workspace};
     let d = tempfile::tempdir().unwrap();
     let mut ws = Workspace::create(d.path(), "Snake", "A snake game", TargetRef::None).unwrap();
     ws.manifest.stack = "Unity".into();
@@ -365,26 +365,26 @@ fn a_game_project_shows_its_asset_spending_and_can_raise_the_budget() {
 
 #[test]
 fn an_engine_download_shows_in_the_title_bar_on_every_screen() {
-    use craft_anything_engines::game::Builder;
+    use pickaxe_engines::game::Builder;
     let mut h = harness(|| demo::app(demo::engine(Mode::Beginner, true)));
     h.run_steps(2);
     let id = h.state_mut().jobs.spawn("Getting Godot", true, |j| {
-        j.report(craft_anything_engine::Progress { fraction: Some(0.42), message: "63 of 150 MB".into() });
+        j.report(pickaxe_engine::Progress { fraction: Some(0.42), message: "63 of 150 MB".into() });
         std::thread::sleep(Duration::from_secs(5));
-        Ok(craft_anything_ui_egui::Done::Nothing)
+        Ok(pickaxe_ui_egui::Done::Nothing)
     });
     h.state_mut().engine_flow.job = Some((Builder::Godot, id));
     assert!(wait(&mut h, |a| a.jobs.running().any(|j| j.progress().is_some())));
     h.run_steps(2);
     h.get_by_label("Getting Godot · 42%").click();
     h.run_steps(3);
-    assert_eq!(h.state().state.modal, Some(craft_anything_ui_egui::state::Modal::Engine(Builder::Godot)), "the bar opens the steps");
+    assert_eq!(h.state().state.modal, Some(pickaxe_ui_egui::state::Modal::Engine(Builder::Godot)), "the bar opens the steps");
 }
 
 #[test]
 fn a_projects_conversation_and_place_come_back_after_a_restart() {
-    use craft_anything_engine::workspace::{TargetRef, Workspace};
-    use craft_anything_ui_egui::state::{FeedItem, UserItem};
+    use pickaxe_engine::workspace::{TargetRef, Workspace};
+    use pickaxe_ui_egui::state::{FeedItem, UserItem};
     struct Mem(std::collections::HashMap<String, String>);
     impl eframe::Storage for Mem {
         fn get_string(&self, key: &str) -> Option<String> {
@@ -408,7 +408,7 @@ fn a_projects_conversation_and_place_come_back_after_a_restart() {
     first.state.feed.push(FeedItem::Agent { text: "Done: the snake moves faster now.".into(), streaming: true });
     // A run keeps the feed in the project folder (here, as one would have).
     let root = first.workspace.as_ref().unwrap().root.clone();
-    craft_anything_ai::rebuild::feed::save(&root, &first.state.feed).unwrap();
+    pickaxe_ai::rebuild::feed::save(&root, &first.state.feed).unwrap();
     let mut storage = Mem(Default::default());
     eframe::App::save(&mut first, &mut storage);
 
@@ -427,7 +427,7 @@ fn a_projects_conversation_and_place_come_back_after_a_restart() {
 
 #[test]
 fn the_builders_checklist_is_pinned_above_the_prompt_box() {
-    use craft_anything_ui_egui::state::{FeedItem, PlanStatus, PlanStep};
+    use pickaxe_ui_egui::state::{FeedItem, PlanStatus, PlanStep};
     let step = |text: &str, status| PlanStep { text: text.into(), doing: text.into(), status };
     let mut h = harness(move || {
         let mut a = demo::app(demo::engine(Mode::Beginner, true));
@@ -449,7 +449,7 @@ fn the_builders_checklist_is_pinned_above_the_prompt_box() {
 /// tall it is, with the keyboard too; a double-click goes back to the usual height.
 #[test]
 fn a_long_plan_scrolls_and_its_divider_sets_its_height() {
-    use craft_anything_ui_egui::state::{FeedItem, PlanStatus, PlanStep};
+    use pickaxe_ui_egui::state::{FeedItem, PlanStatus, PlanStep};
     const DIVIDER: &str = "Drag to give the plan more or less room; double-click to reset";
     let mut h = harness(move || {
         let mut a = demo::app(demo::engine(Mode::Beginner, true));
@@ -505,8 +505,8 @@ fn the_sidebar_lists_projects_and_moves_between_them() {
 
 #[test]
 fn the_prompt_box_sends_on_enter_with_its_pictures() {
-    use craft_anything_engine::workspace::{TargetRef, Workspace};
-    use craft_anything_ui_egui::state::FeedItem;
+    use pickaxe_engine::workspace::{TargetRef, Workspace};
+    use pickaxe_ui_egui::state::FeedItem;
     let d = tempfile::tempdir().unwrap();
     let pic = d.path().join("shot.png");
     std::fs::write(&pic, "x").unwrap();
@@ -551,7 +551,7 @@ fn the_prompt_box_sends_on_enter_with_its_pictures() {
 
 #[test]
 fn an_oversized_picture_is_refused_when_attached() {
-    use craft_anything_engine::workspace::{TargetRef, Workspace};
+    use pickaxe_engine::workspace::{TargetRef, Workspace};
     let d = tempfile::tempdir().unwrap();
     let small = d.path().join("ok.png");
     std::fs::write(&small, b"png").unwrap();
@@ -586,8 +586,8 @@ fn an_oversized_picture_is_refused_in_the_make_draft() {
 
 #[test]
 fn tab_completes_a_slash_command_and_keeps_focus() {
-    use craft_anything_ai::rebuild::StandIns;
-    use craft_anything_engine::workspace::{TargetRef, Workspace};
+    use pickaxe_ai::rebuild::StandIns;
+    use pickaxe_engine::workspace::{TargetRef, Workspace};
     let d = tempfile::tempdir().unwrap();
     let a = Workspace::create(d.path(), "Alpha", "A notes app", TargetRef::None).unwrap();
     let (dir, runs) = (d.path().to_path_buf(), StandIns::new());
@@ -607,7 +607,7 @@ fn tab_completes_a_slash_command_and_keeps_focus() {
 
 #[test]
 fn pictures_of_the_original_go_with_the_draft_then_into_the_project() {
-    use craft_anything_engine::workspace::{TargetRef, Workspace};
+    use pickaxe_engine::workspace::{TargetRef, Workspace};
     let d = tempfile::tempdir().unwrap();
     let pic = d.path().join("original.webp");
     std::fs::write(&pic, "x").unwrap();
@@ -643,7 +643,7 @@ fn pictures_of_the_original_go_with_the_draft_then_into_the_project() {
 
 #[test]
 fn a_finished_game_offers_to_play_it() {
-    use craft_anything_engine::workspace::{Status, TargetRef, Workspace};
+    use pickaxe_engine::workspace::{Status, TargetRef, Workspace};
     let d = tempfile::tempdir().unwrap();
     let mut ws = Workspace::create(d.path(), "Snake", "A snake game", TargetRef::None).unwrap();
     // What `cargo build` leaves behind (never started here: the test doesn't click).
@@ -674,7 +674,7 @@ fn a_finished_game_offers_to_play_it() {
 
 #[test]
 fn a_finished_build_can_be_pinned_and_opened_from_the_sidebar() {
-    use craft_anything_engine::workspace::{Status, TargetRef, Workspace};
+    use pickaxe_engine::workspace::{Status, TargetRef, Workspace};
     let d = tempfile::tempdir().unwrap();
     let mut ws = Workspace::create(d.path(), "Snake", "A snake game", TargetRef::None).unwrap();
     // What `cargo build` leaves behind (never started here: the pin is never clicked).
@@ -742,7 +742,7 @@ fn a_finished_build_can_be_pinned_and_opened_from_the_sidebar() {
 
 #[test]
 fn the_builders_questions_can_come_to_the_person_for_one_project() {
-    use craft_anything_engine::workspace::{Questions, TargetRef, Workspace};
+    use pickaxe_engine::workspace::{Questions, TargetRef, Workspace};
     let d = tempfile::tempdir().unwrap();
     let ws = Workspace::create(d.path(), "Snake", "A snake game", TargetRef::None).unwrap();
     let root = ws.root.clone();
@@ -755,7 +755,7 @@ fn the_builders_questions_can_come_to_the_person_for_one_project() {
     h.run_steps(2);
     // Auto mode is on by default, so the builder decides, and the switch under the box says so.
     assert!(h.state().settings.auto_mode);
-    let shown = |a: &craft_anything_ui_egui::CraftApp| a.settings.questions_in(a.workspace.as_ref().map(|w| &w.manifest));
+    let shown = |a: &pickaxe_ui_egui::CraftApp| a.settings.questions_in(a.workspace.as_ref().map(|w| &w.manifest));
     assert_eq!(shown(h.state()), Questions::Decide);
     h.get_by_label("Decide yourself");
     h.get_by_label("Ask me").click();
@@ -767,7 +767,7 @@ fn the_builders_questions_can_come_to_the_person_for_one_project() {
 
 #[test]
 fn approvals_are_chosen_from_the_prompt_box_and_its_menu() {
-    use craft_anything_engine::workspace::{ActionKind, Approval, TargetRef, Workspace};
+    use pickaxe_engine::workspace::{ActionKind, Approval, TargetRef, Workspace};
     let d = tempfile::tempdir().unwrap();
     let ws = Workspace::create(d.path(), "Notes", "A notes app", TargetRef::None).unwrap();
     let root = ws.root.clone();
@@ -805,7 +805,7 @@ fn approvals_are_chosen_from_the_prompt_box_and_its_menu() {
     h.get_by_label("Reading the web");
     h.get_by_label("Pushing and publishing");
     let refuse = h.get_all_by_label("Refuse").count();
-    assert_eq!(refuse, craft_anything_engine::workspace::ACTION_KINDS.len(), "a switch for every kind");
+    assert_eq!(refuse, pickaxe_engine::workspace::ACTION_KINDS.len(), "a switch for every kind");
     h.get_all_by_label("Refuse").next().unwrap().click();
     assert!(wait(&mut h, |_| saved(ActionKind::Web) == Some(Approval::Refuse)), "the first row is the web");
     assert_eq!(saved(ActionKind::Publish), Some(Approval::Ask), "the other kinds keep theirs");
@@ -813,7 +813,7 @@ fn approvals_are_chosen_from_the_prompt_box_and_its_menu() {
 
 #[test]
 fn an_approval_that_cant_be_saved_isnt_shown_as_chosen() {
-    use craft_anything_engine::workspace::{TargetRef, Workspace};
+    use pickaxe_engine::workspace::{TargetRef, Workspace};
     let d = tempfile::tempdir().unwrap();
     let ws = Workspace::create(d.path(), "Notes", "A notes app", TargetRef::None).unwrap();
     let file = ws.root.join("craft.json");
@@ -824,8 +824,8 @@ fn an_approval_that_cant_be_saved_isnt_shown_as_chosen() {
         a
     });
     h.run_steps(2);
-    // A newer Craft Anything saved it meanwhile: this one only reads it, so the choice is refused.
-    let current = craft_anything_engine::workspace::MANIFEST_VERSION;
+    // A newer Pickaxe saved it meanwhile: this one only reads it, so the choice is refused.
+    let current = pickaxe_engine::workspace::MANIFEST_VERSION;
     let newer = std::fs::read_to_string(&file).unwrap().replacen(&format!("\"version\": {current}"), &format!("\"version\": {}", current + 1), 1);
     assert!(newer.contains(&format!("\"version\": {}", current + 1)));
     std::fs::write(&file, newer).unwrap();
@@ -838,7 +838,7 @@ fn an_approval_that_cant_be_saved_isnt_shown_as_chosen() {
 
 #[test]
 fn a_question_about_the_build_is_answered_without_building() {
-    use craft_anything_engine::workspace::{TargetRef, Workspace};
+    use pickaxe_engine::workspace::{TargetRef, Workspace};
     let d = tempfile::tempdir().unwrap();
     let ws = Workspace::create(d.path(), "Snake", "A snake game", TargetRef::None).unwrap();
     let root = ws.root.clone();
@@ -892,7 +892,7 @@ fn a_question_about_the_build_is_answered_without_building() {
 /// is sent, and the question stays in the box.
 #[test]
 fn a_question_the_builder_cannot_answer_is_refused_before_it_is_sent() {
-    use craft_anything_engine::workspace::{TargetRef, Workspace};
+    use pickaxe_engine::workspace::{TargetRef, Workspace};
     let d = tempfile::tempdir().unwrap();
     let mut ws = Workspace::create(d.path(), "Snake", "A snake game", TargetRef::None).unwrap();
     ws.manifest.builder = Some("Codex".into());
@@ -917,8 +917,8 @@ fn a_question_the_builder_cannot_answer_is_refused_before_it_is_sent() {
 
 #[test]
 fn a_long_answer_scrolls_with_the_conversation_and_comes_back_after_a_restart() {
-    use craft_anything_engine::questions::{self, AskedQuestion};
-    use craft_anything_engine::workspace::{TargetRef, Workspace};
+    use pickaxe_engine::questions::{self, AskedQuestion};
+    use pickaxe_engine::workspace::{TargetRef, Workspace};
     let d = tempfile::tempdir().unwrap();
     let ws = Workspace::create(d.path(), "Snake", "A snake game", TargetRef::None).unwrap();
     let long = (0..120).map(|n| format!("Line {n} of a long answer.")).collect::<Vec<_>>().join("\n\n");
@@ -953,13 +953,13 @@ fn website_choice_stays_picked_while_the_address_is_empty() {
         assert!(h.state().state.make.editing_url);
         h.get_by_label("Type the website's address:");
         // A website is looked at as a visitor sees it, or read in Deep mode: asked.
-        h.get_by_label("How closely may Craft Anything look at it?");
+        h.get_by_label("How closely may Pickaxe look at it?");
     }
     h.get_by_label("Nothing — start fresh").click();
     h.run_steps(3);
     assert!(!h.state().state.make.editing_url);
     // Nothing to look at: the choice stays in view, dimmed, and says when it applies.
-    h.get_by_label("How closely may Craft Anything look at it?");
+    h.get_by_label("How closely may Pickaxe look at it?");
     h.get_by_label("This applies once you choose something to recreate above.");
     let deep = h.state().settings.deep_mode;
     h.get_by_label("Deep").click();
@@ -1107,7 +1107,7 @@ fn simple_and_advanced_use_the_same_text_sizes() {
     };
     let simple = sizes(&h);
     let body = simple.0.get(&egui::TextStyle::Body).map(|f| f.size);
-    assert_eq!(body, Some(craft_anything_ui_egui::theme::BODY), "body text is the scale's BODY");
+    assert_eq!(body, Some(pickaxe_ui_egui::theme::BODY), "body text is the scale's BODY");
     assert_eq!(simple.0.len(), 5, "the five text styles are all set: {:?}", simple.0.keys());
     h.state_mut().set_mode(Mode::Experienced);
     h.run_steps(3);
@@ -1259,7 +1259,7 @@ fn opening_a_file_lands_on_ask_with_a_first_look() {
     let path = dir.path().join("tiny-program");
     std::fs::write(&path, demo::sample_program()).unwrap();
     let mut h = harness(|| {
-        let engine = std::sync::Arc::new(craft_anything_engine::Engine::new(craft_anything_engine::Session::new(craft_anything_engine::Settings {
+        let engine = std::sync::Arc::new(pickaxe_engine::Engine::new(pickaxe_engine::Session::new(pickaxe_engine::Settings {
             first_run_done: true,
             deep_mode: true,
             language: "en".into(),
@@ -1296,7 +1296,7 @@ fn a_picked_game_shows_what_its_made_of_and_can_be_asked_about() {
         a
     });
     h.run_steps(2);
-    craft_anything_ui_egui::game_files::folder_picked(h.state_mut(), game.clone());
+    pickaxe_ui_egui::game_files::folder_picked(h.state_mut(), game.clone());
     assert!(wait(&mut h, |a| a.state.game.profile.is_some()), "the game is looked at");
     h.run_steps(2);
     h.get_by_label("Unity 2022.3.62f2");
@@ -1321,7 +1321,7 @@ fn opening_a_missing_file_is_a_calm_error() {
 
 #[test]
 fn clean_room_asks_for_deep_mode_instead_of_opening_a_file() {
-    use craft_anything_ui_egui::state::Modal;
+    use pickaxe_ui_egui::state::Modal;
     let mut h = harness(|| demo::app(demo::engine(Mode::Beginner, true)));
     h.run_steps(2);
     h.state_mut().open_path(std::path::PathBuf::from("/samples/tool.exe"));
@@ -1369,8 +1369,8 @@ fn workbench_lists_fall_back_gracefully() {
         h.run_steps(2);
     }
     // Every centre tab draws (built-in hex view included) and names a real tool.
-    for tab in craft_anything_ui_egui::state::CenterTab::ALL {
-        assert!(tab == craft_anything_ui_egui::state::CenterTab::Result || h.state().first_tool(tab.tools()).is_some(), "{tab:?}");
+    for tab in pickaxe_ui_egui::state::CenterTab::ALL {
+        assert!(tab == pickaxe_ui_egui::state::CenterTab::Result || h.state().first_tool(tab.tools()).is_some(), "{tab:?}");
         h.state_mut().state.center = tab;
         h.run_steps(2);
     }
@@ -1559,7 +1559,7 @@ fn an_ais_model_is_changed_in_settings() {
         let mut a = demo::app(demo::engine(Mode::Experienced, true));
         a.hub.add_server("Box", &url, Some("nomic-embed-text"), None).unwrap();
         a.state.settings_open = true;
-        a.state.settings_tab = craft_anything_ui_egui::state::SettingsTab::Ai;
+        a.state.settings_tab = pickaxe_ui_egui::state::SettingsTab::Ai;
         a
     });
     h.state_mut().refresh_backends();
@@ -1597,7 +1597,7 @@ fn an_api_backends_request_rate_is_set_in_settings() {
             )
             .unwrap();
         app.state.settings_open = true;
-        app.state.settings_tab = craft_anything_ui_egui::state::SettingsTab::Ai;
+        app.state.settings_tab = pickaxe_ui_egui::state::SettingsTab::Ai;
         app
     });
     h.state_mut().refresh_backends();
@@ -1629,7 +1629,7 @@ fn an_api_backends_tool_list_is_chosen_in_settings() {
             )
             .unwrap();
         app.state.settings_open = true;
-        app.state.settings_tab = craft_anything_ui_egui::state::SettingsTab::Ai;
+        app.state.settings_tab = pickaxe_ui_egui::state::SettingsTab::Ai;
         app
     });
     h.state_mut().refresh_backends();
@@ -1638,14 +1638,14 @@ fn an_api_backends_tool_list_is_chosen_in_settings() {
     h.get_by_label("Builder's tools").click();
     h.run_steps(2);
     h.get_by_label("full").click();
-    assert!(wait(&mut h, |app| app.backend_options.get("Local model").and_then(|options| options.tools) == Some(craft_anything_ai::ToolList::Full)));
+    assert!(wait(&mut h, |app| app.backend_options.get("Local model").and_then(|options| options.tools) == Some(pickaxe_ai::ToolList::Full)));
     // The row waits for each save (#1946 review), and takes the next choice once it's done.
     assert!(wait(&mut h, |app| app.jobs.running().next().is_none()));
     h.run_steps(2);
     h.get_by_label("Builder's tools").click();
     h.run_steps(2);
     h.get_by_label("lean").click();
-    assert!(wait(&mut h, |app| app.backend_options.get("Local model").and_then(|options| options.tools) == Some(craft_anything_ai::ToolList::Lean)));
+    assert!(wait(&mut h, |app| app.backend_options.get("Local model").and_then(|options| options.tools) == Some(pickaxe_ai::ToolList::Lean)));
 }
 
 /// #54, #98: an AI server on another computer is added by its address in Settings → AI, with a
@@ -1656,12 +1656,12 @@ fn an_ai_server_is_added_by_its_address() {
     let mut h = harness(|| {
         let mut a = demo::app(demo::engine(Mode::Experienced, true));
         a.state.settings_open = true;
-        a.state.settings_tab = craft_anything_ui_egui::state::SettingsTab::Ai;
+        a.state.settings_tab = pickaxe_ui_egui::state::SettingsTab::Ai;
         a
     });
     h.run_steps(2);
     h.get_by_label("Add an AI by its address");
-    h.state_mut().server_form = craft_anything_ui_egui::ServerForm { name: "Studio box".into(), address: url.clone(), ..Default::default() };
+    h.state_mut().server_form = pickaxe_ui_egui::ServerForm { name: "Studio box".into(), address: url.clone(), ..Default::default() };
     h.run_steps(1);
     // The AI settings page scrolls, and the key row added in #1486 puts the form's Add button
     // below its visible part. A pointer click there lands outside the scroll area, so scroll the
@@ -1688,8 +1688,8 @@ fn a_model_picked_from_a_servers_list_is_chosen_there_and_goes_with_its_address(
     let mut h = harness(|| {
         let mut a = demo::app(demo::engine(Mode::Experienced, true));
         a.state.settings_open = true;
-        a.state.settings_tab = craft_anything_ui_egui::state::SettingsTab::Ai;
-        a.server_form = craft_anything_ui_egui::ServerForm {
+        a.state.settings_tab = pickaxe_ui_egui::state::SettingsTab::Ai;
+        a.server_form = pickaxe_ui_egui::ServerForm {
             name: "Npu".into(),
             address: A.into(),
             choices: Some((A.into(), vec!["deepseek-r1:8b".into(), "qwen3:8b".into()])),
@@ -1732,7 +1732,7 @@ fn a_model_picked_from_a_servers_list_is_chosen_there_and_goes_with_its_address(
 /// and goes back to being found by its usual name.
 #[test]
 fn an_agent_apps_program_is_set_in_settings() {
-    use craft_anything_ai::{BackendConfig, BackendKind};
+    use pickaxe_ai::{BackendConfig, BackendKind};
     let mut h = harness(|| {
         let a = demo::app(demo::engine(Mode::Experienced, true));
         let cfg =
@@ -1743,7 +1743,7 @@ fn an_agent_apps_program_is_set_in_settings() {
     h.state_mut().refresh_backends();
     assert!(wait(&mut h, |a| a.backends.iter().any(|b| b.name == "OpenCode")));
     h.state_mut().state.settings_open = true;
-    h.state_mut().state.settings_tab = craft_anything_ui_egui::state::SettingsTab::Ai;
+    h.state_mut().state.settings_tab = pickaxe_ui_egui::state::SettingsTab::Ai;
     h.run_steps(2);
     h.get_by_label("Program: found automatically");
     h.state_mut().set_agent_program("OpenCode", Some("/opt/oc/opencode".into()));
@@ -1759,7 +1759,7 @@ fn an_agent_apps_program_is_set_in_settings() {
 /// in its place. A program found by its usual name has no file to save, so nothing is offered.
 #[test]
 fn a_saved_program_that_is_gone_is_said_in_settings() {
-    use craft_anything_ai::{BackendEntry, BackendOptions};
+    use pickaxe_ai::{BackendEntry, BackendOptions};
     let dir = tempfile::tempdir().unwrap();
     let gone = dir.path().join("old-build").join("agent").display().to_string();
     let mut h = harness(move || {
@@ -1772,7 +1772,7 @@ fn a_saved_program_that_is_gone_is_said_in_settings() {
     h.state_mut().refresh_backends();
     assert!(wait(&mut h, |a| a.program_replaced.get("Moved").is_some_and(|p| p == "cargo")));
     h.state_mut().state.settings_open = true;
-    h.state_mut().state.settings_tab = craft_anything_ui_egui::state::SettingsTab::Ai;
+    h.state_mut().state.settings_tab = pickaxe_ui_egui::state::SettingsTab::Ai;
     h.run_steps(3);
     h.get_by_label("It isn't there any more, so cargo runs in its place.");
     assert!(h.query_by_label("Use it").is_none(), "a name on PATH isn't a file to save");
@@ -1781,7 +1781,7 @@ fn a_saved_program_that_is_gone_is_said_in_settings() {
 /// Claude Code's effort is chosen in Settings → AI, from every level Claude offers.
 #[test]
 fn a_claude_ais_effort_is_set_in_settings() {
-    use craft_anything_ai::{BackendConfig, BackendKind, Effort};
+    use pickaxe_ai::{BackendConfig, BackendKind, Effort};
     let mut h = harness(|| {
         let a = demo::app(demo::engine(Mode::Experienced, true));
         let cfg = BackendConfig {
@@ -1798,7 +1798,7 @@ fn a_claude_ais_effort_is_set_in_settings() {
     h.state_mut().refresh_backends();
     assert!(wait(&mut h, |a| a.backends.iter().any(|b| b.name == "Claude Code")));
     h.state_mut().state.settings_open = true;
-    h.state_mut().state.settings_tab = craft_anything_ui_egui::state::SettingsTab::Ai;
+    h.state_mut().state.settings_tab = pickaxe_ui_egui::state::SettingsTab::Ai;
     h.run_steps(2);
     h.get_by_label("Effort:");
     assert!(h.state().backend_options.get("Claude Code").and_then(|o| o.effort).is_none(), "the usual level until one is chosen");
@@ -1815,7 +1815,7 @@ fn a_claude_ais_effort_is_set_in_settings() {
 /// until a level is chosen, and back again.
 #[test]
 fn an_openai_compatible_ais_effort_is_set_in_settings() {
-    use craft_anything_ai::{BackendConfig, BackendKind, Effort};
+    use pickaxe_ai::{BackendConfig, BackendKind, Effort};
     let mut h = harness(|| {
         let a = demo::app(demo::engine(Mode::Experienced, true));
         let cfg = BackendConfig {
@@ -1832,7 +1832,7 @@ fn an_openai_compatible_ais_effort_is_set_in_settings() {
     h.state_mut().refresh_backends();
     assert!(wait(&mut h, |a| a.backends.iter().any(|b| b.name == "Box")));
     h.state_mut().state.settings_open = true;
-    h.state_mut().state.settings_tab = craft_anything_ui_egui::state::SettingsTab::Ai;
+    h.state_mut().state.settings_tab = pickaxe_ui_egui::state::SettingsTab::Ai;
     h.run_steps(2);
     h.get_by_label("Effort:");
     h.get_by_value("default").click();
@@ -1851,14 +1851,14 @@ fn an_openai_compatible_ais_effort_is_set_in_settings() {
 /// person's own Claude Code config isn't overridden by a built-in default.
 #[test]
 fn claude_codes_model_can_be_left_to_its_own_settings() {
-    use craft_anything_ai::BackendConfig;
+    use pickaxe_ai::BackendConfig;
     let mut h = harness(|| {
         let a = demo::app(demo::engine(Mode::Experienced, true));
         a.hub
             .add_backend(
                 BackendConfig {
                     name: "Claude Code".into(),
-                    kind: craft_anything_ai::BackendKind::AgentCli,
+                    kind: pickaxe_ai::BackendKind::AgentCli,
                     model: "claude-code".into(),
                     base_url: None,
                     ssh_host: None,
@@ -1872,7 +1872,7 @@ fn claude_codes_model_can_be_left_to_its_own_settings() {
     h.state_mut().refresh_backends();
     assert!(wait(&mut h, |a| a.backends.iter().any(|b| b.name == "Claude Code")));
     h.state_mut().state.settings_open = true;
-    h.state_mut().state.settings_tab = craft_anything_ui_egui::state::SettingsTab::Ai;
+    h.state_mut().state.settings_tab = pickaxe_ui_egui::state::SettingsTab::Ai;
     h.run_steps(2);
     // With no choice saved, the picker says the default, and no model is passed on a run.
     h.get_by_label("Model: Claude Code default");
@@ -1880,7 +1880,7 @@ fn claude_codes_model_can_be_left_to_its_own_settings() {
     assert!(wait(&mut h, |a| {
         a.model_picker
             .as_ref()
-            .is_some_and(|(_, m)| m.as_deref().is_some_and(|models| models.first().is_some_and(|m| m == craft_anything_ai::anthropic::CLAUDE_CODE_DEFAULT)))
+            .is_some_and(|(_, m)| m.as_deref().is_some_and(|models| models.first().is_some_and(|m| m == pickaxe_ai::anthropic::CLAUDE_CODE_DEFAULT)))
     }));
     h.run_steps(2);
     // The dropdown shows the saved choice and lists "Default (its own settings)" first.
@@ -1905,8 +1905,8 @@ fn claude_codes_model_can_be_left_to_its_own_settings() {
 /// The picker exposes only the chosen model's depths and clears an old depth when changing models.
 #[test]
 fn opencode_picker_offers_only_the_selected_models_thinking_depths() {
-    use craft_anything_ai::{AgentModel, BackendConfig, BackendKind, Effort};
-    use craft_anything_ui_egui::builders::AgentModelPicker;
+    use pickaxe_ai::{AgentModel, BackendConfig, BackendKind, Effort};
+    use pickaxe_ui_egui::builders::AgentModelPicker;
     let mut h = harness(|| {
         let mut a = demo::app(demo::engine(Mode::Experienced, true));
         a.hub
@@ -1918,7 +1918,7 @@ fn opencode_picker_offers_only_the_selected_models_thinking_depths() {
         a.backends = a.hub.backends();
         a.backend_options = a.hub.options();
         a.state.settings_open = true;
-        a.state.settings_tab = craft_anything_ui_egui::state::SettingsTab::Ai;
+        a.state.settings_tab = pickaxe_ui_egui::state::SettingsTab::Ai;
         a.agent_model_picker = Some(AgentModelPicker {
             request: 1,
             context: a.hub.model_context("OpenCode").unwrap(),
@@ -1956,7 +1956,7 @@ fn opencode_picker_offers_only_the_selected_models_thinking_depths() {
 /// Claude Code can be added for a second account.
 #[test]
 fn claude_codes_account_folder_is_set_in_settings() {
-    use craft_anything_ai::{BackendConfig, BackendKind};
+    use pickaxe_ai::{BackendConfig, BackendKind};
     let mut h = harness(|| {
         let mut a = demo::app(demo::engine(Mode::Experienced, true));
         let cfg = BackendConfig {
@@ -1974,7 +1974,7 @@ fn claude_codes_account_folder_is_set_in_settings() {
     h.state_mut().refresh_backends();
     assert!(wait(&mut h, |a| a.backends.iter().any(|b| b.name == "Claude Code")));
     h.state_mut().state.settings_open = true;
-    h.state_mut().state.settings_tab = craft_anything_ui_egui::state::SettingsTab::Ai;
+    h.state_mut().state.settings_tab = pickaxe_ui_egui::state::SettingsTab::Ai;
     h.run_steps(2);
     // Typed, `~/` and all, and saved on Enter.
     let field = "Claude Code folder (CLAUDE_CONFIG_DIR)";
@@ -1998,7 +1998,7 @@ fn claude_codes_account_folder_is_set_in_settings() {
     h.state_mut().set_agent_folder("Claude Code", Some(String::new()));
     assert!(wait(&mut h, |a| chosen(a).is_none() && a.jobs.running().next().is_none()));
     // Added already, so it's offered again under the next free name, on the coding agents' tab.
-    h.state_mut().state.detect_tab = Some(craft_anything_ui_egui::detect_tabs::DetectTab::Harnesses);
+    h.state_mut().state.detect_tab = Some(pickaxe_ui_egui::detect_tabs::DetectTab::Harnesses);
     h.run_steps(2);
     h.get_by_label("Add another").scroll_to_me();
     h.run();
@@ -2033,7 +2033,7 @@ fn zoom_stays_between_half_and_double() {
     h.ctx.set_zoom_factor(0.2);
     h.run_steps(3);
     assert_eq!(h.ctx.zoom_factor(), 0.5);
-    assert_eq!(craft_anything_ui_egui::bounded_zoom(f32::NAN), 1.0);
+    assert_eq!(pickaxe_ui_egui::bounded_zoom(f32::NAN), 1.0);
 }
 
 /// macOS keeps its own window buttons beside the title bar, and they don't zoom, so the bar
@@ -2072,7 +2072,7 @@ fn title_bar_keeps_its_size_when_zoomed() {
 /// stays as it is whatever the system says.
 #[test]
 fn the_system_theme_follows_the_systems_appearance_as_it_changes() {
-    use craft_anything_ui_egui::theme::ThemeKind;
+    use pickaxe_ui_egui::theme::ThemeKind;
     use egui::Theme::{Dark, Light};
     let mut h = harness(|| demo::app(demo::engine(Mode::Beginner, true)));
     h.run_steps(2);
@@ -2118,7 +2118,7 @@ fn settings_window_tabs_draw() {
     h.get_by_label("Studio Light").click();
     h.run_steps(3);
     assert_eq!(h.state().settings.theme, "studio-light");
-    assert_eq!(h.state().theme_kind(), craft_anything_ui_egui::theme::ThemeKind::StudioLight);
+    assert_eq!(h.state().theme_kind(), pickaxe_ui_egui::theme::ThemeKind::StudioLight);
     // Language says "System" too when none is chosen: take the one on Studio's line.
     let line = h.get_by_label("Studio").rect().center().y;
     h.query_all_by_label("System").find(|n| (n.rect().center().y - line).abs() < 4.0).expect("System beside Studio").click();
@@ -2130,7 +2130,7 @@ fn settings_window_tabs_draw() {
         let mut h = harness_sized(egui::vec2(1000.0, 700.0), move || {
             let mut a = demo::app(demo::engine(Mode::Beginner, true));
             a.state.settings_open = true;
-            a.state.settings_tab = craft_anything_ui_egui::state::SettingsTab::Safety;
+            a.state.settings_tab = pickaxe_ui_egui::state::SettingsTab::Safety;
             a
         });
         h.run_steps(3);
@@ -2253,8 +2253,8 @@ fn a_check_shows_the_claims_that_dont_hold_and_the_rest_on_request() {
 
 /// An app whose builds are stand-ins (one at a time), with an agent app as its Builder, the one
 /// the queue checks for up front.
-fn stand_in_app(projects: std::path::PathBuf, runs: &craft_anything_ai::rebuild::StandIns) -> CraftApp {
-    use craft_anything_ai::{AiConfig, BackendConfig, BackendEntry, BackendKind, BackendOptions};
+fn stand_in_app(projects: std::path::PathBuf, runs: &pickaxe_ai::rebuild::StandIns) -> CraftApp {
+    use pickaxe_ai::{AiConfig, BackendConfig, BackendEntry, BackendKind, BackendOptions};
     let engine = demo::engine(Mode::Beginner, true);
     let mut cfg = AiConfig::default();
     let agent =
@@ -2265,15 +2265,15 @@ fn stand_in_app(projects: std::path::PathBuf, runs: &craft_anything_ai::rebuild:
     demo::fill_projects(&mut app);
     app.settings.projects_dir = Some(projects);
     app.settings.build.parallel = 1;
-    app.runs = craft_anything_ai::rebuild::RunSet::new(1).with_starter(runs.starter());
+    app.runs = pickaxe_ai::rebuild::RunSet::new(1).with_starter(runs.starter());
     app
 }
 
 #[test]
 fn a_note_waiting_for_the_builder_can_be_taken_back_into_the_prompt_box() {
-    use craft_anything_ai::rebuild::{RunEvent, StandIns};
-    use craft_anything_engine::workspace::{TargetRef, Workspace};
-    use craft_anything_ui_egui::state::FeedItem;
+    use pickaxe_ai::rebuild::{RunEvent, StandIns};
+    use pickaxe_engine::workspace::{TargetRef, Workspace};
+    use pickaxe_ui_egui::state::FeedItem;
     let d = tempfile::tempdir().unwrap();
     let a = Workspace::create(d.path(), "Alpha", "A notes app", TargetRef::None).unwrap();
     let runs = StandIns::new();
@@ -2310,8 +2310,8 @@ fn a_note_waiting_for_the_builder_can_be_taken_back_into_the_prompt_box() {
 
 #[test]
 fn up_in_the_prompt_box_takes_back_the_last_waiting_note() {
-    use craft_anything_ai::rebuild::StandIns;
-    use craft_anything_engine::workspace::{TargetRef, Workspace};
+    use pickaxe_ai::rebuild::StandIns;
+    use pickaxe_engine::workspace::{TargetRef, Workspace};
     let d = tempfile::tempdir().unwrap();
     let a = Workspace::create(d.path(), "Alpha", "A notes app", TargetRef::None).unwrap();
     let runs = StandIns::new();
@@ -2349,9 +2349,9 @@ fn up_in_the_prompt_box_takes_back_the_last_waiting_note() {
 
 #[test]
 fn up_and_down_in_the_prompt_box_go_through_earlier_prompts() {
-    use craft_anything_ai::rebuild::StandIns;
-    use craft_anything_engine::workspace::{TargetRef, Workspace};
-    use craft_anything_ui_egui::state::{FeedItem, UserItem};
+    use pickaxe_ai::rebuild::StandIns;
+    use pickaxe_engine::workspace::{TargetRef, Workspace};
+    use pickaxe_ui_egui::state::{FeedItem, UserItem};
     let d = tempfile::tempdir().unwrap();
     let a = Workspace::create(d.path(), "Alpha", "A notes app", TargetRef::None).unwrap();
     let (dir, runs) = (d.path().to_path_buf(), StandIns::new());
@@ -2441,7 +2441,7 @@ fn up_and_down_in_the_prompt_box_go_through_earlier_prompts() {
 
 #[test]
 fn the_prompt_box_is_laid_out_with_its_new_height_in_the_frame_it_grows() {
-    use craft_anything_engine::workspace::{TargetRef, Workspace};
+    use pickaxe_engine::workspace::{TargetRef, Workspace};
     let d = tempfile::tempdir().unwrap();
     let a = Workspace::create(d.path(), "Alpha", "A notes app", TargetRef::None).unwrap();
     let mut h = harness(|| demo::app(demo::engine(Mode::Beginner, true)));
@@ -2468,7 +2468,7 @@ six"
 
 #[test]
 fn nothing_blinks_over_the_text_while_typing() {
-    use craft_anything_engine::workspace::{TargetRef, Workspace};
+    use pickaxe_engine::workspace::{TargetRef, Workspace};
     // Everything painted over a spot of the typed text, after the text itself.
     fn over_text(shapes: &[egui::epaint::ClippedShape], spot: egui::Rect) -> Vec<String> {
         fn flatten(s: &egui::Shape, out: &mut Vec<egui::Shape>) {
@@ -2522,9 +2522,9 @@ fn nothing_blinks_over_the_text_while_typing() {
 
 #[test]
 fn builds_past_the_limit_wait_their_turn_on_screen() {
-    use craft_anything_ai::rebuild::{RunEvent, StandIns, Step};
-    use craft_anything_engine::workspace::{TargetRef, Workspace};
-    use craft_anything_ui_egui::state::FeedItem;
+    use pickaxe_ai::rebuild::{RunEvent, StandIns, Step};
+    use pickaxe_engine::workspace::{TargetRef, Workspace};
+    use pickaxe_ui_egui::state::FeedItem;
     let d = tempfile::tempdir().unwrap();
     let a = Workspace::create(d.path(), "Alpha", "A notes app", TargetRef::None).unwrap();
     let b = Workspace::create(d.path(), "Beta", "A timer app", TargetRef::None).unwrap();
@@ -2574,7 +2574,7 @@ fn builds_past_the_limit_wait_their_turn_on_screen() {
 
 #[test]
 fn a_projects_saved_time_and_ai_use_show_beside_it_and_the_session_total_in_the_title_bar() {
-    use craft_anything_engine::workspace::ProjectUsage;
+    use pickaxe_engine::workspace::ProjectUsage;
     // What earlier builds saved in the project folder: shown after a restart too.
     let d = tempfile::tempdir().unwrap();
     let root = d.path().to_path_buf();
@@ -2606,7 +2606,7 @@ fn a_projects_saved_time_and_ai_use_show_beside_it_and_the_session_total_in_the_
 
 #[test]
 fn a_big_cost_doesnt_paint_over_its_caption() {
-    use craft_anything_engine::workspace::ProjectUsage;
+    use pickaxe_engine::workspace::ProjectUsage;
     let d = tempfile::tempdir().unwrap();
     let root = d.path().to_path_buf();
     ProjectUsage::update(&root, |u| {
@@ -2633,7 +2633,7 @@ fn ghidras_memory_is_automatic_until_the_person_sets_it() {
     let mut h = harness_sized(egui::vec2(1280.0, 1000.0), || {
         let mut a = demo::app(demo::engine(Mode::Beginner, true));
         a.state.settings_open = true;
-        a.state.settings_tab = craft_anything_ui_egui::state::SettingsTab::Engines;
+        a.state.settings_tab = pickaxe_ui_egui::state::SettingsTab::Engines;
         a
     });
     h.run_steps(3);
@@ -2650,7 +2650,7 @@ fn ghidras_memory_is_automatic_until_the_person_sets_it() {
 
 #[test]
 fn the_front_door_makes_something_or_just_looks_inside() {
-    use craft_anything_ui_egui::state::Modal;
+    use pickaxe_ui_egui::state::Modal;
     let mut h = harness(|| demo::app(demo::engine(Mode::Beginner, true)));
     h.run_steps(3);
     h.get_by_label("What do you want to make?");
@@ -2707,9 +2707,9 @@ fn new_project_does_not_shift_when_its_scrollbar_is_not_needed() {
 
 #[test]
 fn a_running_build_says_what_it_is_on_and_opens_up_into_its_activity() {
-    use craft_anything_ai::rebuild::{RunEvent, RunSet, StandIns};
-    use craft_anything_ai::{AgentEvent, AiConfig, BackendConfig, BackendEntry, BackendKind, BackendOptions};
-    use craft_anything_engine::workspace::{Step, TargetRef, Workspace};
+    use pickaxe_ai::rebuild::{RunEvent, RunSet, StandIns};
+    use pickaxe_ai::{AgentEvent, AiConfig, BackendConfig, BackendEntry, BackendKind, BackendOptions};
+    use pickaxe_engine::workspace::{Step, TargetRef, Workspace};
     let d = tempfile::tempdir().unwrap();
     let ws = Workspace::create(d.path(), "Alpha", "A notes app", TargetRef::None).unwrap();
     let runs = StandIns::new();
@@ -2756,7 +2756,7 @@ fn a_running_build_says_what_it_is_on_and_opens_up_into_its_activity() {
     h.get_by_label("Open log");
     h.get_by_label("Reading src/main.rs: fn main");
     h.get_by_label("Running cargo test --quiet");
-    assert!(ws.root.join(craft_anything_engine::workspace::ACTIVITY_LOG).is_file());
+    assert!(ws.root.join(pickaxe_engine::workspace::ACTIVITY_LOG).is_file());
     // Finished: the record stays, named for what it is now.
     assert!(runs.finish(&ws.root));
     h.run_steps(3);
@@ -2765,11 +2765,11 @@ fn a_running_build_says_what_it_is_on_and_opens_up_into_its_activity() {
 
 #[test]
 fn a_long_waiting_note_leaves_the_live_activity_and_prompt_visible() {
-    use craft_anything_ai::{
+    use pickaxe_ai::{
         AgentEvent,
         rebuild::{RunEvent, StandIns},
     };
-    use craft_anything_engine::workspace::{Step, TargetRef, Workspace};
+    use pickaxe_engine::workspace::{Step, TargetRef, Workspace};
     let d = tempfile::tempdir().unwrap();
     let ws = Workspace::create(d.path(), "Alpha", "A notes app", TargetRef::None).unwrap();
     let runs = StandIns::new();
@@ -2802,9 +2802,9 @@ fn a_long_waiting_note_leaves_the_live_activity_and_prompt_visible() {
 
 #[test]
 fn a_build_that_stopped_part_way_offers_to_continue() {
-    use craft_anything_ai::rebuild::{RunSet, StandIns};
-    use craft_anything_ai::{AiConfig, BackendConfig, BackendEntry, BackendKind, BackendOptions};
-    use craft_anything_engine::workspace::{Status, TargetRef, Workspace};
+    use pickaxe_ai::rebuild::{RunSet, StandIns};
+    use pickaxe_ai::{AiConfig, BackendConfig, BackendEntry, BackendKind, BackendOptions};
+    use pickaxe_engine::workspace::{Status, TargetRef, Workspace};
     let d = tempfile::tempdir().unwrap();
     // Paused by the person, and one the app closed on mid-build (its status still says Building).
     let mut paused = Workspace::create(d.path(), "Alpha", "A notes app", TargetRef::None).unwrap();
@@ -2844,7 +2844,7 @@ fn a_build_that_stopped_part_way_offers_to_continue() {
     h.run_steps(3);
     assert_eq!(Workspace::open(&paused.root).unwrap().manifest.status, Status::Ready);
     assert!(h.query_by_label("Continue").is_none(), "nothing left to carry on");
-    h.get_by_label(craft_anything_engine::tools::project_tools::CALLED_DONE);
+    h.get_by_label(pickaxe_engine::tools::project_tools::CALLED_DONE);
     h.state_mut().open_workspace(cut.clone());
     h.run_steps(3);
     h.get_by_label("Beta, Interrupted");
@@ -2870,8 +2870,8 @@ fn the_builders_open_questions_show_beside_the_project() {
 
 #[test]
 fn saves_a_picture_from_a_unity_bundle() {
-    use craft_anything_testkit::games::{unity_bundle_with, unity_serialized_file, unity_texture2d};
-    use craft_anything_ui_egui::{game_files, state::Modal};
+    use pickaxe_testkit::games::{unity_bundle_with, unity_serialized_file, unity_texture2d};
+    use pickaxe_ui_egui::{game_files, state::Modal};
     // A game whose only pictures are in a bundle: one DXT1 texture, its pixels in the bundle's .resS.
     let dir = tempfile::tempdir().unwrap();
     let (game, out) = (dir.path().join("Game"), dir.path().join("wall.png"));
@@ -2906,9 +2906,9 @@ fn saves_a_picture_from_a_unity_bundle() {
 
 #[test]
 fn a_new_project_can_start_in_a_folder_that_already_has_the_persons_files() {
-    use craft_anything_ai::rebuild::StandIns;
-    use craft_anything_engine::workspace::{ExistingFiles, Workspace};
-    use craft_anything_ui_egui::state::Modal;
+    use pickaxe_ai::rebuild::StandIns;
+    use pickaxe_engine::workspace::{ExistingFiles, Workspace};
+    use pickaxe_ui_egui::state::Modal;
     let (d, mine) = (tempfile::tempdir().unwrap(), tempfile::tempdir().unwrap());
     std::fs::write(mine.path().join("index.html"), "<p>hi</p>").unwrap();
     let runs = StandIns::new();
@@ -2916,7 +2916,7 @@ fn a_new_project_can_start_in_a_folder_that_already_has_the_persons_files() {
     let mut h = harness(move || stand_in_app(dir, &r));
     h.run_steps(2);
     h.state_mut().state.make.request = "Add a contact form".into();
-    craft_anything_ui_egui::folders::picked(h.state_mut(), mine.path().to_path_buf());
+    pickaxe_ui_egui::folders::picked(h.state_mut(), mine.path().to_path_buf());
     h.run_steps(3);
     assert!(matches!(h.state().state.modal, Some(Modal::ExistingFiles)), "it asks what the files are");
     h.get_by_label("Don't ask again (you can change this in Settings)").click();
@@ -2941,7 +2941,7 @@ fn a_new_project_can_start_in_a_folder_that_already_has_the_persons_files() {
     // The next folder with files uses the remembered answer.
     let other = tempfile::tempdir().unwrap();
     std::fs::write(other.path().join("notes.md"), "ideas").unwrap();
-    craft_anything_ui_egui::folders::picked(h.state_mut(), other.path().to_path_buf());
+    pickaxe_ui_egui::folders::picked(h.state_mut(), other.path().to_path_buf());
     h.run_steps(2);
     assert!(h.state().state.modal.is_none() && h.state().state.make.existing == Some(ExistingFiles::Edit));
     h.state_mut().pause();
@@ -2953,8 +2953,8 @@ fn a_new_project_can_start_in_a_folder_that_already_has_the_persons_files() {
 /// and the project named after it. An empty folder isn't taken; a folder that's a project opens.
 #[test]
 fn the_front_door_works_on_a_project_the_person_already_has() {
-    use craft_anything_ai::rebuild::StandIns;
-    use craft_anything_engine::workspace::{ExistingFiles, TargetRef, Workspace};
+    use pickaxe_ai::rebuild::StandIns;
+    use pickaxe_engine::workspace::{ExistingFiles, TargetRef, Workspace};
     let (d, mine, empty) = (tempfile::tempdir().unwrap(), tempfile::tempdir().unwrap(), tempfile::tempdir().unwrap());
     std::fs::write(mine.path().join("index.html"), "<p>hi</p>").unwrap();
     let runs = StandIns::new();
@@ -2973,12 +2973,12 @@ fn the_front_door_works_on_a_project_the_person_already_has() {
     h.run_steps(2);
     assert!(h.state().creating.is_none() && h.state().workspace.is_none(), "Start waits for a folder");
 
-    craft_anything_ui_egui::folders::picked_own(h.state_mut(), empty.path().to_path_buf());
+    pickaxe_ui_egui::folders::picked_own(h.state_mut(), empty.path().to_path_buf());
     h.run_steps(2);
     assert!(h.state().state.make.folder.is_none(), "an empty folder has nothing to work on");
     assert!(h.state().state.toasts.iter().any(|(text, err)| *err && text.contains("empty")));
 
-    craft_anything_ui_egui::folders::picked_own(h.state_mut(), mine.path().to_path_buf());
+    pickaxe_ui_egui::folders::picked_own(h.state_mut(), mine.path().to_path_buf());
     h.run_steps(3);
     assert!(h.state().state.modal.is_none(), "nothing asked: they're the app");
     assert_eq!(h.state().state.make.existing, Some(ExistingFiles::Edit));
@@ -2989,12 +2989,12 @@ fn the_front_door_works_on_a_project_the_person_already_has() {
     h.get_by_label("Make my own version").click();
     h.run_steps(3);
     assert!(h.state().state.make.folder.is_none() && h.state().state.make.existing.is_none());
-    craft_anything_ui_egui::folders::picked_own(h.state_mut(), mine.path().to_path_buf());
+    pickaxe_ui_egui::folders::picked_own(h.state_mut(), mine.path().to_path_buf());
     assert!(h.state().state.make.folder.is_none(), "a dialog that ends after leaving the door is dropped");
     h.get_by_label("Work on my project").click();
     h.run_steps(3);
     h.get_by_label("Choose your project's folder…");
-    craft_anything_ui_egui::folders::picked_own(h.state_mut(), mine.path().to_path_buf());
+    pickaxe_ui_egui::folders::picked_own(h.state_mut(), mine.path().to_path_buf());
     h.state_mut().state.make.request = "Link the footer to https://example.com".into();
     h.run_steps(3);
     h.get_by_label("Start").click();
@@ -3009,7 +3009,7 @@ fn the_front_door_works_on_a_project_the_person_already_has() {
 
     // Back on the door, the same folder is a project now, so it opens.
     h.state_mut().state.make.mine = true;
-    craft_anything_ui_egui::folders::picked_own(h.state_mut(), mine.path().to_path_buf());
+    pickaxe_ui_egui::folders::picked_own(h.state_mut(), mine.path().to_path_buf());
     h.run_steps(2);
     assert!(h.state().state.toasts.iter().any(|(text, err)| !*err && text.contains("already a project")));
     h.state_mut().pause();
@@ -3021,8 +3021,8 @@ fn the_front_door_works_on_a_project_the_person_already_has() {
 /// reading as a game would.
 #[test]
 fn work_on_my_project_builds_with_the_engine_its_folder_uses() {
-    use craft_anything_engines::game::{Builder, Inventory};
-    use craft_anything_ui_egui::state::Modal;
+    use pickaxe_engines::game::{Builder, Inventory};
+    use pickaxe_ui_egui::state::Modal;
     let mine = tempfile::tempdir().unwrap();
     std::fs::write(mine.path().join("project.godot"), "").unwrap();
     let mut h = harness_sized(egui::vec2(1280.0, 1120.0), || {
@@ -3033,7 +3033,7 @@ fn work_on_my_project_builds_with_the_engine_its_folder_uses() {
     h.run_steps(3);
     h.get_by_label("Work on my project").click();
     h.run_steps(3);
-    craft_anything_ui_egui::folders::picked_own(h.state_mut(), mine.path().to_path_buf());
+    pickaxe_ui_egui::folders::picked_own(h.state_mut(), mine.path().to_path_buf());
     h.state_mut().state.make.request = "Fix my game's jump".into();
     h.run_steps(3);
     assert_eq!(h.state().state.make.folder_stack.as_deref(), Some("Godot"));
@@ -3044,7 +3044,7 @@ fn work_on_my_project_builds_with_the_engine_its_folder_uses() {
 
 #[test]
 fn settings_list_projects_from_more_folders_and_remove_them_from_the_list_only() {
-    use craft_anything_engine::workspace::{TargetRef, Workspace};
+    use pickaxe_engine::workspace::{TargetRef, Workspace};
     let (d, more) = (tempfile::tempdir().unwrap(), tempfile::tempdir().unwrap());
     let elsewhere = Workspace::create(more.path(), "Elsewhere", "A timer", TargetRef::None).unwrap();
     let dir = d.path().to_path_buf();
@@ -3071,7 +3071,7 @@ fn a_typed_space_stays_in_a_settings_path() {
     let mut h = harness(|| {
         let mut a = demo::app(demo::engine(Mode::Beginner, true));
         a.state.settings_open = true;
-        a.state.settings_tab = craft_anything_ui_egui::state::SettingsTab::Engines;
+        a.state.settings_tab = pickaxe_ui_egui::state::SettingsTab::Engines;
         a
     });
     h.run_steps(3);
@@ -3086,7 +3086,7 @@ fn a_typed_space_stays_in_a_settings_path() {
 
 #[test]
 fn a_paragraph_is_drawn_as_one_piece_of_text() {
-    use craft_anything_ui_egui::state::FeedItem;
+    use pickaxe_ui_egui::state::FeedItem;
     let mut h = harness(|| {
         let mut a = demo::app(demo::engine(Mode::Beginner, true));
         demo::fill_project(&mut a);
@@ -3101,7 +3101,7 @@ fn a_paragraph_is_drawn_as_one_piece_of_text() {
 
 #[test]
 fn long_agent_answers_do_not_push_the_conversation_under_the_sidebar() {
-    use craft_anything_ui_egui::state::FeedItem;
+    use pickaxe_ui_egui::state::FeedItem;
     fn text_rects(shape: &egui::Shape, out: &mut Vec<egui::Rect>) {
         match shape {
             egui::Shape::Vec(shapes) => shapes.iter().for_each(|s| text_rects(s, out)),
@@ -3164,8 +3164,8 @@ fn long_agent_answers_do_not_push_the_conversation_under_the_sidebar() {
 
 #[test]
 fn make_says_who_builds_and_a_picked_builder_stays_with_the_project() {
-    use craft_anything_ai::{BackendConfig, BackendKind, rebuild::StandIns};
-    use craft_anything_engine::workspace::Workspace;
+    use pickaxe_ai::{BackendConfig, BackendKind, rebuild::StandIns};
+    use pickaxe_engine::workspace::Workspace;
     let d = tempfile::tempdir().unwrap();
     let runs = StandIns::new();
     let (dir, r) = (d.path().to_path_buf(), runs.clone());
@@ -3251,7 +3251,7 @@ fn a_turned_off_or_removed_saved_builder_says_who_builds_instead() {
 
 #[test]
 fn with_nothing_to_build_with_start_offers_what_was_found_instead_of_a_dead_end() {
-    use craft_anything_ui_egui::state::Modal;
+    use pickaxe_ui_egui::state::Modal;
     let mut h = harness(|| {
         let mut a = demo::app(demo::engine(Mode::Beginner, true));
         a.backends.clear();
@@ -3280,7 +3280,7 @@ fn with_nothing_to_build_with_start_offers_what_was_found_instead_of_a_dead_end(
 /// Code apart from it, instead of only "No coding agent was found".
 #[test]
 fn only_the_claude_desktop_app_is_named_when_nothing_can_build() {
-    use craft_anything_ai::detect::DetectHint;
+    use pickaxe_ai::detect::DetectHint;
     let mut h = harness(|| {
         let mut a = demo::app(demo::engine(Mode::Beginner, true));
         a.backends.clear();
@@ -3299,11 +3299,11 @@ fn only_the_claude_desktop_app_is_named_when_nothing_can_build() {
     h.get_by_label("The Claude desktop app is installed, but building needs Claude Code, its separate command-line tool. Install Claude Code, sign in to it once in a terminal, then look again.");
 
     // Agents suggested from `~/.ssh/config` aren't checked, so the hint stays (review of #781).
-    use craft_anything_ai::{BackendConfig, Detected};
+    use pickaxe_ai::{BackendConfig, Detected};
     let remote = |name: &str| Detected {
         suggestion: BackendConfig {
             name: name.into(),
-            kind: craft_anything_ai::BackendKind::AgentCli,
+            kind: pickaxe_ai::BackendKind::AgentCli,
             model: "claude-code".into(),
             base_url: None,
             ssh_host: Some("box".into()),
@@ -3335,7 +3335,7 @@ fn ai_discovery_controls_have_even_spacing() {
                 [BackendKind::Openai, BackendKind::AgentCli]
                     .into_iter()
                     .flat_map(|kind| {
-                        (0..count).map(move |i| craft_anything_ai::Detected {
+                        (0..count).map(move |i| pickaxe_ai::Detected {
                             suggestion: BackendConfig {
                                 name: format!("Fixture {kind:?} {i}"),
                                 kind,
@@ -3351,7 +3351,7 @@ fn ai_discovery_controls_have_even_spacing() {
                     .collect(),
             );
             a.state.settings_open = true;
-            a.state.settings_tab = craft_anything_ui_egui::state::SettingsTab::Ai;
+            a.state.settings_tab = pickaxe_ui_egui::state::SettingsTab::Ai;
             a
         });
         h.run_steps(4);
@@ -3366,7 +3366,7 @@ fn ai_discovery_controls_have_even_spacing() {
         assert!(providers.top() < detect.bottom() && detect.top() < providers.bottom(), "controls share a row at {width}");
         h.get_by_label(&format!("Harnesses ({count})")).click();
         h.run_steps(2);
-        assert_eq!(h.state().state.detect_tab, Some(craft_anything_ui_egui::detect_tabs::DetectTab::Harnesses));
+        assert_eq!(h.state().state.detect_tab, Some(pickaxe_ui_egui::detect_tabs::DetectTab::Harnesses));
     }
 }
 
@@ -3374,7 +3374,7 @@ fn ai_discovery_controls_have_even_spacing() {
 /// to stay on one line and run on under the button.
 #[test]
 fn a_found_ais_long_reason_wraps_beside_its_add_button() {
-    use craft_anything_ai::Detected;
+    use pickaxe_ai::Detected;
     let reason = "Found the claude command on this computer, in a folder that another account's settings also point at, so adding it here uses the same sign-in as that one.";
     let found = Detected {
         suggestion: BackendConfig {
@@ -3395,7 +3395,7 @@ fn a_found_ais_long_reason_wraps_beside_its_add_button() {
         // The fixture is the discovery result; keep host detection out of this UI test.
         a.detecting = true;
         a.state.settings_open = true;
-        a.state.settings_tab = craft_anything_ui_egui::state::SettingsTab::Ai;
+        a.state.settings_tab = pickaxe_ui_egui::state::SettingsTab::Ai;
         a
     });
     h.run_steps(4);
@@ -3409,7 +3409,7 @@ fn a_found_ais_long_reason_wraps_beside_its_add_button() {
 
 #[test]
 fn an_ai_can_be_turned_off_and_removed_in_settings() {
-    use craft_anything_ai::rebuild::StandIns;
+    use pickaxe_ai::rebuild::StandIns;
     let d = tempfile::tempdir().unwrap();
     let runs = StandIns::new();
     let (dir, r) = (d.path().to_path_buf(), runs.clone());
@@ -3417,7 +3417,7 @@ fn an_ai_can_be_turned_off_and_removed_in_settings() {
         let mut a = stand_in_app(dir, &r);
         a.backends = a.hub.backends();
         a.state.settings_open = true;
-        a.state.settings_tab = craft_anything_ui_egui::state::SettingsTab::Ai;
+        a.state.settings_tab = pickaxe_ui_egui::state::SettingsTab::Ai;
         a
     });
     h.run_steps(3);
@@ -3452,7 +3452,7 @@ fn a_backend_cant_be_removed_while_its_key_is_being_saved() {
             .unwrap();
         a.backends = a.hub.backends();
         a.state.settings_open = true;
-        a.state.settings_tab = craft_anything_ui_egui::state::SettingsTab::Ai;
+        a.state.settings_tab = pickaxe_ui_egui::state::SettingsTab::Ai;
         a
     });
     h.run_steps(3);
@@ -3471,7 +3471,7 @@ fn a_backend_cant_be_removed_while_its_key_is_being_saved() {
 
 #[test]
 fn start_is_in_view_at_a_common_window_height() {
-    use craft_anything_engine::workspace::TargetRef;
+    use pickaxe_engine::workspace::TargetRef;
     for app_target in [false, true] {
         let mut h = harness_sized(egui::vec2(1280.0, 900.0), move || {
             let mut a = demo::app(demo::engine(Mode::Beginner, true));
@@ -3489,7 +3489,7 @@ fn start_is_in_view_at_a_common_window_height() {
 
 #[test]
 fn typed_drafts_come_back_after_a_restart_and_stay_with_their_project() {
-    use craft_anything_engine::workspace::{TargetRef, Workspace};
+    use pickaxe_engine::workspace::{TargetRef, Workspace};
     struct Mem(std::collections::HashMap<String, String>);
     impl eframe::Storage for Mem {
         fn get_string(&self, key: &str) -> Option<String> {
@@ -3539,7 +3539,7 @@ fn the_ask_screen_waits_only_for_its_own_answer() {
     let (tx, rx) = std::sync::mpsc::channel::<()>();
     let other = h.state_mut().jobs.spawn("Download an engine", true, move |j| {
         while matches!(rx.recv_timeout(Duration::from_millis(20)), Err(std::sync::mpsc::RecvTimeoutError::Timeout)) && !j.cancel.is_cancelled() {}
-        Ok(craft_anything_ui_egui::Done::Nothing)
+        Ok(pickaxe_ui_egui::Done::Nothing)
     });
     h.run_steps(2);
     assert!(!h.state().answering());
@@ -3553,7 +3553,7 @@ fn the_ask_screen_waits_only_for_its_own_answer() {
 
 #[test]
 fn closing_the_ghidra_question_means_the_project_doesnt_start_later() {
-    use craft_anything_ui_egui::state::Modal;
+    use pickaxe_ui_egui::state::Modal;
     let mut h = harness(|| {
         let mut a = demo::app(demo::engine(Mode::Beginner, true));
         a.ghidra.start_after = Some(Box::new(a.state.make.clone()));
@@ -3582,9 +3582,9 @@ fn a_project_that_needs_you_says_so_in_the_sidebar() {
 
 #[test]
 fn a_paused_build_shows_where_it_stopped() {
-    use craft_anything_ai::rebuild::Step;
-    use craft_anything_engine::workspace::{Status, TargetRef, Workspace};
-    use craft_anything_ui_egui::state::FeedItem;
+    use pickaxe_ai::rebuild::Step;
+    use pickaxe_engine::workspace::{Status, TargetRef, Workspace};
+    use pickaxe_ui_egui::state::FeedItem;
     let d = tempfile::tempdir().unwrap();
     let mut ws = Workspace::create(d.path(), "Notes", "A notes app", TargetRef::None).unwrap();
     ws.manifest.status = Status::Stopped;
@@ -3607,7 +3607,7 @@ fn a_paused_build_shows_where_it_stopped() {
 
 #[test]
 fn opening_another_target_starts_a_new_conversation() {
-    use craft_anything_ui_egui::state::ChatItem;
+    use pickaxe_ui_egui::state::ChatItem;
     let d = tempfile::tempdir().unwrap();
     let other = d.path().join("notes.txt");
     std::fs::write(&other, "hello").unwrap();
@@ -3645,7 +3645,7 @@ fn advanced_mode_keeps_projects_and_their_questions_in_sight() {
 fn the_website_dialog_is_ready_to_type_into() {
     let mut h = harness(|| {
         let mut a = demo::app(demo::engine(Mode::Beginner, true));
-        a.state.modal = Some(craft_anything_ui_egui::state::Modal::Website);
+        a.state.modal = Some(pickaxe_ui_egui::state::Modal::Website);
         a
     });
     h.run_steps(3);
@@ -3654,8 +3654,8 @@ fn the_website_dialog_is_ready_to_type_into() {
 
 #[test]
 fn a_project_is_renamed_duplicated_and_deleted_from_its_page() {
-    use craft_anything_engine::workspace::{TargetRef, Workspace};
-    use craft_anything_ui_egui::state::Modal;
+    use pickaxe_engine::workspace::{TargetRef, Workspace};
+    use pickaxe_ui_egui::state::Modal;
     let d = tempfile::tempdir().unwrap();
     let ws = Workspace::create(d.path(), "Snake", "A snake game", TargetRef::None).unwrap();
     let root = ws.root.clone();
@@ -3749,7 +3749,7 @@ fn the_first_frames_callback_runs_once_after_frames_were_shown() {
 /// sequences) stay inside the window instead of running off the feed to the left.
 #[test]
 fn a_long_line_in_the_builders_words_stays_in_the_window() {
-    use craft_anything_ui_egui::state::FeedItem;
+    use pickaxe_ui_egui::state::FeedItem;
     let dump = "local_10b0 = (undefined8 *)0x1;\\n ".repeat(40);
     let text = format!("Decompiled:\n```c\n{dump}\n```\nDone.");
     let mut h = harness(move || {
@@ -3767,7 +3767,7 @@ fn a_long_line_in_the_builders_words_stays_in_the_window() {
 /// #666: in Experienced mode, the tool-work rows (their status notes) wrap inside the window too.
 #[test]
 fn a_long_status_note_in_the_work_rows_stays_in_the_window() {
-    use craft_anything_ui_egui::state::FeedItem;
+    use pickaxe_ui_egui::state::FeedItem;
     let note = "local_10b0 = 0;\\n ".repeat(30);
     let mut h = harness(move || {
         let mut a = demo::app(demo::engine(Mode::Experienced, true));
@@ -3791,7 +3791,7 @@ fn a_long_status_note_in_the_work_rows_stays_in_the_window() {
 #[test]
 fn the_switches_under_the_prompt_box_never_overlap() {
     let d = tempfile::tempdir().unwrap();
-    let ws = craft_anything_engine::workspace::Workspace::create(d.path(), "Notes", "A notes app", craft_anything_engine::workspace::TargetRef::None).unwrap();
+    let ws = pickaxe_engine::workspace::Workspace::create(d.path(), "Notes", "A notes app", pickaxe_engine::workspace::TargetRef::None).unwrap();
     for width in [1600.0, 1000.0, 700.0, 560.0] {
         let ws = ws.clone();
         let mut h = harness_sized(egui::vec2(width, 800.0), move || {
@@ -3812,7 +3812,7 @@ fn the_switches_under_the_prompt_box_never_overlap() {
 
 #[test]
 fn a_very_long_app_file_name_keeps_start_inside_the_window() {
-    use craft_anything_engine::workspace::TargetRef;
+    use pickaxe_engine::workspace::TargetRef;
     let name = format!("{}.apk", "com.example.some-very-long-apkmirror-name-".repeat(5));
     let path = std::path::PathBuf::from(name);
     let mut h = harness(move || {
@@ -3875,7 +3875,7 @@ fn settings_about_shows_the_apps_version() {
 /// build" show. Another project's program of the same name there doesn't count.
 #[test]
 fn a_workspace_members_build_shows_play_on_the_project_screen() {
-    use craft_anything_engine::workspace::{TargetRef, Workspace};
+    use pickaxe_engine::workspace::{TargetRef, Workspace};
     let d = tempfile::tempdir().unwrap();
     let ws = Workspace::create(&d.path().join("projects"), "Snake", "A snake game in Rust", TargetRef::None).unwrap();
     std::fs::write(ws.root.join("Cargo.toml"), "[workspace]\nmembers = [\"app\"]\nresolver = \"2\"\n").unwrap();

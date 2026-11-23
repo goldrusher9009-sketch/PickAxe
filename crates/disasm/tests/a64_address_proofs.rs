@@ -1,5 +1,5 @@
-use craft_anything_disasm::{ArmConsts, Flow, Image, Insn, Limits, Mode, NoControl, Program, decode};
-use craft_anything_testkit as tk;
+use pickaxe_disasm::{ArmConsts, Flow, Image, Insn, Limits, Mode, NoControl, Program, decode};
+use pickaxe_testkit as tk;
 
 fn apply(constants: &mut ArmConsts, word: u32, address: u64) -> Insn {
     let mut instruction = decode(Mode::A64, &word.to_le_bytes(), address, true).unwrap();

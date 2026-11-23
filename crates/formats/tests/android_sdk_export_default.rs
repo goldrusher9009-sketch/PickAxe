@@ -1,5 +1,5 @@
-use craft_anything_formats::axml::{Manifest, manifest, parse};
-use craft_anything_testkit::android::{AxNode, AxVal, a, axml};
+use pickaxe_formats::axml::{Manifest, manifest, parse};
+use pickaxe_testkit::android::{AxNode, AxVal, a, axml};
 
 /// Build the binary manifest for a provider with an optional SDK and exported attribute.
 fn provider(min: Option<AxVal<'_>>, target: Option<AxVal<'_>>, exported: Option<bool>) -> Manifest {

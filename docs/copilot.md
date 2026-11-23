@@ -1,6 +1,6 @@
 # GitHub Copilot
 
-Craft Anything can use the installed GitHub Copilot CLI for analysis and building through the
+Pickaxe can use the installed GitHub Copilot CLI for analysis and building through the
 Agent Client Protocol (ACP).
 
 ## Setup
@@ -8,9 +8,9 @@ Agent Client Protocol (ACP).
 1. Install the standalone Copilot CLI using GitHub's
    [installation instructions](https://docs.github.com/en/copilot/how-tos/copilot-cli/set-up-copilot-cli/install-copilot-cli).
 2. In your own terminal, run `copilot login` and complete GitHub's sign-in flow. The CLI owns
-   authentication, credential storage and refresh. Craft Anything does not read its credential
+   authentication, credential storage and refresh. Pickaxe does not read its credential
   store, collect a Copilot key or provide a login flow. Retry after login; if authentication
-  still fails, restart Craft Anything.
+  still fails, restart Pickaxe.
 3. In Settings > AI, detect and add **GitHub Copilot**, then choose it for chat or **Build with this**.
    If it is installed outside the searched locations, use **Choose...** to select the executable.
 
@@ -74,10 +74,10 @@ Model discovery sends no model prompt and runs off the UI thread.
 The same capability is available headlessly:
 
 ```sh
-craft-anything-cli ai-models-list --name "GitHub Copilot"
-craft-anything-cli ai-model-set --name "GitHub Copilot" --model gpt-6-luna --thinking xhigh
-craft-anything-cli ai-model-options-show --backend "GitHub Copilot"
-craft-anything-cli ai-model-options-set --backend "GitHub Copilot" --expected-cli-model gpt-6-luna --context long_context
+pickaxe-cli ai-models-list --name "GitHub Copilot"
+pickaxe-cli ai-model-set --name "GitHub Copilot" --model gpt-6-luna --thinking xhigh
+pickaxe-cli ai-model-options-show --backend "GitHub Copilot"
+pickaxe-cli ai-model-options-set --backend "GitHub Copilot" --expected-cli-model gpt-6-luna --context long_context
 ```
 
 The context show tool returns the current `cli_model` and supported choices. Supply that model as
@@ -90,14 +90,14 @@ CLI starts. Shared picker warnings name the configured agent rather than assumin
 
 ## Tools and Permissions
 
-Chat and builds use an explicit allowlist of Craft Anything's built-in engine and AI MCP tools.
+Chat and builds use an explicit allowlist of Pickaxe's built-in engine and AI MCP tools.
 Copilot's native file, shell, web and delegation tools are not exposed. The MCP server enforces
-Clean room or Deep mode, and build tools retain Craft Anything's approval policy and inbox.
+Clean room or Deep mode, and build tools retain Pickaxe's approval policy and inbox.
 Copilot's built-in MCP servers and custom-instruction loading are disabled for these runs;
 the person's own CLI configuration and credentials are not rewritten.
 
 The adapter passes a session-only `--additional-mcp-config` with the installed
-`craft-anything-cli mcp` command, investigation and inbox. CLI 1.0.105 did not expose the test
+`pickaxe-cli mcp` command, investigation and inbox. CLI 1.0.105 did not expose the test
 server when it was supplied only through ACP's `session/new`, so both forms are supplied.
 
 Questions about a build start a fresh session, never load or change the builder's session, and
@@ -153,7 +153,7 @@ Those session-only records are not automatically recovered by the new shared-pro
   analysis, both build modes and both question modes. No real account or hosted model was used.
 - The opt-in compatibility test needs Node.js for its synthetic MCP fixture, not for the
   application itself. Run it with
-  `cargo test -p craft-anything-ai copilot_cli_enforces_mcp_only_and_empty_tool_filters -- --ignored`.
+  `cargo test -p pickaxe-ai copilot_cli_enforces_mcp_only_and_empty_tool_filters -- --ignored`.
 - Authenticated builds, account-specific model discovery and real-account session resume were
   confirmed by the person using the app. GitHub documents ACP as public preview.
 - The target handoff has process-level MCP tests in both modes. Finding correction/persistence

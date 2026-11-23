@@ -1,8 +1,8 @@
 //! A source-to-bundle comparison that examines only `max_rows` scripts says how many it examined,
 //! and the unclaimed-unit count stays complete even when only some rows are listed.
 
-use craft_anything_analysis::js_app::{AppFile, AppGraph, AppInput, AppOptions, analyze_application};
-use craft_anything_analysis::js_source::{SourceGraph, build_source_graph, diff_source_and_bundle};
+use pickaxe_analysis::js_app::{AppFile, AppGraph, AppInput, AppOptions, analyze_application};
+use pickaxe_analysis::js_source::{SourceGraph, build_source_graph, diff_source_and_bundle};
 use serde_json::json;
 
 fn app_graph(files: &[(&str, &str)]) -> AppGraph {

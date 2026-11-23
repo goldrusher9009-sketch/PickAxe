@@ -1,5 +1,5 @@
-use craft_anything_formats::plist::{Value, parse_binary};
-use craft_anything_testkit::apple as fx;
+use pickaxe_formats::plist::{Value, parse_binary};
+use pickaxe_testkit::apple as fx;
 
 fn single_object(object: &[u8], offset: u8) -> Vec<u8> {
     let mut data = b"bplist00".to_vec();

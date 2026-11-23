@@ -1,7 +1,7 @@
 //! Regression tests for SquashFS v4.0 metadata table boundary calculation.
 
-use craft_anything_formats::fsread::{FsKind, Limits, squashfs};
-use craft_anything_testkit::firmware as fx;
+use pickaxe_formats::fsread::{FsKind, Limits, squashfs};
+use pickaxe_testkit::firmware as fx;
 
 /// Write a little-endian `u64` into `buf` at `offset`.
 fn put_u64(buf: &mut [u8], offset: usize, value: u64) {

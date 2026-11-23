@@ -1,7 +1,7 @@
 //! File safety: bounded regular-file reads and atomic writes (temp file, fsync, rename),
 //! optionally private (0600 on Unix).
 
-use craft_anything_evidence::{ErrorCode, ToolError};
+use pickaxe_evidence::{ErrorCode, ToolError};
 use std::io::{Read as _, Write as _};
 use std::path::Path;
 use std::sync::atomic::{AtomicU64, Ordering};
@@ -119,7 +119,7 @@ fn create_temp(dir: &Path, destination: &Path, private: bool, counter: &AtomicU6
     let destination_name = destination.file_name().and_then(|name| name.to_str());
     for _ in 0..64 {
         let n = counter.fetch_add(1, Ordering::Relaxed);
-        let name = format!(".craft-anything.tmp-{}-{n}", std::process::id());
+        let name = format!(".pickaxe.tmp-{}-{n}", std::process::id());
         // Conservatively exclude case-insensitive and Windows trailing-dot/space aliases.
         if destination_name.is_some_and(|destination| destination.trim_end_matches(['.', ' ']).eq_ignore_ascii_case(&name)) {
             continue;
@@ -221,7 +221,7 @@ mod tests {
 
     #[test]
     fn temporary_candidates_exclude_destination_aliases() {
-        let name = format!(".craft-anything.tmp-{}-0", std::process::id());
+        let name = format!(".pickaxe.tmp-{}-0", std::process::id());
         for (component, next_counter) in [
             (name.clone(), 2),
             (name.to_ascii_uppercase(), 2),
@@ -235,7 +235,7 @@ mod tests {
             let (temporary, file) = create_temp(dir.path(), &destination, false, &counter).unwrap();
             assert!(!destination.exists());
             assert_eq!(counter.load(Ordering::Relaxed), next_counter);
-            assert_eq!(temporary, dir.path().join(format!(".craft-anything.tmp-{}-{}", std::process::id(), next_counter - 1)));
+            assert_eq!(temporary, dir.path().join(format!(".pickaxe.tmp-{}-{}", std::process::id(), next_counter - 1)));
             assert_eq!(file.metadata().unwrap().len(), 0);
         }
     }

@@ -1,4 +1,4 @@
-use craft_anything_formats::{FormatError, ai_model};
+use pickaxe_formats::{FormatError, ai_model};
 
 fn integer(bytes: &mut Vec<u8>, value: u64, width: usize, big: bool) {
     let value = if big { value.to_be_bytes() } else { value.to_le_bytes() };

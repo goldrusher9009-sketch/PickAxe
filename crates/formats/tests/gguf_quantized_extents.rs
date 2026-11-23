@@ -1,4 +1,4 @@
-use craft_anything_formats::ai_model;
+use pickaxe_formats::ai_model;
 
 fn tensor_header(kind: u32, shape: &[u64], offset: u64) -> Vec<u8> {
     let mut bytes = b"GGUF".to_vec();

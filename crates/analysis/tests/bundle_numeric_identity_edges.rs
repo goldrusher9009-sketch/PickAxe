@@ -1,4 +1,4 @@
-use craft_anything_analysis::js_app::{AppFile, AppInput, AppOptions, analyze_application};
+use pickaxe_analysis::js_app::{AppFile, AppInput, AppOptions, analyze_application};
 
 #[test]
 fn application_graph_connects_equivalent_numeric_module_ids() {

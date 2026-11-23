@@ -1,6 +1,6 @@
-use craft_anything_disasm::dataflow::def_use;
-use craft_anything_disasm::{Image, Limits, NoControl, Program};
-use craft_anything_formats::Arch;
+use pickaxe_disasm::dataflow::def_use;
+use pickaxe_disasm::{Image, Limits, NoControl, Program};
+use pickaxe_formats::Arch;
 use std::sync::Arc;
 
 fn program(bytes: Vec<u8>, arch: Arch) -> (Image, Program) {

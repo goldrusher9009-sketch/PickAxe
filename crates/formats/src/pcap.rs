@@ -27,8 +27,8 @@ mod parity_tests {
     use super::*;
     #[test]
     fn frames_protocols_summaries_and_errors_match() {
-        let frames = craft_anything_testkit::pcap::sample_frames();
-        for data in [craft_anything_testkit::pcap::pcap(&frames), craft_anything_testkit::pcap::pcapng(&frames), vec![], b"not a capture".to_vec()] {
+        let frames = pickaxe_testkit::pcap::sample_frames();
+        for data in [pickaxe_testkit::pcap::pcap(&frames), pickaxe_testkit::pcap::pcapng(&frames), vec![], b"not a capture".to_vec()] {
             // Keep the retained admission oracle exercised, including truncated magic bytes.
             for end in 0..=data.len() {
                 assert_eq!(legacy::is_capture(&data[..end]), is_capture(&data[..end]));
@@ -52,8 +52,8 @@ mod parity_tests {
 
     #[test]
     fn truncated_captures_and_packets_match_the_retained_oracle() {
-        let frames = craft_anything_testkit::pcap::sample_frames();
-        for data in [craft_anything_testkit::pcap::pcap(&frames), craft_anything_testkit::pcap::pcapng(&frames)] {
+        let frames = pickaxe_testkit::pcap::sample_frames();
+        for data in [pickaxe_testkit::pcap::pcap(&frames), pickaxe_testkit::pcap::pcapng(&frames)] {
             for end in 0..=data.len() {
                 let prefix = &data[..end];
                 assert_eq!(format!("{:?}", legacy::summarize(prefix, &|| false)), format!("{:?}", summarize(prefix, &|| false)), "capture prefix {end}");

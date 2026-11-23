@@ -1,24 +1,24 @@
 //! Exercise the real exit-save path in a child whose global config directory is isolated.
 
-use craft_anything_ai::{AiConfig, AiHub, BackendConfig, BackendEntry, BackendKind, BackendOptions, Effort, KeyStore};
-use craft_anything_engine::{Engine, Mode, Session, Settings};
-use craft_anything_platform::process::Process;
-use craft_anything_ui_egui::CraftApp;
+use pickaxe_ai::{AiConfig, AiHub, BackendConfig, BackendEntry, BackendKind, BackendOptions, Effort, KeyStore};
+use pickaxe_engine::{Engine, Mode, Session, Settings};
+use pickaxe_platform::process::Process;
+use pickaxe_ui_egui::CraftApp;
 use eframe::App;
 use std::{sync::Arc, time::Duration};
 
 /// Closing with pending app edits must preserve an AI selection committed since the app snapshot.
 #[test]
 fn exit_save_preserves_latest_ai_and_pending_app_settings() {
-    const CHILD: &str = "CRAFT_ANYTHING_EXIT_SAVE_TEST";
+    const CHILD: &str = "PICKAXE_EXIT_SAVE_TEST";
     let Some(dir) = std::env::var_os(CHILD) else {
         for busy in ["false", "true"] {
             let dir = tempfile::tempdir().unwrap();
             Process::new(std::env::current_exe().unwrap())
                 .args(["--exact", "exit_save_preserves_latest_ai_and_pending_app_settings", "--nocapture"])
                 .env(CHILD, dir.path())
-                .env("CRAFT_ANYTHING_CONFIG_DIR", dir.path())
-                .env("CRAFT_ANYTHING_EXIT_SAVE_BUSY", busy)
+                .env("PICKAXE_CONFIG_DIR", dir.path())
+                .env("PICKAXE_EXIT_SAVE_BUSY", busy)
                 .timeout(Duration::from_secs(30))
                 .run_checked()
                 .unwrap();
@@ -45,7 +45,7 @@ fn exit_save_preserves_latest_ai_and_pending_app_settings() {
     hub.add_backend_with(entry.clone(), None).unwrap();
     let mut latest_ai = engine.session().settings.ai.clone();
     assert_ne!(app.settings.ai, latest_ai);
-    if std::env::var("CRAFT_ANYTHING_EXIT_SAVE_BUSY").as_deref() == Ok("true") {
+    if std::env::var("PICKAXE_EXIT_SAVE_BUSY").as_deref() == Ok("true") {
         // A long tool holds the session until after shutdown returns, then commits newer AI data.
         entry.options.cli_model = Some("test/final".into());
         let mut config = AiConfig::from_table(&latest_ai).unwrap();

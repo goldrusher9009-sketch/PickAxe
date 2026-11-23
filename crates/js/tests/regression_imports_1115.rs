@@ -1,4 +1,4 @@
-use craft_anything_js::{Limits, ParseMode, analyze};
+use pickaxe_js::{Limits, ParseMode, analyze};
 /// Bare imports survive fallback, including comments and decoded string escapes.
 #[test]
 fn side_effect_dependencies_survive_fallback() {

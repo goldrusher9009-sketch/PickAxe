@@ -1,14 +1,14 @@
-use craft_anything_engine::{CallOptions, Caller, Consent, Engine};
-use craft_anything_testkit::electron::zip_stored;
+use pickaxe_engine::{CallOptions, Caller, Consent, Engine};
+use pickaxe_testkit::electron::zip_stored;
 use serde_json::{Value, json};
 use std::path::Path;
 
 fn extract(archive: &[u8], member_budget: usize, files: usize, depth: u32, check: impl FnOnce(&Value, &Path)) {
-    let directory = craft_anything_engine::testing::temp_dir();
+    let directory = pickaxe_engine::testing::temp_dir();
     let input = directory.join("firmware.zip");
     let output = directory.join("output");
     std::fs::write(&input, archive).unwrap();
-    let engine = Engine::new(craft_anything_engine::testing::session());
+    let engine = Engine::new(pickaxe_engine::testing::session());
     let result = engine
         .call(
             "firmware_image_extract",
@@ -117,7 +117,7 @@ fn the_zip_file_limit_is_checked_before_decoding_a_member() {
 
 #[test]
 fn zip_nested_outputs_keep_their_order_and_parent_metadata() {
-    let inner = craft_anything_testkit::firmware::gzip(b"ok", None);
+    let inner = pickaxe_testkit::firmware::gzip(b"ok", None);
     let archive = zip_stored(&[("nested.gz", &inner)]);
     extract(&archive, inner.len() + 2, 10, 2, |evidence, output| {
         let rows = evidence["result"]["outputs"].as_array().unwrap();

@@ -6,8 +6,8 @@ use crate::i18n::{tr, trf};
 use crate::state::{Modal, Screen};
 use crate::theme::{self, Tokens};
 use crate::{CraftApp, icons, widgets};
-use craft_anything_engine::evidence::ToolError;
-use craft_anything_engine::workspace::Workspace;
+use pickaxe_engine::evidence::ToolError;
+use pickaxe_engine::workspace::Workspace;
 use egui::{RichText, Ui, Vec2};
 use serde_json::{Value, json};
 use std::path::Path;
@@ -161,7 +161,7 @@ pub fn delete_modal(app: &mut CraftApp, ui: &mut Ui, root: &Path, close: &mut bo
     // What goes and what stays, in so many words: it can't be undone.
     let m = &ws.manifest;
     let what = if m.app_in_root || !m.start_files.is_empty() {
-        tr("Craft Anything's records, checks and anything it built in app/ are deleted. Your own files in the folder stay as they are.")
+        tr("Pickaxe's records, checks and anything it built in app/ are deleted. Your own files in the folder stay as they are.")
     } else {
         tr("Its folder is deleted with everything in it: what was built, the checks and the conversation.")
     };

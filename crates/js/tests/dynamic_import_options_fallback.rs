@@ -1,4 +1,4 @@
-use craft_anything_js::{Limits, analyze};
+use pickaxe_js::{Limits, analyze};
 
 /// Both fact readers retain the literal specifier of an import with attributes.
 #[test]

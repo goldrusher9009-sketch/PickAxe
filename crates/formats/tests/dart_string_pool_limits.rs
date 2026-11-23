@@ -1,4 +1,4 @@
-use craft_anything_formats::dart::string_pool;
+use pickaxe_formats::dart::string_pool;
 
 #[test]
 fn duplicates_at_the_limit_do_not_claim_missing_results() {

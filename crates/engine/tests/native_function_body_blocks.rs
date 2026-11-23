@@ -1,5 +1,5 @@
-use craft_anything_engine::{CallOptions, Caller, Engine};
-use craft_anything_testkit as tk;
+use pickaxe_engine::{CallOptions, Caller, Engine};
+use pickaxe_testkit as tk;
 use serde_json::{Value, json};
 
 struct Sample {
@@ -50,10 +50,10 @@ fn sample(entry_first: bool) -> Sample {
     unrelated.extend_from_slice(&((layout.rodata_va as i64 + tk::rodata::SECRET as i64 - (gap + 11) as i64) as i32).to_le_bytes());
     unrelated.extend_from_slice(&[0x5d, 0xc3]);
     bytes[text + 0x20..text + 0x20 + unrelated.len()].copy_from_slice(&unrelated);
-    let directory = craft_anything_engine::testing::temp_dir();
+    let directory = pickaxe_engine::testing::temp_dir();
     let path = directory.join("blocks.elf");
     std::fs::write(&path, bytes).unwrap();
-    let engine = Engine::new(craft_anything_engine::testing::session());
+    let engine = Engine::new(pickaxe_engine::testing::session());
     engine.call("core_target_open", json!({"path": path}), CallOptions::new(Caller::Cli)).unwrap();
     Sample { engine, directory, entry, cold, hello: layout.rodata_va }
 }

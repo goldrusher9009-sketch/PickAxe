@@ -1,5 +1,5 @@
-use craft_anything_formats::sqlite::{SqliteDb, parse_create_columns};
-use craft_anything_testkit::sqlite::table_db;
+use pickaxe_formats::sqlite::{SqliteDb, parse_create_columns};
+use pickaxe_testkit::sqlite::table_db;
 
 /// A declared type keeps the comma inside its parentheses, both in the parsed columns and in the
 /// schema overview the database tools show.

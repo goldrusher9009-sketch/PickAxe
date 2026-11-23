@@ -2,8 +2,8 @@
 //! `/`, so with no path a slash in the query or fragment started one: `https://example.test?next=/graphql`
 //! read as a GraphQL endpoint and `https://example.test#next=/trpc/user.list` as a tRPC procedure.
 
-use craft_anything_js::api_ops::{UrlApi, url_api};
-use craft_anything_js::{Limits, ParseMode, analyze};
+use pickaxe_js::api_ops::{UrlApi, url_api};
+use pickaxe_js::{Limits, ParseMode, analyze};
 
 #[test]
 fn a_query_or_fragment_is_not_the_path() {

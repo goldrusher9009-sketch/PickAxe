@@ -2,7 +2,7 @@
 //! to play like the original (mechanics sheet, decompiling in Deep mode, generated assets).
 
 use super::*;
-use craft_anything_engines::game;
+use pickaxe_engines::game;
 
 /// Told to a resumed builder when the person turned generated assets off after some were made.
 const ASSETS_NOW_OFF: &str =

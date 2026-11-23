@@ -1,6 +1,6 @@
 //! Minimal, comment-preserving edits to a YAML file's top-level `<table>:` mapping.
 //!
-//! We only ever add, replace or remove one child block (`  craft-anything:` and the lines indented
+//! We only ever add, replace or remove one child block (`  pickaxe:` and the lines indented
 //! under it) inside one top-level block mapping. Everything else is left byte-for-byte. Every
 //! result is re-parsed with a real YAML parser before it is written.
 
@@ -71,7 +71,7 @@ fn is_blank_or_comment(line: &str) -> bool {
 
 /// `key:` with optional horizontal whitespace before `:`, possibly quoted. Returns the rest after `:`.
 /// Unquoted keys require horizontal whitespace or end-of-line after `:` so plain keys containing
-/// embedded colons (`craft-anything:dev:`) are not mistaken for `craft-anything:`.
+/// embedded colons (`pickaxe:dev:`) are not mistaken for `pickaxe:`.
 fn key_line<'a>(line: &'a str, name: &str) -> Option<&'a str> {
     let t = line.trim_start();
     if let Some(rest) = t.strip_prefix(name)
@@ -452,11 +452,11 @@ mod stream_regressions {
     #[test]
     fn multiple_yaml_documents_are_refused_before_editing() {
         for text in
-            ["model: first\n---\nmodel: second\n", "---\nmodel: first\n---\n", "mcp_servers:\n  craft-anything:\n    command: old\n---\nmodel: second\n"]
+            ["model: first\n---\nmodel: second\n", "---\nmodel: first\n---\n", "mcp_servers:\n  pickaxe:\n    command: old\n---\nmodel: second\n"]
         {
             assert!(parse(text).is_err());
-            assert!(set(text, "mcp_servers", "craft-anything", &json!({"command":"c"})).is_err());
-            assert!(remove(text, "mcp_servers", "craft-anything").is_none());
+            assert!(set(text, "mcp_servers", "pickaxe", &json!({"command":"c"})).is_err());
+            assert!(remove(text, "mcp_servers", "pickaxe").is_none());
         }
         assert_eq!(parse("---\nmodel: first\n...\n").unwrap()["model"], "first");
     }
@@ -472,31 +472,31 @@ mod tests {
 
     #[test]
     fn insert_replace_remove_preserve_comments() {
-        let entry = json!({"command": "/opt/craft-anything-cli", "args": ["mcp"], "enabled": true});
-        let new = set(FIXTURE, "mcp_servers", "craft-anything", &entry).unwrap();
+        let entry = json!({"command": "/opt/pickaxe-cli", "args": ["mcp"], "enabled": true});
+        let new = set(FIXTURE, "mcp_servers", "pickaxe", &entry).unwrap();
         assert!(new.contains("# a friend") && new.contains("# tail comment") && new.contains("model: big # inline"));
         let v = parse(&new).unwrap();
-        assert_eq!(v["mcp_servers"]["craft-anything"], entry);
+        assert_eq!(v["mcp_servers"]["pickaxe"], entry);
         assert_eq!(v["mcp_servers"]["other"]["command"], "x");
         assert_eq!(v["skills"], "on");
         let changed = json!({"command": "/new", "args": ["mcp"], "enabled": true});
-        let new2 = set(&new, "mcp_servers", "craft-anything", &changed).unwrap();
-        assert_eq!(parse(&new2).unwrap()["mcp_servers"]["craft-anything"], changed);
-        assert_eq!(new2.matches("craft-anything").count(), 1);
-        assert_eq!(remove(&new2, "mcp_servers", "craft-anything").unwrap(), FIXTURE);
-        assert!(remove(FIXTURE, "mcp_servers", "craft-anything").is_none());
+        let new2 = set(&new, "mcp_servers", "pickaxe", &changed).unwrap();
+        assert_eq!(parse(&new2).unwrap()["mcp_servers"]["pickaxe"], changed);
+        assert_eq!(new2.matches("pickaxe").count(), 1);
+        assert_eq!(remove(&new2, "mcp_servers", "pickaxe").unwrap(), FIXTURE);
+        assert!(remove(FIXTURE, "mcp_servers", "pickaxe").is_none());
     }
 
     #[test]
     fn creates_table_and_handles_flow_style() {
         let e = json!({"command": "c", "args": []});
-        let new = set("", "mcp_servers", "craft-anything", &e).unwrap();
-        assert_eq!(parse(&new).unwrap()["mcp_servers"]["craft-anything"], e);
-        let new = set("a: 1\n", "mcp_servers", "craft-anything", &e).unwrap();
+        let new = set("", "mcp_servers", "pickaxe", &e).unwrap();
+        assert_eq!(parse(&new).unwrap()["mcp_servers"]["pickaxe"], e);
+        let new = set("a: 1\n", "mcp_servers", "pickaxe", &e).unwrap();
         assert_eq!(parse(&new).unwrap()["a"], 1);
-        let new = set("mcp_servers: {}\n", "mcp_servers", "craft-anything", &e).unwrap();
-        assert_eq!(parse(&new).unwrap()["mcp_servers"]["craft-anything"], e);
-        assert!(set("mcp_servers: {a: 1}\n", "mcp_servers", "craft-anything", &e).is_err());
+        let new = set("mcp_servers: {}\n", "mcp_servers", "pickaxe", &e).unwrap();
+        assert_eq!(parse(&new).unwrap()["mcp_servers"]["pickaxe"], e);
+        assert!(set("mcp_servers: {a: 1}\n", "mcp_servers", "pickaxe", &e).is_err());
         assert!(set("a: [", "mcp_servers", "x", &e).is_err());
         assert!(parse("- 1\n").is_err());
     }
@@ -507,26 +507,26 @@ mod tests {
 
     #[test]
     fn a_crlf_file_stays_crlf_and_unrelated_lines_are_byte_identical() {
-        let entry = json!({"command": "/opt/craft-anything-cli", "args": ["mcp"], "enabled": true});
+        let entry = json!({"command": "/opt/pickaxe-cli", "args": ["mcp"], "enabled": true});
         let text = crlf(FIXTURE);
-        let new = set(&text, "mcp_servers", "craft-anything", &entry).unwrap();
+        let new = set(&text, "mcp_servers", "pickaxe", &entry).unwrap();
         // No bare LF anywhere: every line ends CRLF, ours included.
         assert_eq!(new.matches('\n').count(), new.matches("\r\n").count(), "{new:?}");
         // Without our block the file is exactly what it was.
-        assert_eq!(remove(&new, "mcp_servers", "craft-anything").unwrap(), text);
+        assert_eq!(remove(&new, "mcp_servers", "pickaxe").unwrap(), text);
         // Every original line is still there, unchanged.
         for l in text.split_inclusive('\n') {
             assert!(new.contains(l), "{l:?} lost in {new:?}");
         }
-        assert_eq!(parse(&new).unwrap()["mcp_servers"]["craft-anything"], entry);
+        assert_eq!(parse(&new).unwrap()["mcp_servers"]["pickaxe"], entry);
         // A second run changes nothing.
-        assert_eq!(set(&new, "mcp_servers", "craft-anything", &entry).unwrap(), new);
+        assert_eq!(set(&new, "mcp_servers", "pickaxe", &entry).unwrap(), new);
         // A new table in a CRLF file, and a file with no final newline.
-        let added = set("a: 1\r\nb: 2", "mcp_servers", "craft-anything", &entry).unwrap();
+        let added = set("a: 1\r\nb: 2", "mcp_servers", "pickaxe", &entry).unwrap();
         assert_eq!(added.matches('\n').count(), added.matches("\r\n").count(), "{added:?}");
         assert!(added.starts_with("a: 1\r\nb: 2\r\nmcp_servers:\r\n"), "{added:?}");
         // A last line cut off after its CR gets its LF back, not "\r\r\n".
-        let cut = set("a: 1\r\nb: 2\r", "mcp_servers", "craft-anything", &entry).unwrap();
+        let cut = set("a: 1\r\nb: 2\r", "mcp_servers", "pickaxe", &entry).unwrap();
         assert!(cut.starts_with("a: 1\r\nb: 2\r\nmcp_servers:\r\n"), "{cut:?}");
         assert!(!cut.contains("\r\r"), "{cut:?}");
     }
@@ -534,12 +534,12 @@ mod tests {
     #[test]
     fn an_lf_file_stays_lf_and_mixed_endings_are_kept_per_line() {
         let entry = json!({"command": "c", "args": ["mcp"], "enabled": true});
-        let new = set(FIXTURE, "mcp_servers", "craft-anything", &entry).unwrap();
+        let new = set(FIXTURE, "mcp_servers", "pickaxe", &entry).unwrap();
         assert!(!new.contains('\r'), "{new:?}");
         let mixed = "# top\r\nmodel: big\nmcp_servers:\r\n  other:\n    command: x\r\n";
-        let new = set(mixed, "mcp_servers", "craft-anything", &entry).unwrap();
-        assert!(new.starts_with("# top\r\nmodel: big\nmcp_servers:\r\n  other:\n    command: x\r\n  craft-anything:"), "{new:?}");
-        assert_eq!(remove(&new, "mcp_servers", "craft-anything").unwrap(), mixed);
+        let new = set(mixed, "mcp_servers", "pickaxe", &entry).unwrap();
+        assert!(new.starts_with("# top\r\nmodel: big\nmcp_servers:\r\n  other:\n    command: x\r\n  pickaxe:"), "{new:?}");
+        assert_eq!(remove(&new, "mcp_servers", "pickaxe").unwrap(), mixed);
     }
 }
 
@@ -550,16 +550,16 @@ mod document_end_regressions {
 
     #[test]
     fn missing_table_is_inserted_before_document_end() {
-        let value = json!({"command": "craft-anything-cli", "args": ["mcp"]});
+        let value = json!({"command": "pickaxe-cli", "args": ["mcp"]});
         for text in ["model: x\n...\n", "---\nmodel: x\r\n... # end\r\n# tail\r\n"] {
-            let output = set(text, "mcp_servers", "craft-anything", &value).unwrap();
-            assert_eq!(parse(&output).unwrap()["mcp_servers"]["craft-anything"], value);
-            assert_eq!(set(&output, "mcp_servers", "craft-anything", &value).unwrap(), output);
-            let removed = remove(&output, "mcp_servers", "craft-anything").unwrap();
+            let output = set(text, "mcp_servers", "pickaxe", &value).unwrap();
+            assert_eq!(parse(&output).unwrap()["mcp_servers"]["pickaxe"], value);
+            assert_eq!(set(&output, "mcp_servers", "pickaxe", &value).unwrap(), output);
+            let removed = remove(&output, "mcp_servers", "pickaxe").unwrap();
             assert!(removed.ends_with(text.split_once("...").map(|(_, tail)| format!("...{tail}")).as_deref().unwrap()));
             assert_eq!(parse(&removed).unwrap()["model"], "x");
         }
-        let output = set("...suffix: keep\n", "mcp_servers", "craft-anything", &value).unwrap();
+        let output = set("...suffix: keep\n", "mcp_servers", "pickaxe", &value).unwrap();
         assert_eq!(parse(&output).unwrap()["...suffix"], "keep");
     }
 }

@@ -13,7 +13,7 @@ pub mod config;
 pub mod context;
 pub mod detect;
 mod failure;
-pub use craft_anything_engine::failure_log;
+pub use pickaxe_engine::failure_log;
 pub mod http;
 pub mod key_tools;
 pub mod keys;
@@ -38,9 +38,9 @@ pub use model::Effort;
 
 use crate::agent::{ApiConversation, EngineHost, LoopConfig, ModelSlot};
 use crate::model::{ChatModel, Delta, Msg, Stop, TurnRequest, TurnResult};
-use craft_anything_engine::{CancelToken, Engine, Settings};
-use craft_anything_evidence::{ErrorCode, ToolError};
-use craft_anything_platform::sync::Mutex;
+use pickaxe_engine::{CancelToken, Engine, Settings};
+use pickaxe_evidence::{ErrorCode, ToolError};
+use pickaxe_platform::sync::Mutex;
 use serde::{Deserialize, Serialize};
 use std::path::PathBuf;
 use std::sync::Arc;
@@ -464,8 +464,8 @@ impl ChatModel for Tunneled {
 }
 
 /// The tools this layer adds to the engine's (rebuild control), for
-/// [`craft_anything_engine::Engine::shared`].
-pub fn tools() -> Vec<craft_anything_engine::ToolSpec> {
+/// [`pickaxe_engine::Engine::shared`].
+pub fn tools() -> Vec<pickaxe_engine::ToolSpec> {
     let mut v = rebuild::tools::specs();
     v.extend(key_tools::specs());
     v.extend(model_tools::specs());
@@ -569,7 +569,7 @@ impl AiHub {
         match name {
             Some(n) if cfg.get(n).is_none() => {
                 return Err(
-                    ToolError::invalid(format!("No AI backend named {n:?}")).with_remediation("See `craft-anything-cli ai list`, or add one in Settings → AI.")
+                    ToolError::invalid(format!("No AI backend named {n:?}")).with_remediation("See `pickaxe-cli ai list`, or add one in Settings → AI.")
                 );
             }
             Some(n) => {
@@ -851,7 +851,7 @@ impl AiHub {
     pub fn set_requests_per_minute(&self, name: &str, rate: u32) -> Result<Option<u32>, ToolError> {
         let mut config = self.config_to_change()?;
         let entry = config.backends.iter_mut().find(|entry| entry.config.name == name).ok_or_else(|| {
-            ToolError::invalid(format!("No AI backend named {name:?}")).with_remediation("See `craft-anything-cli ai list`, or add one in Settings → AI.")
+            ToolError::invalid(format!("No AI backend named {name:?}")).with_remediation("See `pickaxe-cli ai list`, or add one in Settings → AI.")
         })?;
         Self::api_request_rate(entry)?;
         let requested = Some(rate).filter(|rate| *rate != 0);
@@ -874,7 +874,7 @@ impl AiHub {
     pub fn set_tool_list(&self, name: &str, list: ToolList) -> Result<ToolList, ToolError> {
         let mut config = self.config_to_change()?;
         let entry = config.backends.iter_mut().find(|entry| entry.config.name == name).ok_or_else(|| {
-            ToolError::invalid(format!("No AI backend named {name:?}")).with_remediation("See `craft-anything-cli ai list`, or add one in Settings → AI.")
+            ToolError::invalid(format!("No AI backend named {name:?}")).with_remediation("See `pickaxe-cli ai list`, or add one in Settings → AI.")
         })?;
         Self::api_only(entry, "tool list")?;
         let requested = Some(list).filter(|l| *l != ToolList::Auto);
@@ -920,7 +920,7 @@ impl AiHub {
         let session = self.engine.try_session().ok_or_else(|| ToolError::invalid("The app is busy with another task. Try again in a moment."))?;
         let config = AiConfig::from_table(&session.settings.ai)?;
         let backend = config.get(name).cloned().ok_or_else(|| {
-            ToolError::invalid(format!("No AI backend named {name:?}")).with_remediation("See `craft-anything-cli ai list`, or add one in Settings → AI.")
+            ToolError::invalid(format!("No AI backend named {name:?}")).with_remediation("See `pickaxe-cli ai list`, or add one in Settings → AI.")
         })?;
         Ok(ModelContext { backend, directory: session.project.as_ref().map(|p| p.root.clone()) })
     }
@@ -984,7 +984,7 @@ impl AiHub {
 
     /// Some built-in asset provider has a key, so builds can generate assets.
     pub fn has_asset_keys(&self) -> bool {
-        let providers = craft_anything_engines::assets::AssetProviders::built_in();
+        let providers = pickaxe_engines::assets::AssetProviders::built_in();
         providers.ids().into_iter().any(|id| self.has_asset_key(&providers, id))
     }
 
@@ -1004,7 +1004,7 @@ impl AiHub {
     }
 
     /// The provider's key is stored or in its environment variable.
-    pub fn has_asset_key(&self, providers: &craft_anything_engines::assets::AssetProviders, provider: &str) -> bool {
+    pub fn has_asset_key(&self, providers: &pickaxe_engines::assets::AssetProviders, provider: &str) -> bool {
         providers.get(provider).is_some_and(|p| keys::asset_key(&self.keys, p.as_ref()).is_some())
     }
 
@@ -1092,7 +1092,7 @@ impl AiHub {
     }
 
     fn no_backend(name: &str) -> ToolError {
-        ToolError::invalid(format!("No AI backend named {name:?}")).with_remediation("See `craft-anything-cli ai list`, or add one in Settings → AI.")
+        ToolError::invalid(format!("No AI backend named {name:?}")).with_remediation("See `pickaxe-cli ai list`, or add one in Settings → AI.")
     }
 
     /// A backend that is named for a conversation must be on: `ai off` says nothing uses it, and
@@ -1103,7 +1103,7 @@ impl AiHub {
         let e = cfg.get(name).cloned().ok_or_else(|| Self::no_backend(name))?;
         if !e.config.enabled {
             return Err(ToolError::new(ErrorCode::BadSettings, format!("{} is turned off.", e.config.name))
-                .with_remediation("Turn it on in Settings → AI, or run `craft-anything-cli ai on` with its name, then try again."));
+                .with_remediation("Turn it on in Settings → AI, or run `pickaxe-cli ai on` with its name, then try again."));
         }
         Ok(e)
     }
@@ -1241,21 +1241,21 @@ impl AiHub {
         deep: bool,
         notes: Option<PathBuf>,
     ) -> Result<ApiConversation, ToolError> {
-        use craft_anything_engine::Toolset;
+        use pickaxe_engine::Toolset;
         let toolsets = if deep { self.engine.registry().toolsets() } else { vec![Toolset::Core, Toolset::Build] };
         self.start_loop(entry, &toolsets, LoopConfig { beginner, transcript, deep, lean_for_local: true, notes, ..LoopConfig::default() })
     }
 
     /// Start the asset extractor: our agent loop with the Build tools and the game archive tools.
     pub fn start_extractor(&self, entry: &BackendEntry, beginner: bool, transcript: Option<PathBuf>) -> Result<ApiConversation, ToolError> {
-        use craft_anything_engine::Toolset;
+        use pickaxe_engine::Toolset;
         let cfg = LoopConfig { beginner, transcript, deep: true, ..LoopConfig::default() };
         self.start_loop(entry, &[Toolset::Core, Toolset::Build, Toolset::Formats], cfg)
     }
 
     /// Start one loop with these toolsets and `cfg`, which keeps its transcript and resumes it only
     /// in its mode; the prices and failure logs are the hub's.
-    fn start_loop(&self, entry: &BackendEntry, toolsets: &[craft_anything_engine::Toolset], cfg: LoopConfig) -> Result<ApiConversation, ToolError> {
+    fn start_loop(&self, entry: &BackendEntry, toolsets: &[pickaxe_engine::Toolset], cfg: LoopConfig) -> Result<ApiConversation, ToolError> {
         let mut slot = self.build_model(entry)?;
         slot.max_turns = slot.max_turns.max(agent::BUILDER_MAX_TURNS);
         let host = Arc::new(EngineHost(self.engine.clone()));
@@ -1321,8 +1321,8 @@ impl AiHub {
         if e.config.kind == BackendKind::AgentCli {
             let program = cli_agents::program_of(&e.config, &e.options)?;
             let p = match e.config.ssh_host.as_deref().filter(|h| !h.trim().is_empty()) {
-                Some(h) => craft_anything_platform::Process::new("ssh").args(ssh::ssh_args(h, &[program.clone(), "--version".into()])),
-                None => craft_anything_platform::Process::new(&program).arg("--version"),
+                Some(h) => pickaxe_platform::Process::new("ssh").args(ssh::ssh_args(h, &[program.clone(), "--version".into()])),
+                None => pickaxe_platform::Process::new(&program).arg("--version"),
             };
             let out = p.timeout(Duration::from_secs(15)).run_checked()?;
             let mut reply = out.stdout_text().lines().next().unwrap_or_default().trim().to_string();
@@ -1425,7 +1425,7 @@ fn reach(e: &BackendEntry, key: Option<String>) -> Result<u64, String> {
         BackendKind::Gemini => openai::OpenAi::gemini(base, need(key)?, &e.config.model).list_models(t).map(|_| ()).map_err(|x| x.message),
         BackendKind::OpenaiCompatible | BackendKind::AgentCli if e.config.ssh_host.as_deref().is_some_and(|h| !h.trim().is_empty()) => {
             let host = e.config.ssh_host.clone().unwrap_or_default();
-            craft_anything_platform::Process::new("ssh")
+            pickaxe_platform::Process::new("ssh")
                 .args(ssh::ssh_args(&host, &["true".to_string()]))
                 .timeout(Duration::from_secs(10))
                 .run_checked()
@@ -1452,7 +1452,7 @@ fn reach(e: &BackendEntry, key: Option<String>) -> Result<u64, String> {
             Ok(program) => {
                 // A saved path that's gone (#721): PATH has nothing to do with it.
                 let by_path = std::path::Path::new(&program).parent().is_some_and(|p| !p.as_os_str().is_empty());
-                craft_anything_platform::which(&program)
+                pickaxe_platform::which(&program)
                     .map(|_| ())
                     .ok_or_else(|| if by_path { format!("there's no program at {program}") } else { format!("{program} isn't on PATH") })
             }

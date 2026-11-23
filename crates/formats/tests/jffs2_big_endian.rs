@@ -1,5 +1,5 @@
-use craft_anything_formats::fsread::{Limits, jffs2};
-use craft_anything_testkit::firmware::jffs2_image;
+use pickaxe_formats::fsread::{Limits, jffs2};
+use pickaxe_testkit::firmware::jffs2_image;
 
 fn big_endian(mut data: Vec<u8>) -> Vec<u8> {
     let mut at = 0;

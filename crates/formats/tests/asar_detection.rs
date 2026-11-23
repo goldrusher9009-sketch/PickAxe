@@ -1,4 +1,4 @@
-use craft_anything_formats::asar;
+use pickaxe_formats::asar;
 
 /// An ASAR whose header JSON is `json`, laid out as `asar::build` lays it out.
 fn archive(json: &[u8]) -> Vec<u8> {
@@ -23,7 +23,7 @@ fn every_header_the_reader_accepts_is_recognized() {
     ] {
         let bytes = archive(json);
         assert!(asar::parse(&bytes, 10).is_ok(), "{}", String::from_utf8_lossy(json));
-        assert!(craft_anything_formats::looks_like_asar(&bytes), "{}", String::from_utf8_lossy(json));
+        assert!(pickaxe_formats::looks_like_asar(&bytes), "{}", String::from_utf8_lossy(json));
         assert!(asar::looks_like_asar(&bytes), "{}", String::from_utf8_lossy(json));
     }
 }
@@ -32,6 +32,6 @@ fn every_header_the_reader_accepts_is_recognized() {
 fn the_head_of_a_file_is_enough() {
     // `js_app_map` passes only the first bytes of a large file.
     let good = archive(br#"{ "files": {}}"#);
-    assert!(craft_anything_formats::looks_like_asar(&good[..17]));
-    assert!(!craft_anything_formats::looks_like_asar(&good[..16]));
+    assert!(pickaxe_formats::looks_like_asar(&good[..17]));
+    assert!(!pickaxe_formats::looks_like_asar(&good[..16]));
 }

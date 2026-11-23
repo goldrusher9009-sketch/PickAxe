@@ -1,5 +1,5 @@
-use craft_anything_formats::tarcpio::{member_data, tar};
-use craft_anything_testkit::firmware as fx;
+use pickaxe_formats::tarcpio::{member_data, tar};
+use pickaxe_testkit::firmware as fx;
 
 fn checksum(header: &mut [u8]) {
     header[148..156].fill(b' ');

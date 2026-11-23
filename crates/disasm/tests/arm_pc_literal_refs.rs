@@ -2,8 +2,8 @@
 //! PC-relative indirect jumps (`ldr pc, [pc, #off]` GOT/IAT thunks), and 32-bit pseudo-C
 //! dereference formatting.
 
-use craft_anything_disasm::{Flow, Image, Limits, Mode, NoControl, Op, Program, Xref, XrefKind, decode, pseudo};
-use craft_anything_formats::{Arch, Binary, Format, ImportSlot, Section, Symbol, SymbolKind};
+use pickaxe_disasm::{Flow, Image, Limits, Mode, NoControl, Op, Program, Xref, XrefKind, decode, pseudo};
+use pickaxe_formats::{Arch, Binary, Format, ImportSlot, Section, Symbol, SymbolKind};
 use std::sync::Arc;
 
 /// Build an executable + data image (optional `.plt` at `0x1000..0x1000+plt_len`, `.text` after it,

@@ -1,14 +1,14 @@
-use craft_anything_engine::{CallOptions, Caller, Consent, Engine};
-use craft_anything_testkit::{electron::zip_stored, firmware};
+use pickaxe_engine::{CallOptions, Caller, Consent, Engine};
+use pickaxe_testkit::{electron::zip_stored, firmware};
 use serde_json::{Value, json};
 use std::path::Path;
 
 fn extract(archive: &[u8], files: usize, check: impl FnOnce(&Value, &Path)) {
-    let directory = craft_anything_engine::testing::temp_dir();
+    let directory = pickaxe_engine::testing::temp_dir();
     let input = directory.join("firmware.bin");
     let output = directory.join("output");
     std::fs::write(&input, archive).unwrap();
-    let engine = Engine::new(craft_anything_engine::testing::session());
+    let engine = Engine::new(pickaxe_engine::testing::session());
     let evidence = engine
         .call(
             "firmware_image_extract",

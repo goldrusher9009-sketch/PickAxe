@@ -1,5 +1,5 @@
-use craft_anything_formats::verify::{self, Digest};
-use craft_anything_testkit::crypto;
+use pickaxe_formats::verify::{self, Digest};
+use pickaxe_testkit::crypto;
 
 fn digest(data: &[u8]) -> String {
     verify::base64(&Digest::Sha256.hash(data))

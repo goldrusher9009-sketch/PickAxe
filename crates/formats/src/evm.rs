@@ -24,8 +24,8 @@ mod parity {
     use super::*;
     #[test]
     fn original_reports_errors_hex_and_truncations_match() {
-        let (code, _) = craft_anything_testkit::formats::evm_runtime();
-        let mut cases = craft_anything_testkit::mutations(&code);
+        let (code, _) = pickaxe_testkit::formats::evm_runtime();
+        let mut cases = pickaxe_testkit::mutations(&code);
         cases.extend((0..code.len()).map(|n| code[..n].to_vec()));
         cases.extend([vec![], vec![0xef, 0, 1], vec![0x7f; 40]]);
         for bytes in cases {

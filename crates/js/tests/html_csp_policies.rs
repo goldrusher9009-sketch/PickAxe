@@ -1,4 +1,4 @@
-use craft_anything_js::html::scan_html;
+use pickaxe_js::html::scan_html;
 
 /// Collect all declared policies in document order and keep the textual evidence field.
 #[test]

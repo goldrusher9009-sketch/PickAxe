@@ -1,4 +1,4 @@
-use craft_anything_formats::fsread::{Limits, extfs};
+use pickaxe_formats::fsread::{Limits, extfs};
 
 const INODE: usize = 6400;
 const ROOT: usize = INODE + 40;
@@ -12,7 +12,7 @@ fn put32(data: &mut [u8], at: usize, value: u32) {
 }
 
 fn indexed() -> Vec<u8> {
-    let mut data = craft_anything_testkit::firmware::ext_image(true);
+    let mut data = pickaxe_testkit::firmware::ext_image(true);
     data.resize(CHILD + 1024, 0);
     put32(&mut data, 1028, 12);
     put16(&mut data, ROOT + 6, 1);
@@ -38,7 +38,7 @@ fn unrecovered(data: &[u8]) {
 #[test]
 fn invalid_root_headers_do_not_recover_zero_filled_files() {
     for (field, value) in [(0, 0), (2, 5), (4, 5), (6, 9), (16, 0)] {
-        let mut data = craft_anything_testkit::firmware::ext_image(true);
+        let mut data = pickaxe_testkit::firmware::ext_image(true);
         put16(&mut data, ROOT + field, value);
         unrecovered(&data);
     }
@@ -78,13 +78,13 @@ fn child_depth_and_capacity_must_match_the_parent_node() {
 
 #[test]
 fn complete_mappings_sparse_files_and_unwritten_extents_still_recover() {
-    for data in [craft_anything_testkit::firmware::ext_image(true), indexed()] {
+    for data in [pickaxe_testkit::firmware::ext_image(true), indexed()] {
         let result = extfs::read(&data, &Limits::default());
         assert!(result.complete, "{:?}", result.warnings);
         assert_eq!(result.entries.iter().find(|e| e.path == "hello.txt").unwrap().data.as_deref(), Some(b"Hello ext filesystem!\n".as_slice()));
     }
     for sparse in [false, true] {
-        let mut data = craft_anything_testkit::firmware::ext_image(true);
+        let mut data = pickaxe_testkit::firmware::ext_image(true);
         if sparse {
             put16(&mut data, ROOT + 2, 0);
         } else {

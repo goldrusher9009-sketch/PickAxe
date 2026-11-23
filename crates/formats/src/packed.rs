@@ -208,7 +208,7 @@ mod tests {
 
     #[test]
     fn gzip_members_require_complete_valid_trailers() {
-        let original = craft_anything_testkit::firmware::gzip(b"payload", None);
+        let original = pickaxe_testkit::firmware::gzip(b"payload", None);
         for trailer_byte in [original.len() - 8, original.len() - 4] {
             let mut damaged = original.clone();
             damaged[trailer_byte] ^= 1;
@@ -226,9 +226,9 @@ mod tests {
 
     #[test]
     fn gzip_concatenation_shares_the_output_limit() {
-        let first = craft_anything_testkit::firmware::gzip(b"first", Some("one"));
-        let empty = craft_anything_testkit::firmware::gzip(b"", None);
-        let last = craft_anything_testkit::firmware::gzip(b"last", None);
+        let first = pickaxe_testkit::firmware::gzip(b"first", Some("one"));
+        let empty = pickaxe_testkit::firmware::gzip(b"", None);
+        let last = pickaxe_testkit::firmware::gzip(b"last", None);
         let data = [first, empty.clone(), last].concat();
         let mut member = entry(0, data.len() as u64, Compression::Gzip);
         assert_eq!(read_stored(&data, &member, 9).unwrap(), b"firstlast");

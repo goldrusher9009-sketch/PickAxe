@@ -1,4 +1,4 @@
-use craft_anything_formats::wasm::{MAX_ITEMS, inspect};
+use pickaxe_formats::wasm::{MAX_ITEMS, inspect};
 
 const COMPONENT: &[u8] = b"\0asm\x0d\0\x01\0";
 

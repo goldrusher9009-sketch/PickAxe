@@ -34,7 +34,7 @@ pub(super) fn locate(path: &Path, game: bool) -> (PathBuf, Option<PathBuf>) {
             return (main_program(&root).unwrap_or_else(|| path.to_path_buf()), Some(root));
         }
         let bundle = path.extension().is_some_and(|e| e.eq_ignore_ascii_case("app"));
-        if bundle && let Some(program) = craft_anything_engine::tools::apple_tools::bundle_executable(path) {
+        if bundle && let Some(program) = pickaxe_engine::tools::apple_tools::bundle_executable(path) {
             return (program, None);
         }
         return (path.to_path_buf(), None);

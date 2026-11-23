@@ -2,7 +2,7 @@
 //! Godot" dialog, the engines list in Settings, and the download progress shown everywhere. Also a
 //! game's generated-assets switch and the fal.ai key it needs.
 //!
-//! Craft Anything downloads only what it can check (Godot against its official checksums; Unity
+//! Pickaxe downloads only what it can check (Godot against its official checksums; Unity
 //! Hub and the Epic Games Launcher against their vendors' signatures). Sign-in, licences and the
 //! engines themselves stay in the vendors' own apps, with the person.
 
@@ -10,11 +10,11 @@ use crate::i18n::{tr, trf};
 use crate::state::{MakeDraft, Modal, Screen};
 use crate::theme::{self, Tokens};
 use crate::{CraftApp, Done, icons, widgets};
-use craft_anything_ai::rebuild::KindRegistry;
-use craft_anything_engine::{CallOptions, Caller};
-use craft_anything_engines::assets::{AssetProvider, AssetProviders, fal};
-use craft_anything_engines::game::{self, Builder, Inventory};
-use craft_anything_engines::ghidra::{self, get};
+use pickaxe_ai::rebuild::KindRegistry;
+use pickaxe_engine::{CallOptions, Caller};
+use pickaxe_engines::assets::{AssetProvider, AssetProviders, fal};
+use pickaxe_engines::game::{self, Builder, Inventory};
+use pickaxe_engines::ghidra::{self, get};
 use egui::{RichText, Ui, Vec2};
 use std::collections::BTreeMap;
 use std::path::{Path, PathBuf};
@@ -56,7 +56,7 @@ impl CraftApp {
     pub fn detect_game_engine(&mut self, path: PathBuf) {
         self.state.make.found = None;
         self.jobs.spawn("Look at the game", false, move |_| {
-            let folder = craft_anything_ai::rebuild::game_folder(&path);
+            let folder = pickaxe_ai::rebuild::game_folder(&path);
             Ok(Done::GameFound { found: folder.as_deref().and_then(game::detect), path })
         });
     }
@@ -67,7 +67,7 @@ impl CraftApp {
             return;
         }
         // Installs go through the engines_install tool, as they do from the CLI or an agent.
-        let install = |engine: &Arc<craft_anything_engine::Engine>, id: &'static str, j: &crate::jobs::JobCtx| {
+        let install = |engine: &Arc<pickaxe_engine::Engine>, id: &'static str, j: &crate::jobs::JobCtx| {
             let progress = j.reporter();
             let opts = CallOptions::new(Caller::Ui).with_cancel(j.cancel.clone()).with_progress(&progress);
             engine.call("engines_install", serde_json::json!({"engine": id}), opts).map(|_| ()).map_err(|e| e.for_people())
@@ -185,7 +185,7 @@ pub fn deep_needed(app: &mut CraftApp, ui: &mut Ui) {
         ui,
         "shield-check",
         "Looking inside needs Deep mode",
-        "Clean room never reads the original's code, files or page source. Deep mode reads them with every tool Craft Anything has.",
+        "Clean room never reads the original's code, files or page source. Deep mode reads them with every tool Pickaxe has.",
     );
     ui.vertical_centered(|ui| {
         if widgets::primary_icon(ui, Some("microscope"), "Turn on Deep mode", true).clicked() {
@@ -248,7 +248,7 @@ pub fn ghidra_modal(app: &mut CraftApp, ui: &mut Ui, close: &mut bool) {
         body(
             ui,
             trf(
-                "It isn't on this computer yet. Craft Anything can download Ghidra {version} and the Java runtime it needs (about {mb} MB), check both against their publishers' checksums, and set them up in its own folder. Nothing else on your computer changes.",
+                "It isn't on this computer yet. Pickaxe can download Ghidra {version} and the Java runtime it needs (about {mb} MB), check both against their publishers' checksums, and set them up in its own folder. Nothing else on your computer changes.",
                 &[("version", get::VERSION), ("mb", &get::DOWNLOAD_MB.to_string())],
             ),
         );
@@ -259,7 +259,7 @@ pub fn ghidra_modal(app: &mut CraftApp, ui: &mut Ui, close: &mut bool) {
         }
     }
     if !ready && downloading.is_none() {
-        body(ui, tr("Without it, Deep mode uses Craft Anything's own decompiler, which is rougher."));
+        body(ui, tr("Without it, Deep mode uses Pickaxe's own decompiler, which is rougher."));
     }
     ui.add_space(theme::space::LG);
     ui.horizontal(|ui| {
@@ -384,7 +384,7 @@ pub fn ghidra_status(app: &mut CraftApp, ui: &mut Ui) {
 }
 
 /// Which asset providers have a key stored, by id.
-fn stored_keys(hub: &craft_anything_ai::AiHub) -> BTreeMap<String, bool> {
+fn stored_keys(hub: &pickaxe_ai::AiHub) -> BTreeMap<String, bool> {
     let all = AssetProviders::built_in();
     all.ids().into_iter().map(|id| (id.to_string(), hub.has_asset_key(&all, id))).collect()
 }
@@ -543,7 +543,7 @@ struct AssetPrices {
 impl AssetPrices {
     fn of(app: &CraftApp) -> AssetPrices {
         use crate::usage::asset_cost_words;
-        use craft_anything_engines::assets::{Catalogue, Shape, usd};
+        use pickaxe_engines::assets::{Catalogue, Shape, usd};
         let table = Catalogue::built_in();
         let picture =
             table.image_model(app.settings.assets.image_model.as_deref()).or_else(|_| table.image_model(None)).map(|m| m.cost(Shape::Square)).unwrap_or(0.0);
@@ -629,7 +629,7 @@ pub fn build_with(app: &mut CraftApp, ui: &mut Ui) {
         });
         if !matches!(f.engine, game::Made::Unity | game::Made::Unreal | game::Made::Godot) {
             ui.label(
-                RichText::new(trf("Craft Anything can't build with {engine}, so Unity is the closest match.", &[("engine", f.engine.name())]))
+                RichText::new(trf("Pickaxe can't build with {engine}, so Unity is the closest match.", &[("engine", f.engine.name())]))
                     .color(t.text_dim)
                     .size(theme::SMALL),
             );
