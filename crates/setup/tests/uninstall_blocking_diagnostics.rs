@@ -70,7 +70,7 @@ fn uninstall_reports_remove_refusal_instead_of_add_entry_failure_on_multiline_fl
     assert!(shared_skill.is_file(), "skills must remain untouched when uninstall is blocked");
 }
 
-/// An escaped YAML key (`"\x63raft-anything":`) parses as `"pickaxe"` via `YamlLoader`
+/// An escaped YAML key (`"\x70ickaxe":`) parses as `"pickaxe"` via `YamlLoader`
 /// (`is_owned_entry == true`) while `yaml::try_remove` returns `Ok(None)`. `uninstall` must emit
 /// `ActionKind::Invalid` with a removal reason and remediation rather than calling
 /// `inspect_client(c, &[])` (which tried to append a duplicate `pickaxe` entry and reported
@@ -85,7 +85,7 @@ fn uninstall_blocks_with_invalid_action_when_escaped_yaml_key_cannot_be_removed_
 
     let hermes_cfg = hermes_dir.join("config.yaml");
     let escaped_yaml = format!(
-        "mcp_servers:\n  \"\\x63raft-anything\":\n    command: {}\n    args:\n      - \"mcp\"\n    enabled: true\n  other:\n    command: npx\n",
+        "mcp_servers:\n  \"\\x70ickaxe\":\n    command: {}\n    args:\n      - \"mcp\"\n    enabled: true\n  other:\n    command: npx\n",
         json!(&cmd[0])
     );
     std::fs::write(&hermes_cfg, &escaped_yaml).expect("write escaped yaml");
