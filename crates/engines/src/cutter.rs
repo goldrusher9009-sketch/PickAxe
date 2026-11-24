@@ -48,12 +48,8 @@ pub fn command_once(port: u16, cmd: &str, timeout: Duration) -> Result<(String, 
 fn run(port: u16, cmd: &str, timeout: Duration, tries: u32) -> Result<(String, bool), ToolError> {
     let url = format!("http://127.0.0.1:{port}/cmd/{}", encode(cmd));
     let deadline = Instant::now().checked_add(timeout).ok_or_else(|| ToolError::invalid("The time limit for a Cutter command is too long."))?;
-    let agent = ureq::Agent::config_builder()
-        .http_status_as_error(false)
-        .user_agent("Pickaxe-dev")
-        .timeout_connect(Some(Duration::from_secs(2)))
-        .build()
-        .new_agent();
+    let agent =
+        ureq::Agent::config_builder().http_status_as_error(false).user_agent("Pickaxe-dev").timeout_connect(Some(Duration::from_secs(2))).build().new_agent();
     let resp = retry::when_interrupted(tries, deadline, |left| agent.get(&url).config().timeout_global(Some(left)).build().call(), interrupted)
         .map_err(|e| call_error(port, e))?;
     let status = resp.status().as_u16();

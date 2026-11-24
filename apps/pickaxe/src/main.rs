@@ -75,8 +75,7 @@ fn main() -> eframe::Result {
     // The built-in adapters alone: a fork's adapters register elsewhere, and records they own are
     // kept and cleaned at the next turn.
     if let Err(e) = std::thread::Builder::new().name("unfinished-sessions".into()).spawn(move || {
-        let said =
-            pickaxe_ai::cli_agents::unfinished::sweep_at_startup(&startup_config, &pickaxe_ai::cli_agents::adapters::AgentAdapters::built_in());
+        let said = pickaxe_ai::cli_agents::unfinished::sweep_at_startup(&startup_config, &pickaxe_ai::cli_agents::adapters::AgentAdapters::built_in());
         for text in said {
             log::info!("{text}");
         }

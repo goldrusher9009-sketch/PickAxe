@@ -767,10 +767,7 @@ mod tests {
         call(&engine, "core_brief_write", json!({"question":"Keep this"})).unwrap();
         let rendered = std::fs::read(path.with_file_name("brief.md")).unwrap();
         std::fs::write(&path, b"not-json").unwrap();
-        assert_eq!(
-            call(&engine, "core_brief_write", json!({"question":"Do not replace"})).unwrap_err().code,
-            pickaxe_evidence::ErrorCode::GarbledOutput
-        );
+        assert_eq!(call(&engine, "core_brief_write", json!({"question":"Do not replace"})).unwrap_err().code, pickaxe_evidence::ErrorCode::GarbledOutput);
         assert_eq!(std::fs::read(&path).unwrap(), b"not-json");
         assert_eq!(std::fs::read(path.with_file_name("brief.md")).unwrap(), rendered);
     }

@@ -688,9 +688,7 @@ fn core_evidence_browse(ctx: &mut Ctx<'_>, params: Value) -> Result<ToolOutput, 
         Show::FunctionPart { name, offset, limit } => page_of(r, name, *offset, *limit, &BTreeMap::new(), &[], false)?,
     };
     let status = match coverage.status {
-        pickaxe_evidence::CoverageStatus::Complete
-            if matches!(p.show, Show::Rows { .. } | Show::FunctionPart { .. }) && coverage.examined == Some(0) =>
-        {
+        pickaxe_evidence::CoverageStatus::Complete if matches!(p.show, Show::Rows { .. } | Show::FunctionPart { .. }) && coverage.examined == Some(0) => {
             "empty"
         }
         pickaxe_evidence::CoverageStatus::Complete if matches!(p.show, Show::Rows { .. } | Show::FunctionPart { .. }) => "page",

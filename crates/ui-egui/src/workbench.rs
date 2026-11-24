@@ -6,8 +6,8 @@ use crate::i18n::tr;
 use crate::state::{BottomTab, CenterTab, Fill, RailKind, RightTab};
 use crate::theme::{self, Tokens};
 use crate::{CraftApp, Pick, Route, chat, icons, widgets};
-use pickaxe_engine::Consent;
 use egui::{Margin, RichText, Ui, Vec2};
+use pickaxe_engine::Consent;
 use serde_json::{Value, json};
 
 /// Keys that usually hold a row's address.

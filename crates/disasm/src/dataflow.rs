@@ -347,9 +347,7 @@ mod tests {
     fn other_architectures_keep_their_word_result_registers() {
         let a64 = [0xd28000e0u32, 0xd65f03c0].into_iter().flat_map(u32::to_le_bytes).collect();
         let x64 = vec![0xb8, 7, 0, 0, 0, 0xc3];
-        for (bytes, arch, ret_addr, register) in
-            [(a64, pickaxe_formats::Arch::Aarch64, 0x1004, "x0"), (x64, pickaxe_formats::Arch::X86_64, 0x1005, "rax")]
-        {
+        for (bytes, arch, ret_addr, register) in [(a64, pickaxe_formats::Arch::Aarch64, 0x1004, "x0"), (x64, pickaxe_formats::Arch::X86_64, 0x1005, "rax")] {
             let flow = raw_flow(bytes, arch, false);
             let value = flow.nodes.iter().find(|n| n.addr == Some(0x1000)).unwrap();
             let ret = flow.nodes.iter().find(|n| n.addr == Some(ret_addr)).unwrap();

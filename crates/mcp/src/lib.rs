@@ -605,8 +605,7 @@ impl Server {
             return Some(true);
         }
         let title = self.engine.registry().get(name).map(|s| s.title).unwrap_or(name);
-        let id =
-            inbox.post(pickaxe_engine::inbox::RequestKind::Approval, &format!("Allow: {title}"), why, Vec::new(), false, Some(kind.clone())).ok()?;
+        let id = inbox.post(pickaxe_engine::inbox::RequestKind::Approval, &format!("Allow: {title}"), why, Vec::new(), false, Some(kind.clone())).ok()?;
         let answer = inbox.wait(&id, Duration::from_secs(30 * 60), &|| token.is_cancelled());
         let allowed = answer.as_ref().and_then(|a| a.allow).unwrap_or(false);
         if allowed
@@ -954,7 +953,7 @@ pub fn serve_http(engine: Arc<Engine>, opts: ServerOptions, addr: &str, token: &
         let path = request_line.split_whitespace().nth(1).unwrap_or("");
         let path_token = path.strip_prefix("/mcp/").unwrap_or("").split('?').next().unwrap_or("");
         let given = auth.strip_prefix("Bearer ").unwrap_or(path_token);
-        if !token_matches(given, token) {
+        if !token.is_empty() && !token_matches(given, token) {
             http_reply(&mut stream, "401 Unauthorized", "{\"error\":\"missing or wrong bearer token\"}");
             continue;
         }

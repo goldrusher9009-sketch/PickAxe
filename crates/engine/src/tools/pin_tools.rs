@@ -163,9 +163,7 @@ fn open_project(project: &Path) -> Result<Workspace, ToolError> {
 /// The Godot a Godot project opens in.
 pub(crate) fn godot(ctx: &Ctx<'_>) -> Option<PathBuf> {
     let store = ctx.session.settings.engine_store_dir();
-    pickaxe_engines::game::inventory(&pickaxe_engines::game::Places::here(store))
-        .best(pickaxe_engines::game::Builder::Godot)
-        .map(|i| i.program.clone())
+    pickaxe_engines::game::inventory(&pickaxe_engines::game::Places::here(store)).best(pickaxe_engines::game::Builder::Godot).map(|i| i.program.clone())
 }
 
 /// This session's run list (made on first use).

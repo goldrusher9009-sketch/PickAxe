@@ -11,10 +11,10 @@ mod setup_cmd;
 mod tool_args;
 
 use clap::{Parser, Subcommand};
+use output::Format;
 use pickaxe_engine::project::{Project, Purpose};
 use pickaxe_engine::{CallOptions, Caller, CancelToken, Consent, Engine, Requires, Session, Settings, ToolOutput};
 use pickaxe_evidence::ToolError;
-use output::Format;
 use serde_json::{Value, json};
 use std::path::{Path, PathBuf};
 use std::process::ExitCode;
@@ -79,8 +79,11 @@ pub enum Command {
         #[arg(long, value_name = "ADDR")]
         http: Option<String>,
         /// Bearer token for --http (made up and printed if you leave it out).
-        #[arg(long, requires = "http")]
+        #[arg(long, requires = "http", conflicts_with = "public")]
         token: Option<String>,
+        /// Serve --http without a token: a public demo that stays in restricted mode.
+        #[arg(long, requires = "http")]
+        public: bool,
     },
     /// Connect Pickaxe to your coding-agent apps.
     Setup(setup_cmd::SetupArgs),
@@ -271,7 +274,7 @@ fn run(cli: Cli) -> u8 {
             }
             0
         }
-        Command::Mcp { all_tools, restricted, allow_web, allow_capture, inbox, targets, http, token } => {
+        Command::Mcp { all_tools, restricted, allow_web, allow_capture, inbox, targets, http, token, public } => {
             let engine = match make_engine(cli.project.as_deref(), cli.deep_for_run()) {
                 Ok(e) => e,
                 Err(e) => {
@@ -305,19 +308,29 @@ fn run(cli: Cli) -> u8 {
             opts.allow_run = cli.allow_run;
             if let Some(addr) = http {
                 opts.restricted = true;
-                let token = token.clone().unwrap_or_else(|| {
-                    let mut b = [0u8; 24];
-                    if let Ok(mut f) = std::fs::File::open("/dev/urandom") {
-                        let _ = std::io::Read::read_exact(&mut f, &mut b);
-                    } else {
-                        let n = std::time::SystemTime::now().duration_since(std::time::UNIX_EPOCH).map(|d| d.as_nanos()).unwrap_or(1);
-                        for (i, x) in b.iter_mut().enumerate() {
-                            *x = (n >> (i % 16)) as u8 ^ (i as u8).wrapping_mul(37);
+                let token = if *public {
+                    String::new()
+                } else {
+                    token.clone().unwrap_or_else(|| {
+                        let mut b = [0u8; 24];
+                        if let Ok(mut f) = std::fs::File::open("/dev/urandom") {
+                            let _ = std::io::Read::read_exact(&mut f, &mut b);
+                        } else {
+                            let n = std::time::SystemTime::now().duration_since(std::time::UNIX_EPOCH).map(|d| d.as_nanos()).unwrap_or(1);
+                            for (i, x) in b.iter_mut().enumerate() {
+                                *x = (n >> (i % 16)) as u8 ^ (i as u8).wrapping_mul(37);
+                            }
                         }
-                    }
-                    b.iter().map(|x| format!("{x:02x}")).collect()
-                });
-                eprintln!("Pickaxe is serving MCP at http://{addr}/mcp (restricted mode).\nBearer token: {token}\nPut it behind an https tunnel to use it from ChatGPT or Grok. Anyone with the token can use it, so keep it private.");
+                        b.iter().map(|x| format!("{x:02x}")).collect()
+                    })
+                };
+                if *public {
+                    eprintln!("Pickaxe is serving a public demo MCP at http://{addr}/mcp (restricted mode, no token).");
+                } else {
+                    eprintln!(
+                        "Pickaxe is serving MCP at http://{addr}/mcp (restricted mode).\nBearer token: {token}\nPut it behind an https tunnel to use it from ChatGPT or Grok. Anyone with the token can use it, so keep it private."
+                    );
+                }
                 return match pickaxe_mcp::serve_http(engine, opts, addr, &token) {
                     Ok(()) => 0,
                     Err(e) => {
@@ -337,18 +350,16 @@ fn run(cli: Cli) -> u8 {
         Command::Setup(a) => setup_cmd::setup(a, f),
         Command::Doctor(a) => setup_cmd::doctor(a, f),
         Command::Uninstall(a) => setup_cmd::uninstall(a, f),
-        Command::Path => {
-            match std::env::current_exe() {
-                Ok(p) => {
-                    println!("{} mcp", p.display());
-                    0
-                }
-                Err(e) => {
-                    eprintln!("pickaxe path: {e}");
-                    1
-                }
+        Command::Path => match std::env::current_exe() {
+            Ok(p) => {
+                println!("{} mcp", p.display());
+                0
             }
-        }
+            Err(e) => {
+                eprintln!("pickaxe path: {e}");
+                1
+            }
+        },
         Command::Commands => commands(f),
         Command::Capabilities => capabilities(&cli, f),
         Command::Triage { path } => triage(&cli, path, f),

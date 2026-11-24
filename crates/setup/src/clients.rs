@@ -470,7 +470,16 @@ pub fn clients(host: &Host) -> Vec<Client> {
         Os::Windows => h.join("AppData").join("Local").join("Perplexity"),
         _ => PathBuf::from("/Applications/Perplexity.app"),
     };
-    add("perplexity", "Perplexity (Mac app)", h.join(".pickaxe").join("perplexity.manual"), vec![perplexity_marker], Format::Manual, vec![], Shape::Plain, None);
+    add(
+        "perplexity",
+        "Perplexity (Mac app)",
+        h.join(".pickaxe").join("perplexity.manual"),
+        vec![perplexity_marker],
+        Format::Manual,
+        vec![],
+        Shape::Plain,
+        None,
+    );
     add("chatgpt", "ChatGPT", h.join(".pickaxe").join("chatgpt.manual"), vec![], Format::Manual, vec![], Shape::Plain, None);
     add("grok", "Grok", h.join(".pickaxe").join("grok.manual"), vec![], Format::Manual, vec![], Shape::Plain, None);
     add("muse_app", "Muse (app)", h.join(".pickaxe").join("muse-app.manual"), vec![], Format::Manual, vec![], Shape::Plain, None);
@@ -480,10 +489,24 @@ pub fn clients(host: &Host) -> Vec<Client> {
             c.empty_is_invalid = true;
         }
         match c.id {
-            "perplexity" => c.manual = Some("Open Perplexity, go to Plugins, choose Add custom, and pick the Simple tab. Name it pickaxe. For the command, paste the line printed by `pickaxe-cli path`. Save, and wait for it to show Running. The first time, Perplexity asks you to install its helper app."),
-            "chatgpt" => c.manual = Some("ChatGPT only reaches servers on the internet. Run `pickaxe-cli mcp --http 127.0.0.1:8787`, expose that port with an https tunnel (Cloudflare Tunnel or ngrok), then in ChatGPT open Settings, Connectors, Advanced, turn on Developer mode, and create a connector with the tunnel address plus /mcp. ChatGPT may ask for OAuth instead of the bearer token the server uses; that is not built yet."),
-            "grok" => c.manual = Some("Grok's web connectors only reach servers on the internet. Run `pickaxe-cli mcp --http 127.0.0.1:8787`, expose that port with an https tunnel, then add a custom MCP connector in Grok with the tunnel address plus /mcp and the printed token. Grok Build needs none of this; setup configures it."),
-            "muse_app" => c.manual = Some("The Muse app has no MCP menu and cannot reach programs on your computer. Use Muse Code, which setup configures for you."),
+            "perplexity" => {
+                c.manual = Some(
+                    "Open Perplexity, go to Plugins, choose Add custom, and pick the Simple tab. Name it pickaxe. For the command, paste the line printed by `pickaxe-cli path`. Save, and wait for it to show Running. The first time, Perplexity asks you to install its helper app.",
+                )
+            }
+            "chatgpt" => {
+                c.manual = Some(
+                    "ChatGPT only reaches servers on the internet. Run `pickaxe-cli mcp --http 127.0.0.1:8787`, expose that port with an https tunnel (Cloudflare Tunnel or ngrok), then in ChatGPT open Settings, Connectors, Advanced, turn on Developer mode, and create a connector with the tunnel address plus /mcp. ChatGPT may ask for OAuth instead of the bearer token the server uses; that is not built yet.",
+                )
+            }
+            "grok" => {
+                c.manual = Some(
+                    "Grok's web connectors only reach servers on the internet. Run `pickaxe-cli mcp --http 127.0.0.1:8787`, expose that port with an https tunnel, then add a custom MCP connector in Grok with the tunnel address plus /mcp and the printed token. Grok Build needs none of this; setup configures it.",
+                )
+            }
+            "muse_app" => {
+                c.manual = Some("The Muse app has no MCP menu and cannot reach programs on your computer. Use Muse Code, which setup configures for you.")
+            }
             _ => {}
         }
         if c.id == "dsh" {

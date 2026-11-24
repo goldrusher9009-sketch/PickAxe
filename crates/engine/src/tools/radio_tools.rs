@@ -187,9 +187,7 @@ fn radio_decoders_list(ctx: &mut Ctx<'_>, params: Value) -> Result<ToolOutput, T
     let needle = p.filter.as_deref().map(str::to_lowercase);
     let all: Vec<Value> = text.lines().filter_map(decoder_line).collect();
     if all.is_empty() {
-        return Err(
-            pickaxe_platform::process::nonzero_error("rtl_433", &out).with_remediation("This rtl_433 didn't print a decoder list; check its version.")
-        );
+        return Err(pickaxe_platform::process::nonzero_error("rtl_433", &out).with_remediation("This rtl_433 didn't print a decoder list; check its version."));
     }
     let shown: Vec<&Value> =
         all.iter().filter(|d| needle.as_deref().is_none_or(|n| d["name"].as_str().is_some_and(|s| s.to_lowercase().contains(n)))).collect();

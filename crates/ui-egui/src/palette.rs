@@ -5,8 +5,8 @@ use crate::i18n::tr;
 use crate::state::Screen;
 use crate::theme::{self, Tokens};
 use crate::{CraftApp, Pick, Route, icons, schema_form, widgets};
-use pickaxe_engine::{Consent, Mode};
 use egui::{RichText, Vec2};
+use pickaxe_engine::{Consent, Mode};
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub(crate) enum AppCommand {

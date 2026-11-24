@@ -525,9 +525,8 @@ pub fn uninstall(host: &Host) -> UninstallReport {
     let mut partial = false;
     for (c, old, new) in targets {
         let backup = backup_path(&c.config);
-        let r = pickaxe_platform::backup_once(&c.config, &backup)
-            .and_then(|_| pickaxe_platform::write_atomic_private(&c.config, new.as_bytes()))
-            .and_then(|_| {
+        let r =
+            pickaxe_platform::backup_once(&c.config, &backup).and_then(|_| pickaxe_platform::write_atomic_private(&c.config, new.as_bytes())).and_then(|_| {
                 let t = std::fs::read_to_string(&c.config).map_err(|e| ToolError::io(c.config.display(), e))?;
                 match config::read_entry(c, &t) {
                     Ok(None) => Ok(()),

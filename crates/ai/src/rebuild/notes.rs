@@ -38,8 +38,8 @@ pub struct Left {
 /// Leave a note for the builder's next step: `text` is what the agent's hook hands over.
 pub fn hand_over(dir: &Path, id: u64, text: &str, left: Option<&Left>) -> Result<(), pickaxe_evidence::ToolError> {
     std::fs::create_dir_all(dir).map_err(|e| pickaxe_evidence::ToolError::io(dir.display(), e))?;
-    let bytes = serde_json::to_vec(&serde_json::json!({"id": id, "text": text, "left": left}))
-        .map_err(|e| pickaxe_evidence::ToolError::internal(e.to_string()))?;
+    let bytes =
+        serde_json::to_vec(&serde_json::json!({"id": id, "text": text, "left": left})).map_err(|e| pickaxe_evidence::ToolError::internal(e.to_string()))?;
     pickaxe_engine::project::write_atomic(&pending(dir, id), &bytes)
 }
 

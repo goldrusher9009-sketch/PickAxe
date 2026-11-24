@@ -12,8 +12,8 @@
 //! 3. displays on only one GPU: that GPU;
 //! 4. otherwise (displays on several GPUs, or nothing readable): the discrete GPU, as before.
 
-use pickaxe_platform::display::DisplayCard;
 use eframe::wgpu::{DeviceType, PowerPreference};
+use pickaxe_platform::display::DisplayCard;
 
 /// What we know of one adapter wgpu offers.
 #[derive(Debug, Clone, PartialEq, Eq)]
