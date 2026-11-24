@@ -2,7 +2,7 @@
 #
 #   irm https://raw.githubusercontent.com/goldrusher9009-sketch/pickaxe/main/install/install.ps1 | iex
 #
-# Installs Pickaxe, installs REA ("Reverse Engineer Anything", MIT) next to it, then connects both
+# Installs Pickaxe, installs the reverse-engineering toolkit next to it, then connects both
 # to every coding agent found on this machine. Set $env:PICKAXE_NO_REA = "1" to skip REA.
 $ErrorActionPreference = "Stop"
 $Repo = "goldrusher9009-sketch/pickaxe"
@@ -35,7 +35,7 @@ try {
 }
 
 if ($env:PICKAXE_NO_REA -ne "1") {
-  Say "Installing REA $ReaVersion (MIT, github.com/morluto/rea)"
+  Say "Installing the reverse-engineering toolkit $ReaVersion"
   if (Get-Command npx -ErrorAction SilentlyContinue) {
     try { npx -y "rea-agents@$ReaVersion" setup } catch { Write-Host "  REA could not be set up here; Pickaxe still works." }
   } else {

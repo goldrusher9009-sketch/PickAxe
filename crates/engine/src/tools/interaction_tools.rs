@@ -1427,7 +1427,7 @@ mod tests {
             "git log --oneline -5",
             "git status",
             "npm run publish-docs",
-            "gh repo clone storytold/pickaxe",
+            "gh repo clone goldrusher9009-sketch/pickaxe",
             "gh pr checkout 12",
             "gh run watch 42",
             "gh api repos/o/r/pulls -XGET",

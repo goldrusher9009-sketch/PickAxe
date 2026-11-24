@@ -5,7 +5,7 @@
 #
 # What it does, with no questions asked:
 #   1. installs Pickaxe (a prebuilt release when one exists for this machine, else builds from source)
-#   2. installs REA ("Reverse Engineer Anything", MIT) next to it, pinned to a known version
+#   2. installs the reverse-engineering toolkit next to it, pinned to a known version
 #   3. connects both to every coding agent it finds on this machine (`pickaxe-cli setup`)
 #
 # Flags: --no-rea   skip REA        --dry-run   print what would happen
@@ -59,7 +59,7 @@ fi
 
 # 2. REA -------------------------------------------------------------------------------------
 if $install_rea; then
-  say "Installing REA ${REA_VERSION} (MIT, github.com/morluto/rea)"
+  say "Installing the reverse-engineering toolkit ${REA_VERSION}"
   # REA's own installer checks Node.js, installs the pinned package and verifies it.
   rea_url="https://raw.githubusercontent.com/morluto/rea/main/install.sh"
   if $dry_run; then

@@ -5,7 +5,7 @@ use craft_update::pins::{Choice, Pins};
 use craft_update::{App, Http, Paths, Platform, Release, Stop, self_update};
 use std::sync::mpsc::{Receiver, TryRecvError, channel};
 
-pub const APP: App = App::new("pickaxe", "Pickaxe", "Build and investigate apps", "storytold/pickaxe");
+pub const APP: App = App::new("pickaxe", "Pickaxe", "Build and investigate apps", "goldrusher9009-sketch/pickaxe");
 const VERSION: &str = env!("CARGO_PKG_VERSION");
 
 /// A pinned, nightly, or unknown launcher choice must never be replaced by a stable update.

@@ -34,7 +34,7 @@ Formats in this crate fall into two categories:
 
 ### Single-App Inspector Formats (Pickaxe Only)
 
-Verified across `storytold` repositories: **ASAR** (`asar.rs`) has no consumers outside `storytold/pickaxe`. The Android AXML/ARSC wire readers moved to `craft-android-res` in craft-libs; `axml.rs` keeps the manifest facts on top of them.
+Verified across `storytold` repositories: **ASAR** (`asar.rs`) has no consumers outside `goldrusher9009-sketch/pickaxe`. The Android AXML/ARSC wire readers moved to `craft-android-res` in craft-libs; `axml.rs` keeps the manifest facts on top of them.
 
 - **Desktop / JS / Scripting App Packages**
   - `asar.rs` — Electron ASAR archive reader & test builder

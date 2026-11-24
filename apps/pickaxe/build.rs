@@ -15,7 +15,7 @@ fn main() {
     res.set_icon("../../assets/app-icon/pickaxe.ico")
         .set("ProductName", "Pickaxe")
         .set("FileDescription", "Pickaxe: find out how any software works")
-        .set("LegalCopyright", "Copyright (c) the ArtCraft Team, the Craft Anything contributors and the Pickaxe contributors. MIT OR Apache-2.0.")
+        .set("LegalCopyright", "Pickaxe. MIT OR Apache-2.0 (see LICENSE-MIT, LICENSE-APACHE, NOTICE).")
         .set("OriginalFilename", "pickaxe.exe")
         .set("InternalName", "pickaxe");
     if let Err(e) = res.compile() {

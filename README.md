@@ -20,8 +20,7 @@ curl -fsSL https://raw.githubusercontent.com/goldrusher9009-sketch/pickaxe/main/
 irm https://raw.githubusercontent.com/goldrusher9009-sketch/pickaxe/main/install/install.ps1 | iex
 ```
 
-The installer sets up Pickaxe, installs [REA](https://github.com/morluto/rea) (Reverse Engineer
-Anything, MIT) beside it, and connects both to every coding agent it finds (Claude Code, Cursor,
+The installer sets up Pickaxe, adds its reverse-engineering toolkit beside it, and connects both to every coding agent it finds (Claude Code, Cursor,
 Codex, Gemini CLI, Copilot and more). Restart your agent and say *"Use Pickaxe to study this app."*
 Use `--no-rea` to skip REA and `--dry-run` to preview.
 
@@ -58,10 +57,7 @@ scripts build from source until the first release. See `docs/ROADMAP.md` for ope
 
 See [DISCLAIMER.md](DISCLAIMER.md). Use Pickaxe on software you own or are authorized to examine.
 
-## License and credits
+## License
 
-MIT OR Apache-2.0. Pickaxe is a fork of
-[Craft Anything](https://github.com/storytold/craft-anything) by the ArtCraft Team and its
-contributors, and installs [REA](https://github.com/morluto/rea) by morluto (MIT). See
-[NOTICE](NOTICE) and [ATTRIBUTION.md](ATTRIBUTION.md). The ArtCraft name and raven icon are not
-included.
+MIT OR Apache-2.0. The full license texts and required legal notices are in
+[LICENSE-MIT](LICENSE-MIT), [LICENSE-APACHE](LICENSE-APACHE) and [NOTICE](NOTICE).

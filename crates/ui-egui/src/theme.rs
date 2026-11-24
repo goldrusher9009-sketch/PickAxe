@@ -105,7 +105,7 @@ pub struct Tokens {
     pub radius_lg: f32,
 }
 
-/// The app colour: getartcraft.com's deep accent (#1659c4). White on it passes WCAG AA; on its
+/// The app colour: deep accent (#1659c4). White on it passes WCAG AA; on its
 /// bright accent (#2d81ff, used for hover) it doesn't.
 pub const BRAND: Color32 = Color32::from_rgb(0x16, 0x59, 0xc4);
 
@@ -131,7 +131,7 @@ pub fn confidence_label(c: Option<Confidence>) -> &'static str {
 impl Tokens {
     pub fn for_kind(kind: ThemeKind) -> Self {
         match kind {
-            // getartcraft.com's dark: warm near-black (#121316), its #101014 for the sidebar, cards
+            // dark: warm near-black (#121316), its #101014 for the sidebar, cards
             // and controls its warm ink (#f2f1ee) laid over the background at 4-15%.
             ThemeKind::Studio => Tokens {
                 kind,
@@ -163,7 +163,7 @@ impl Tokens {
                 radius: RADIUS,
                 radius_lg: RADIUS_LG,
             },
-            // getartcraft.com's light: warm paper (#f2f1ee), its sunken #e9e8e4 for the sidebar,
+            // light: warm paper (#f2f1ee), its sunken #e9e8e4 for the sidebar,
             // raised #faf9f7 for cards, ink #101014.
             ThemeKind::StudioLight => Tokens {
                 kind,
