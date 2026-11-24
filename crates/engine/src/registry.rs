@@ -168,7 +168,7 @@ impl Registry {
             "name": spec.id,
             "title": spec.title,
             "description": spec.summary,
-            "inputSchema": self.input_schema(spec),
+            "inputSchema": typed_properties(self.input_schema(spec)),
             "annotations": {
                 "title": spec.title,
                 "readOnlyHint": spec.effects.read_only_hint(),
@@ -178,6 +178,24 @@ impl Registry {
             },
         })
     }
+}
+
+/// Give every property a `type`, as directory checkers require: a `$ref` to an enum or object
+/// takes the type of what it points at, and a free-form value accepts any JSON type.
+fn typed_properties(mut schema: Value) -> Value {
+    let defs = schema.get("$defs").cloned().unwrap_or(Value::Null);
+    if let Some(props) = schema.get_mut("properties").and_then(Value::as_object_mut) {
+        for prop in props.values_mut() {
+            let Some(obj) = prop.as_object_mut() else { continue };
+            if obj.contains_key("type") || obj.contains_key("anyOf") || obj.contains_key("oneOf") || obj.contains_key("allOf") {
+                continue;
+            }
+            let pointed = obj.get("$ref").and_then(Value::as_str).and_then(|r| r.strip_prefix("#/$defs/")).and_then(|name| defs.get(name));
+            let ty = pointed.and_then(|d| d.get("type")).cloned();
+            obj.insert("type".into(), ty.unwrap_or_else(|| json!(["string", "number", "integer", "boolean", "object", "array", "null"])));
+        }
+    }
+    schema
 }
 
 #[cfg(test)]
@@ -204,6 +222,18 @@ mod tests {
             let schema = &r.mcp_descriptor(spec)["inputSchema"];
             for (property, value) in schema["properties"].as_object().into_iter().flatten() {
                 assert!(value.is_object(), "{}.{property} schema must be an object, got {value}", spec.id);
+            }
+        }
+    }
+
+    #[test]
+    fn every_mcp_input_property_names_a_type() {
+        let r = Registry::with_all_tools();
+        for spec in r.all() {
+            let schema = &r.mcp_descriptor(spec)["inputSchema"];
+            for (property, value) in schema["properties"].as_object().into_iter().flatten() {
+                let typed = ["type", "anyOf", "oneOf", "allOf"].iter().any(|k| value.get(k).is_some());
+                assert!(typed, "{}.{property} must name a type, got {value}", spec.id);
             }
         }
     }

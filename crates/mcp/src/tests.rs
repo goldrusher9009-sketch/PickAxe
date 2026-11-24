@@ -461,6 +461,28 @@ fn restricted_mode_refuses_calling_turned_off_tools() {
     }
 }
 
+/// A server on the internet never reads or writes files on its host, whatever path a caller sends.
+#[test]
+fn hosted_mode_hides_and_refuses_file_tools() {
+    let opts = ServerOptions { restricted: true, hosted: true, ..Default::default() };
+    let out = run_with(
+        opts,
+        &[
+            req(1, "tools/list", json!({})),
+            req(2, "tools/call", json!({"name": "core_report_save", "arguments": {"path": "/tmp/x.md", "text": "x"}})),
+            req(3, "tools/call", json!({"name": "core_evidence_import", "arguments": {"path": "/etc/passwd"}})),
+        ],
+    );
+    let names: Vec<String> = response(&out, 1)["result"]["tools"].as_array().unwrap().iter().map(|t| t["name"].as_str().unwrap().to_string()).collect();
+    for hidden in ["core_report_save", "core_evidence_import", "core_evidence_export"] {
+        assert!(!names.contains(&hidden.to_string()), "{hidden} should be hidden");
+    }
+    assert!(names.contains(&"core_investigation_show".to_string()));
+    for id in [2, 3] {
+        assert_eq!(response(&out, id)["result"]["isError"], true, "id {id}");
+    }
+}
+
 /// #856: When the operator allows web or capture tools in restricted mode, they are visible and
 /// callable, while machine-acting tools remain off.
 #[test]

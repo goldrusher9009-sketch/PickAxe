@@ -63,6 +63,8 @@ pub struct ServerOptions {
     /// Restricted mode for shared hosts (#855, #856): hide tools that act on the host machine,
     /// and turn off web and capture tools unless explicitly allowed.
     pub restricted: bool,
+    /// Served over the internet (`serve_http`): tools that read or write files on the host are off.
+    pub hosted: bool,
     /// Allow tools that open or reach websites (`web_site_open`) in restricted mode.
     pub allow_web: bool,
     /// Allow website capture tools (`web_site_capture`, `web_page_states_capture`) in restricted mode.
@@ -78,6 +80,9 @@ const ACTS_ON_MACHINE: [&str; 3] = ["plugins_add", "engines_install", "native_cu
 
 /// Web tools that act on the person's own desktop and saved sign-ins (a window opens, a sign-in is
 /// kept or deleted): off in restricted mode even with --allow-web.
+/// Tools that read or write files by path without declaring it: off when served over the internet.
+const HOST_FILE_TOOLS: [&str; 4] = ["core_evidence_import", "core_evidence_export", "core_report_save", "core_target_open"];
+
 const ACTS_ON_DESKTOP: [&str; 2] = ["web_site_sign_in", "web_site_sign_out"];
 
 /// The web tool that starts from a saved sign-in unless told not to: always fresh in restricted
@@ -90,6 +95,7 @@ impl Default for ServerOptions {
             all_tools: false,
             allow_run: false,
             restricted: false,
+            hosted: false,
             allow_web: false,
             allow_capture: false,
             max_response_bytes: DEFAULT_MAX_RESPONSE_BYTES,
@@ -366,7 +372,9 @@ impl Server {
         let effects = spec.effects;
         let web = spec.id.starts_with("web_") && effects.intersects(Effects::ACCESSES_NETWORK | Effects::LAUNCHES_PROCESS);
         let capture = web && spec.id.contains("capture");
-        let (off, way_back) = if ACTS_ON_DESKTOP.contains(&spec.id) {
+        let (off, way_back) = if self.opts.hosted && (effects.contains(Effects::WRITES_FILESYSTEM) || HOST_FILE_TOOLS.contains(&spec.id)) {
+            (true, "Run Pickaxe on your own computer to read and write files.")
+        } else if ACTS_ON_DESKTOP.contains(&spec.id) {
             (true, "Start the MCP server without --restricted to sign in to websites.")
         } else if capture {
             (!self.opts.allow_capture, "Start the MCP server with --allow-capture to turn capture tools on.")
@@ -901,8 +909,10 @@ fn http_reply(stream: &mut std::net::TcpStream, status: &str, body: &str) {
 
 /// Serve MCP over HTTP on `addr` until the process stops. A bearer `token` is required on every call.
 /// Requests are handled one at a time, so a connection's tool selection persists between calls.
-pub fn serve_http(engine: Arc<Engine>, opts: ServerOptions, addr: &str, token: &str) -> std::io::Result<()> {
+pub fn serve_http(engine: Arc<Engine>, mut opts: ServerOptions, addr: &str, token: &str) -> std::io::Result<()> {
     use std::io::Read;
+    opts.restricted = true;
+    opts.hosted = true;
     let listener = std::net::TcpListener::bind(addr)?;
     let buf = SharedBuf::default();
     let server = Arc::new(Server::new(engine, opts, Box::new(buf.clone())));
@@ -975,7 +985,7 @@ pub fn serve_http(engine: Arc<Engine>, opts: ServerOptions, addr: &str, token: &
             let _ = h.join();
         }
         let out = String::from_utf8_lossy(&buf.0.lock().unwrap_or_else(|e| e.into_inner())).to_string();
-        let reply = out.lines().filter(|l| !l.trim().is_empty()).last().unwrap_or("").to_string();
+        let reply = out.lines().rfind(|l| !l.trim().is_empty()).unwrap_or("").to_string();
         if reply.is_empty() {
             http_reply(&mut stream, "202 Accepted", "");
         } else {
