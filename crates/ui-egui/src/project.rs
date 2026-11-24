@@ -8,13 +8,13 @@ use crate::make::{self, resolve_target};
 use crate::state::{FeedItem, MakeDraft, Modal, PlanStatus, PlanStep, Screen, UserItem};
 use crate::theme::{self, Tokens};
 use crate::{CraftApp, Done, chat, icons, prompt_box, widgets};
-use egui::{Color32, RichText, Ui, Vec2};
 use pickaxe_ai::AgentEvent;
 use pickaxe_ai::rebuild::activity::{Action, ActivityNow, LineKind};
 use pickaxe_ai::rebuild::feed::{self, apply};
 use pickaxe_ai::rebuild::{self, AppKind, KindRegistry, KindWords, Note, RebuildRun, RunEvent, RunOptions, Started, Step, Stopped, TargetKind};
 use pickaxe_engine::inbox::{Answer, Inbox, Request, RequestKind};
 use pickaxe_engine::workspace::{CheckResult, Status, TargetRef, Workspace, suggest_name};
+use egui::{Color32, RichText, Ui, Vec2};
 use std::path::{Path, PathBuf};
 
 // ---- controller -------------------------------------------------------------------------------
@@ -1547,7 +1547,10 @@ pub fn can_continue(app: &CraftApp, ws: &Workspace) -> bool {
 fn continue_card(app: &mut CraftApp, ui: &mut Ui, ws: &Workspace) {
     let t = Tokens::get(ui.ctx());
     let (title, body) = if interrupted(app, ws) {
-        ("This build stopped part-way", "Pickaxe or the computer closed while it was working. Everything so far is kept; Continue picks up where it stopped.")
+        (
+            "This build stopped part-way",
+            "Pickaxe or the computer closed while it was working. Everything so far is kept; Continue picks up where it stopped.",
+        )
     } else {
         ("Paused", "Everything so far is kept. Continue picks up where it stopped.")
     };

@@ -1810,8 +1810,10 @@ impl Locator {
 /// The first element in the accessibility tree with this role and exact accessible name.
 fn role_node(client: &mut CdpClient, role: &str, name: &str, dl: &Deadline) -> Result<u64, ToolError> {
     let doc = client.call("DOM.getDocument", json!({"depth": 0}), None, dl)?;
-    let root =
-        doc.pointer("/root/nodeId").and_then(Value::as_u64).ok_or_else(|| ToolError::new(pickaxe_evidence::ErrorCode::ProgramFailed, "no document root"))?;
+    let root = doc
+        .pointer("/root/nodeId")
+        .and_then(Value::as_u64)
+        .ok_or_else(|| ToolError::new(pickaxe_evidence::ErrorCode::ProgramFailed, "no document root"))?;
     let _ = client.call("Accessibility.enable", json!({}), None, dl);
     let found = client.call("Accessibility.queryAXTree", json!({"nodeId": root, "accessibleName": name, "role": role}), None, dl)?;
     let missing = || ToolError::new(pickaxe_evidence::ErrorCode::NotFound, format!("no {role} named {name:?} on the page"));
@@ -2556,8 +2558,10 @@ fn run_action(client: &mut CdpClient, action: &WalkthroughAction, secrets: &mut 
 
 pub(crate) fn query_node(client: &mut CdpClient, selector: &str, dl: &Deadline) -> Result<u64, ToolError> {
     let doc = client.call("DOM.getDocument", json!({"depth": 0}), None, dl)?;
-    let root =
-        doc.pointer("/root/nodeId").and_then(Value::as_u64).ok_or_else(|| ToolError::new(pickaxe_evidence::ErrorCode::ProgramFailed, "no document root"))?;
+    let root = doc
+        .pointer("/root/nodeId")
+        .and_then(Value::as_u64)
+        .ok_or_else(|| ToolError::new(pickaxe_evidence::ErrorCode::ProgramFailed, "no document root"))?;
     let found = client.call("DOM.querySelector", json!({"nodeId": root, "selector": selector}), None, dl)?;
     let node = found
         .get("nodeId")

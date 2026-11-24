@@ -90,9 +90,9 @@ pub fn doctor(host: &Host, req: &DoctorRequest) -> DoctorReport {
     match &cli {
         Some(p) if p.is_file() => checks.push(Check::new("binary", CheckStatus::Ok, format!("pickaxe-cli is at {}", p.display()))),
         Some(p) => checks.push(Check::new("binary", CheckStatus::Fail, format!("{} does not exist.", p.display())).fix("Reinstall Pickaxe.")),
-        None => {
-            checks.push(Check::new("binary", CheckStatus::Fail, "pickaxe-cli was not found.").fix("Install Pickaxe; the CLI ships next to the desktop app."))
-        }
+        None => checks.push(
+            Check::new("binary", CheckStatus::Fail, "pickaxe-cli was not found.").fix("Install Pickaxe; the CLI ships next to the desktop app."),
+        ),
     }
     let on_path = distinct_programs(pickaxe_platform::which_all("pickaxe-cli"));
     if on_path.len() > 1 {

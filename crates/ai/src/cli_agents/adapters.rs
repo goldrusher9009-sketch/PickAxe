@@ -1314,7 +1314,8 @@ fn remote_check(host: &str, stop: Option<&CancelToken>) -> Result<(), ToolError>
 /// Map the remote failure onto the fix, reusing the ssh failure wording other remote runs use.
 pub(super) fn remote_failure(host: &str, out: &pickaxe_platform::Output) -> ToolError {
     if let Some(failure) = crate::ssh::diagnose(host, "pickaxe-cli", crate::ssh::is_git_server(host), out.code, out.stderr_end_text().as_str()) {
-        return ToolError::new(ErrorCode::EngineMissing, format!("Pickaxe can't set up its tools on {host}: {}.", failure.what)).with_remediation(failure.fix);
+        return ToolError::new(ErrorCode::EngineMissing, format!("Pickaxe can't set up its tools on {host}: {}.", failure.what))
+            .with_remediation(failure.fix);
     }
     let end = out.end_text();
     let trimmed = end.trim();

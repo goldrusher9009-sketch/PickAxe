@@ -134,8 +134,11 @@ fn engines_app_open(ctx: &mut Ctx<'_>, params: Value) -> Result<ToolOutput, Tool
         return Err(ToolError::new(ErrorCode::NotFound, format!("{} isn't installed on this computer.", p.app))
             .with_remediation("Install it first (engines_install unity or unreal)."));
     };
-    let launch =
-        if path.extension().is_some_and(|e| e == "app") { pickaxe_platform::Launch::new("open").arg(&path) } else { pickaxe_platform::Launch::new(&path) };
+    let launch = if path.extension().is_some_and(|e| e == "app") {
+        pickaxe_platform::Launch::new("open").arg(&path)
+    } else {
+        pickaxe_platform::Launch::new(&path)
+    };
     launch.label(p.app.clone()).start()?;
     Ok(ToolOutput::Value(json!({"opened": path.display().to_string()})))
 }

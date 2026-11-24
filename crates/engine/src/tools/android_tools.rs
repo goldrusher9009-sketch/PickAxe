@@ -880,7 +880,8 @@ fn jadx_source(ctx: &Ctx<'_>, input: &Path, class_java: &str) -> (Value, Option<
     };
     // The Java runtime engine the settings or the engine store hold (the Java Ghidra's setup
     // brings, say), which JADX's launcher wouldn't find on its own.
-    let java = settings.java_set_for_ghidra().or_else(|| pickaxe_engines::locate_configured("java", &settings.engines.tools, &settings.engine_store_dir()));
+    let java =
+        settings.java_set_for_ghidra().or_else(|| pickaxe_engines::locate_configured("java", &settings.engines.tools, &settings.engine_store_dir()));
     let run = pickaxe_engines::jadx::run_single_class(&jadx, java.as_deref(), input, class_java, &out, ctx.cancel.clone());
     let result = match run {
         Ok(o) if o.success => {

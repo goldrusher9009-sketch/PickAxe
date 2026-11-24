@@ -1,7 +1,7 @@
 //! Inline glossary hints survive shaping a whole paragraph, including Unicode before the term.
-use egui_kittest::{Harness, kittest::Queryable};
 use pickaxe_engine::{Mode, feed::FeedItem};
 use pickaxe_ui_egui::{CraftApp, demo};
+use egui_kittest::{Harness, kittest::Queryable};
 
 #[test]
 fn a_formatted_glossary_word_after_unicode_still_has_its_hover_hint() {

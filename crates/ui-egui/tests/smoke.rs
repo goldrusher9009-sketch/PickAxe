@@ -1,11 +1,11 @@
 //! UI smoke tests: every screen draws, the main controls work, and nothing blocks or panics.
 
-use egui_kittest::Harness;
-use egui_kittest::kittest::Queryable;
 use pickaxe_ai::{BackendConfig, BackendKind};
 use pickaxe_engine::{Mode, TargetKind};
 use pickaxe_ui_egui::state::{ChatItem, FirstRunStep, RailKind, Screen};
 use pickaxe_ui_egui::{CraftApp, demo};
+use egui_kittest::Harness;
+use egui_kittest::kittest::Queryable;
 use std::time::{Duration, Instant};
 
 fn harness(make: impl FnOnce() -> CraftApp + 'static) -> Harness<'static, CraftApp> {
@@ -2072,8 +2072,8 @@ fn title_bar_keeps_its_size_when_zoomed() {
 /// stays as it is whatever the system says.
 #[test]
 fn the_system_theme_follows_the_systems_appearance_as_it_changes() {
-    use egui::Theme::{Dark, Light};
     use pickaxe_ui_egui::theme::ThemeKind;
+    use egui::Theme::{Dark, Light};
     let mut h = harness(|| demo::app(demo::engine(Mode::Beginner, true)));
     h.run_steps(2);
     assert_eq!(h.state().settings.theme, "system", "System is the default");

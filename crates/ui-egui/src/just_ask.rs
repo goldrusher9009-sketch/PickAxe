@@ -9,10 +9,10 @@ use crate::slash::{self, Command, Typed};
 use crate::state::FeedItem;
 use crate::theme::{self, Tokens};
 use crate::{CraftApp, chat, icons, prompt_box, widgets};
-use egui::{RichText, Ui};
 use pickaxe_engine::evidence::ToolError;
 use pickaxe_engine::questions::{self, AskedQuestion};
 use pickaxe_engine::workspace::Workspace;
+use egui::{RichText, Ui};
 use serde_json::{Value, json};
 use std::path::{Path, PathBuf};
 

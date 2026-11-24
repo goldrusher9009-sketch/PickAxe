@@ -6,9 +6,9 @@
 //! Widgets read [`Tokens::get`] instead of hard-coding colours, so a theme switch applies everywhere.
 //! Confidence has its own fixed palette so "how sure are we" reads the same in both themes.
 
+use pickaxe_engine::evidence::Confidence;
 use egui::epaint::text::VariationCoords;
 use egui::{Color32, CornerRadius, FontData, FontDefinitions, FontFamily, FontId, FontTweak, Stroke, TextStyle, Visuals};
-use pickaxe_engine::evidence::Confidence;
 use serde::{Deserialize, Serialize};
 use std::sync::Arc;
 

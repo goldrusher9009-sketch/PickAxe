@@ -1,10 +1,10 @@
 //! Exercise the real exit-save path in a child whose global config directory is isolated.
 
-use eframe::App;
 use pickaxe_ai::{AiConfig, AiHub, BackendConfig, BackendEntry, BackendKind, BackendOptions, Effort, KeyStore};
 use pickaxe_engine::{Engine, Mode, Session, Settings};
 use pickaxe_platform::process::Process;
 use pickaxe_ui_egui::CraftApp;
+use eframe::App;
 use std::{sync::Arc, time::Duration};
 
 /// Closing with pending app edits must preserve an AI selection committed since the app snapshot.

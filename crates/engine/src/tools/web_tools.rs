@@ -11,7 +11,9 @@ use pickaxe_analysis::web_har::{HarOptions, inspect_har};
 use pickaxe_analysis::web_scripts::{
     ExtractedScripts, ScriptBudget, parse_map, plan_layout, scripts_from_capture_within, scripts_from_har_within, trace_location,
 };
-use pickaxe_evidence::{Authority, Confidence, Coverage, CoverageStatus, ErrorCode, EvidenceBuilder, Limitation, Location, Subject, ToolError, sha256_hex};
+use pickaxe_evidence::{
+    Authority, Confidence, Coverage, CoverageStatus, ErrorCode, EvidenceBuilder, Limitation, Location, Subject, ToolError, sha256_hex,
+};
 use pickaxe_js::recover::{RewriteLevel, pretty_print, recover_modules, safe_module_path};
 use schemars::JsonSchema;
 use serde::Deserialize;

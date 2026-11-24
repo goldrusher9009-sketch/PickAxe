@@ -6,8 +6,8 @@ use crate::i18n::tr;
 use crate::state::{GameFiles, GameJob, Modal, PendingPicture};
 use crate::theme::{self, Tokens};
 use crate::{CraftApp, Pick, icons, widgets};
-use egui::{RichText, Sense, Ui, Vec2};
 use pickaxe_engine::evidence::ToolError;
+use egui::{RichText, Sense, Ui, Vec2};
 use serde_json::{Value, json};
 use std::path::{Path, PathBuf};
 

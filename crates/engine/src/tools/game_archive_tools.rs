@@ -626,9 +626,9 @@ fn bundle_range(
                         "a Unity bundle's data",
                     ));
                 }
-                let at = cstart
-                    .checked_add(from)
-                    .ok_or_else(|| format_err(pickaxe_formats::FormatError::Malformed("stored block offset overflow".into()), "a Unity bundle's data"))?;
+                let at = cstart.checked_add(from).ok_or_else(|| {
+                    format_err(pickaxe_formats::FormatError::Malformed("stored block offset overflow".into()), "a Unity bundle's data")
+                })?;
                 out.extend_from_slice(&read_at(file, path, at, to - from)?);
             } else {
                 if cache.as_ref().is_none_or(|(at, _)| *at != i) {
@@ -1434,8 +1434,8 @@ fn copy_entry<W: Write>(pak: &mut Pak, e: &Entry, zlib: bool, sink: &mut Sink<W>
             }
             let raw = read_at(&mut pak.file, &pak.path, start, end - start)?;
             let room = e.uncompressed_size.saturating_sub(sink.written);
-            let block =
-                pickaxe_formats::firmware::inflate(&raw, true, room, true).map_err(|err| damaged(format!("a block of {} didn't inflate ({err})", shown(e))))?;
+            let block = pickaxe_formats::firmware::inflate(&raw, true, room, true)
+                .map_err(|err| damaged(format!("a block of {} didn't inflate ({err})", shown(e))))?;
             sink.put(&block.data.unwrap_or_default(), out)?;
         }
     } else {

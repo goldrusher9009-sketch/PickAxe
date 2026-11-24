@@ -531,7 +531,13 @@ fn cancel_of(ctx: &Ctx<'_>) -> Cancel {
 }
 
 fn device_env(ctx: &Ctx<'_>) -> Environment {
-    Environment { clean_room: ctx.session.clean_room(), engine: "adb".into(), engine_version: None, host: pickaxe_evidence::host_triple(), language_id: None }
+    Environment {
+        clean_room: ctx.session.clean_room(),
+        engine: "adb".into(),
+        engine_version: None,
+        host: pickaxe_evidence::host_triple(),
+        language_id: None,
+    }
 }
 
 fn device_subject(serial: &str) -> Subject {

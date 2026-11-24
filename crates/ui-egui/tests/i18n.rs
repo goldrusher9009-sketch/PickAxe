@@ -1,9 +1,9 @@
 //! Keep locale-changing UI checks in one integration-test executable: i18n is process-wide.
 
-use egui_kittest::Harness;
-use egui_kittest::kittest::Queryable;
 use pickaxe_engine::{Mode, Session, Settings};
 use pickaxe_ui_egui::{CraftApp, demo, i18n};
+use egui_kittest::Harness;
+use egui_kittest::kittest::Queryable;
 use std::path::Path;
 
 fn harness(mut settings: Settings, dir: &Path) -> Harness<'static, CraftApp> {

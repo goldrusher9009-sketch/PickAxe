@@ -5,8 +5,8 @@ use crate::i18n::tr;
 use crate::state::{Modal, Screen};
 use crate::theme::{self, Tokens};
 use crate::{CraftApp, Pick, Route, icons, widgets};
-use egui::{RichText, Ui, Vec2};
 use pickaxe_engine::Consent;
+use egui::{RichText, Ui, Vec2};
 use serde_json::json;
 
 /// Tools that open a website, best first.

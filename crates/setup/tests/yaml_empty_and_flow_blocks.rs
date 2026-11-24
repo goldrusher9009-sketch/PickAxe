@@ -112,7 +112,8 @@ fn yaml_refuses_flow_children_without_guessing_boundaries() {
         let set_err = yaml::set(text, "mcp_servers", "pickaxe", &entry).expect_err(&format!("{label}: set should refuse multi-line flow child"));
         assert!(set_err.contains("by hand"), "{label}: unexpected error: {set_err}");
 
-        let try_rm_err = yaml::try_remove(text, "mcp_servers", "pickaxe").expect_err(&format!("{label}: try_remove should refuse multi-line flow child"));
+        let try_rm_err =
+            yaml::try_remove(text, "mcp_servers", "pickaxe").expect_err(&format!("{label}: try_remove should refuse multi-line flow child"));
         assert!(try_rm_err.contains("by hand"), "{label}: unexpected try_remove error: {try_rm_err}");
 
         assert!(yaml::remove(text, "mcp_servers", "pickaxe").is_none(), "{label}: remove should return None");
@@ -188,7 +189,10 @@ fn next_line_flow_blocks_and_child_indent_flow_tokens_are_refused() {
 fn block_scalars_and_quoted_or_plain_braces_preserve_siblings() {
     let entry = json!({"command": "/new/pickaxe-cli", "args": ["mcp"], "enabled": true});
     let cases = [
-        ("multiline double-quoted brace", "mcp_servers:\n  pickaxe:\n    command: old\n    note: \"first\n      { second\"\n  other:\n    command: npx\n"),
+        (
+            "multiline double-quoted brace",
+            "mcp_servers:\n  pickaxe:\n    command: old\n    note: \"first\n      { second\"\n  other:\n    command: npx\n",
+        ),
         ("literal block scalar brace", "mcp_servers:\n  pickaxe:\n    command: old\n    note: |\n      {\n  other:\n    command: npx\n"),
         ("plain scalar containing brace", "mcp_servers:\n  pickaxe:\n    command: old\n    note: prefix{suffix\n  other:\n    command: npx\n"),
         (
@@ -219,7 +223,8 @@ fn block_scalars_and_quoted_or_plain_braces_preserve_siblings() {
         assert_eq!(parsed["mcp_servers"]["pickaxe"], entry, "{label}");
         assert_eq!(parsed["mcp_servers"]["other"]["command"], "npx", "{label}: lost other on set");
 
-        let removed = yaml::try_remove(text, "mcp_servers", "pickaxe").unwrap_or_else(|e| panic!("{label}: try_remove failed: {e}")).expect("entry removed");
+        let removed =
+            yaml::try_remove(text, "mcp_servers", "pickaxe").unwrap_or_else(|e| panic!("{label}: try_remove failed: {e}")).expect("entry removed");
         let parsed_removed = yaml::parse(&removed).expect("removed YAML parses");
         assert!(parsed_removed["mcp_servers"].get("pickaxe").is_none(), "{label}");
         assert_eq!(parsed_removed["mcp_servers"]["other"]["command"], "npx", "{label}: lost other on remove");

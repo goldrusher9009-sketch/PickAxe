@@ -1,8 +1,8 @@
 //! The page: a welcome screen, drag and drop (and an Open button), then the answer.
 
 use crate::triage::{Look, MAX_BYTES, look};
-use egui::{Color32, RichText};
 use pickaxe_evidence::Confidence;
+use egui::{Color32, RichText};
 #[allow(clippy::disallowed_types)] // The browser has one thread: nothing can wait here.
 use std::sync::{Arc, Mutex, PoisonError};
 
@@ -101,7 +101,9 @@ impl Viewer {
                     show_look(ui, l);
                 } else {
                     card(ui, |ui| {
-                        ui.label("Drop a program, app, library or any file here. Pickaxe tells you what it is, what it runs on and what it was made with.");
+                        ui.label(
+                            "Drop a program, app, library or any file here. Pickaxe tells you what it is, what it runs on and what it was made with.",
+                        );
                         ui.add_space(6.0);
                         ui.label(RichText::new("Everything happens in this page: your file is never uploaded.").color(TEXT_DIM));
                     });

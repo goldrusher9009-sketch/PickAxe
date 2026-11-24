@@ -1156,8 +1156,11 @@ mod tests {
         let rows = v["result"]["pinvokes"].as_array().unwrap();
         assert_eq!(rows[0]["status"], "found", "{}", v["result"]);
         assert_eq!(rows[1]["status"], "missing");
-        let v2 =
-            call(&e, "managed_native_calls_verify", json!({"managed": asm, "native": [pickaxe_testkit::temp_file("other.dll", &pickaxe_testkit::pe64())]}));
+        let v2 = call(
+            &e,
+            "managed_native_calls_verify",
+            json!({"managed": asm, "native": [pickaxe_testkit::temp_file("other.dll", &pickaxe_testkit::pe64())]}),
+        );
         assert_eq!(v2["result"]["counts"]["undetermined"], 2);
         assert_eq!(super::norm_module("libcraft.so.1"), "craft");
         assert_eq!(super::norm_module("C:\\x\\Craft.DLL"), "craft");

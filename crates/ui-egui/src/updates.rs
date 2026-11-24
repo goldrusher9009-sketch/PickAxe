@@ -10,7 +10,11 @@ const VERSION: &str = env!("CARGO_PKG_VERSION");
 
 /// A pinned, nightly, or unknown launcher choice must never be replaced by a stable update.
 fn stable_choice() -> Result<(), String> {
-    if Pins::load_default().choice(APP.id) == Choice::Stable { Ok(()) } else { Err(tr("the launcher manages this app's version. Change its version there.")) }
+    if Pins::load_default().choice(APP.id) == Choice::Stable {
+        Ok(())
+    } else {
+        Err(tr("the launcher manages this app's version. Change its version there."))
+    }
 }
 
 enum Reply {

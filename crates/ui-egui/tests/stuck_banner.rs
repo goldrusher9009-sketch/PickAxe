@@ -1,11 +1,11 @@
 //! The stuck-lock banner. In a test program of its own: what it shows is the whole process's, and
 //! a banner appearing moves everything under it, which makes clicks in tests running beside it miss.
 
-use egui_kittest::Harness;
-use egui_kittest::kittest::Queryable;
 use pickaxe_engine::Mode;
 use pickaxe_platform::sync;
 use pickaxe_ui_egui::demo;
+use egui_kittest::Harness;
+use egui_kittest::kittest::Queryable;
 
 #[test]
 fn a_stuck_lock_is_shown_with_a_way_out() {

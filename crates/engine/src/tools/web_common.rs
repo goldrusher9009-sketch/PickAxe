@@ -241,12 +241,13 @@ impl Browser {
     }
 
     pub(crate) fn launch(ctx: &Ctx<'_>, opts: &LaunchOptions, dl: &Deadline) -> Result<Browser, ToolError> {
-        let exe = pickaxe_engines::locate("chromium", &ctx.session.settings.engines.tools, &ctx.session.settings.engine_store_dir()).ok_or_else(|| {
-            // Browser tools that take an endpoint come here without `Requires::Engine`'s check.
-            let (reason, fix) = ctx.session.settings.engine_not_found("chromium");
-            ToolError::new(ErrorCode::EngineMissing, reason)
-                .with_remediation(format!("{fix} Or give a loopback CDP endpoint (start a browser with --remote-debugging-port)."))
-        })?;
+        let exe =
+            pickaxe_engines::locate("chromium", &ctx.session.settings.engines.tools, &ctx.session.settings.engine_store_dir()).ok_or_else(|| {
+                // Browser tools that take an endpoint come here without `Requires::Engine`'s check.
+                let (reason, fix) = ctx.session.settings.engine_not_found("chromium");
+                ToolError::new(ErrorCode::EngineMissing, reason)
+                    .with_remediation(format!("{fix} Or give a loopback CDP endpoint (start a browser with --remote-debugging-port)."))
+            })?;
         let exe = snap_behind(&exe).unwrap_or(exe);
         // Always a profile of our own where this browser can reach it (a Snap's or Flatpak's
         // folder, #747), so a saved sign-in is only ever copied in and out, never used in place.

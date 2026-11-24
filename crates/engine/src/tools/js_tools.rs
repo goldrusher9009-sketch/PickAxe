@@ -446,7 +446,11 @@ fn js_app_map(ctx: &mut Ctx<'_>, params: Value) -> Result<ToolOutput, ToolError>
     let capped_graph = lims.iter().any(|l| matches!(l.code.as_str(), "node_cap" | "edge_cap" | "facts_truncated"));
     let mut coverage = if complete_modules {
         Coverage {
-            status: if read >= listed && !unlisted { pickaxe_evidence::CoverageStatus::Complete } else { pickaxe_evidence::CoverageStatus::Partial },
+            status: if read >= listed && !unlisted {
+                pickaxe_evidence::CoverageStatus::Complete
+            } else {
+                pickaxe_evidence::CoverageStatus::Partial
+            },
             examined: Some(read),
             total: Some(listed),
             next_offset: None,

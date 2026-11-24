@@ -366,7 +366,13 @@ fn cancel_of(ctx: &Ctx<'_>) -> Cancel {
 }
 
 fn frida_env(ctx: &Ctx<'_>) -> Environment {
-    Environment { clean_room: ctx.session.clean_room(), engine: "frida".into(), engine_version: None, host: pickaxe_evidence::host_triple(), language_id: None }
+    Environment {
+        clean_room: ctx.session.clean_room(),
+        engine: "frida".into(),
+        engine_version: None,
+        host: pickaxe_evidence::host_triple(),
+        language_id: None,
+    }
 }
 
 fn frida_subject(target: &str) -> Subject {

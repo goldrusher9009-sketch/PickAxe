@@ -3,8 +3,8 @@
 use crate::i18n::tr;
 use crate::icons;
 use crate::theme::{self, ControlSize, Tokens, confidence_color, confidence_label};
-use egui::{Color32, Frame, Response, RichText, Sense, Stroke, Ui, Vec2};
 use pickaxe_engine::evidence::Confidence;
+use egui::{Color32, Frame, Response, RichText, Sense, Stroke, Ui, Vec2};
 
 /// Lay out `text` in the label style ([`theme::label_text`]) for painting.
 pub fn label_galley(ui: &Ui, text: &str, size: f32, color: Color32) -> std::sync::Arc<egui::Galley> {

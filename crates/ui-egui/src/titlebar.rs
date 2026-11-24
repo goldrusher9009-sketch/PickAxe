@@ -7,9 +7,9 @@ use crate::i18n::tr;
 use crate::state::Screen;
 use crate::theme::{self, Tokens};
 use crate::{CraftApp, icons, widgets};
+use pickaxe_engine::Mode;
 use egui::viewport::ResizeDirection;
 use egui::{RichText, Ui, Vec2};
-use pickaxe_engine::Mode;
 
 /// macOS draws its own window buttons, frame and resize edges (#20).
 pub const NATIVE_FRAME: bool = cfg!(target_os = "macos");

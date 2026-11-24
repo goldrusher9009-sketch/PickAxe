@@ -5,9 +5,9 @@ use crate::i18n::tr;
 use crate::state::{ChatItem, ConsentAnswer};
 use crate::theme::{self, Tokens};
 use crate::{CraftApp, evidence_ui, glossary, icons, widgets};
-use egui::{Margin, RichText, Ui, Vec2};
 use pickaxe_ai::AgentEvent;
 use pickaxe_engine::TargetKind;
+use egui::{Margin, RichText, Ui, Vec2};
 use serde_json::Value;
 
 /// Fold one agent event into the conversation.

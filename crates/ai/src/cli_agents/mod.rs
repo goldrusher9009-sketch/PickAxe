@@ -281,14 +281,14 @@ impl McpCommand {
 /// that ran out of time says nothing about the program, so the build goes ahead. Stopping the
 /// build ends the check, as `ErrorCode::Cancelled`.
 pub fn cli_can_start(cli: Option<&Path>, stop: &CancelToken) -> Result<(), ToolError> {
-    const REINSTALL: &str =
-        "Install the latest Pickaxe again: it keeps this helper next to the app. If you built the app yourself, run `cargo build -p pickaxe-cli` too.";
+    const REINSTALL: &str = "Install the latest Pickaxe again: it keeps this helper next to the app. If you built the app yourself, run `cargo build -p pickaxe-cli` too.";
     let Some(cli) = cli else {
         return Err(ToolError::new(ErrorCode::EngineMissing, "Pickaxe's helper program (pickaxe-cli) is missing, so the builder can't start.")
             .with_remediation(REINSTALL));
     };
     let failed = |why: String| {
-        ToolError::new(ErrorCode::EngineMissing, format!("Pickaxe's helper program at {} wouldn't start: {why}", cli.display())).with_remediation(REINSTALL)
+        ToolError::new(ErrorCode::EngineMissing, format!("Pickaxe's helper program at {} wouldn't start: {why}", cli.display()))
+            .with_remediation(REINSTALL)
     };
     let stop = stop.clone();
     match Process::new(cli.as_os_str()).arg("--version").timeout(Duration::from_secs(30)).stdout_cap(64 * 1024).cancel_when(move || stop.is_cancelled()).run() {
@@ -475,8 +475,7 @@ pub(crate) fn sign_in_hint_in(message: &str, flatpak: bool, folder: Option<&Path
 }
 
 /// Signing in for the Claude Code that a Flatpak build starts: the same folder it will use.
-const FLATPAK_SIGN_IN: &str =
-    "flatpak run --command=sh ai.goldrusher.pickaxe -c 'CLAUDE_CONFIG_DIR=\"$XDG_DATA_HOME/pickaxe/claude\" \"$HOME/.local/bin/claude\" auth login'";
+const FLATPAK_SIGN_IN: &str = "flatpak run --command=sh ai.goldrusher.pickaxe -c 'CLAUDE_CONFIG_DIR=\"$XDG_DATA_HOME/pickaxe/claude\" \"$HOME/.local/bin/claude\" auth login'";
 
 /// [`FLATPAK_SIGN_IN`] for a chosen folder, already quoted for the sandbox's shell.
 fn flatpak_sign_in(quoted: &str) -> String {
@@ -1648,8 +1647,7 @@ mod tests {
     fn optional_or_pending_mcp_servers_do_not_block_the_builder() {
         for status in ["connected", "pending"] {
             let mut p = StreamParser::new(adapter_for("claude-code"));
-            let init =
-                json!({"type":"system","subtype":"init","mcp_servers":[{"name":"pickaxe","status":status},{"name":"optional-service","status":"failed"}]});
+            let init = json!({"type":"system","subtype":"init","mcp_servers":[{"name":"pickaxe","status":status},{"name":"optional-service","status":"failed"}]});
             assert!(p.line(&init.to_string()).is_empty());
             assert!(p.failure.is_none());
         }
@@ -2160,7 +2158,8 @@ mod tests {
     /// extends it, and a standard tools table takes the same key.
     #[test]
     fn the_codex_approval_hint_extends_the_inline_tools_table() {
-        let generated = "[mcp_servers.pickaxe]\ncommand = \"pickaxe-cli\"\nargs = [\"mcp\"]\ntools = { rebuild_start = { approval_mode = \"approve\" } }\n";
+        let generated =
+            "[mcp_servers.pickaxe]\ncommand = \"pickaxe-cli\"\nargs = [\"mcp\"]\ntools = { rebuild_start = { approval_mode = \"approve\" } }\n";
         let dotted = format!("{generated}\n[mcp_servers.pickaxe.tools.build_command_run]\napproval_mode = \"approve\"\n");
         assert!(toml::from_str::<toml::Value>(&dotted).is_err(), "the old guidance cannot extend an inline table");
 
@@ -2181,7 +2180,8 @@ mod tests {
         };
         assert_eq!(approved(&doc).as_deref(), Some("approve"), "the inline tools table takes the key");
 
-        let table = "[mcp_servers.pickaxe.tools]\nrebuild_start = { approval_mode = \"approve\" }\nbuild_command_run = { approval_mode = \"approve\" }\n";
+        let table =
+            "[mcp_servers.pickaxe.tools]\nrebuild_start = { approval_mode = \"approve\" }\nbuild_command_run = { approval_mode = \"approve\" }\n";
         let doc: toml::Value = toml::from_str(table).unwrap();
         assert_eq!(approved(&doc).as_deref(), Some("approve"), "a standard tools table takes the same key");
     }

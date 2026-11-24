@@ -470,9 +470,8 @@ impl Ended {
 fn no_display_error(display: Option<String>, wayland: Option<String>) -> Option<ToolError> {
     let has = |v: Option<String>| v.is_some_and(|s| !s.trim().is_empty());
     (cfg!(all(unix, not(target_os = "macos"))) && !has(display) && !has(wayland)).then(|| {
-        ToolError::new(ErrorCode::NotSupported, "There's no desktop here to open a sign-in window on.").with_remediation(format!(
-            "Run {SIGN_IN_TOOL} from Pickaxe on a computer with a screen (the app, or the CLI in a desktop session). Websites still open without signing in."
-        ))
+        ToolError::new(ErrorCode::NotSupported, "There's no desktop here to open a sign-in window on.")
+            .with_remediation(format!("Run {SIGN_IN_TOOL} from Pickaxe on a computer with a screen (the app, or the CLI in a desktop session). Websites still open without signing in."))
     })
 }
 
@@ -575,7 +574,10 @@ fn web_site_sign_in(ctx: &mut Ctx<'_>, params: Value) -> Result<ToolOutput, Tool
         ));
     }
     if ended != Ended::Closed {
-        ev = ev.limitation(Limitation::new("window_stopped", "The window was closed by Pickaxe, not by you: a sign-in still in progress may not be complete."));
+        ev = ev.limitation(Limitation::new(
+            "window_stopped",
+            "The window was closed by Pickaxe, not by you: a sign-in still in progress may not be complete.",
+        ));
     }
     Ok(ToolOutput::evidence(ev.build()?))
 }
@@ -878,7 +880,10 @@ fn web_site_sign_out(ctx: &mut Ctx<'_>, params: Value) -> Result<ToolOutput, Too
         .summary(summary)
         .confidence(Confidence::Observed)
         .authority(Authority::OurRun)
-        .limitation(Limitation::new("this_computer", "Only Pickaxe's saved copy is deleted: the site may still count the sign-in as active until it expires."))
+        .limitation(Limitation::new(
+            "this_computer",
+            "Only Pickaxe's saved copy is deleted: the site may still count the sign-in as active until it expires.",
+        ))
         .coverage(Coverage::complete(1))
         .location(Location::new("site", key))
         .build()?;

@@ -796,7 +796,10 @@ pub fn resolve_name(prog: &Program, user: &BTreeMap<u64, String>, name: &str) ->
     if let Some((a, _)) = prog.data_names.iter().find(|(_, n)| n.as_str() == name) {
         return Some(*a);
     }
-    prog.import_slots.iter().find(|(_, s)| s.name == name || pickaxe_disasm::slot_label(s) == name || s.name.trim_start_matches('_') == name).map(|(a, _)| *a)
+    prog.import_slots
+        .iter()
+        .find(|(_, s)| s.name == name || pickaxe_disasm::slot_label(s) == name || s.name.trim_start_matches('_') == name)
+        .map(|(a, _)| *a)
 }
 
 pub fn xrefs_to_name(prog: &Program, user: &BTreeMap<u64, String>, name: &str, names: Names<'_>) -> Report {

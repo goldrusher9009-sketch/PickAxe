@@ -6,9 +6,9 @@ use crate::i18n::{tr, trf};
 use crate::state::Modal;
 use crate::theme::{self, Tokens};
 use crate::{CraftApp, Pick, widgets};
-use egui::{RichText, Ui, Vec2};
 use pickaxe_ai::rebuild::stacks;
 use pickaxe_engine::workspace::{self, ExistingFiles, FolderState, Workspace};
+use egui::{RichText, Ui, Vec2};
 use std::path::PathBuf;
 
 /// The Make screen's "Saved in" line: the folder the project will be in, and a way to pick another.
@@ -133,7 +133,10 @@ fn choose(app: &mut CraftApp, choice: ExistingFiles) {
         clear(app);
         let names = clash.join(", ");
         app.toast(
-            trf("That folder already has {names}, where Pickaxe keeps its own files. Pick another folder, or move those out first.", &[("names", &names)]),
+            trf(
+                "That folder already has {names}, where Pickaxe keeps its own files. Pick another folder, or move those out first.",
+                &[("names", &names)],
+            ),
             true,
         );
     }

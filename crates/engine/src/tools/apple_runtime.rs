@@ -383,7 +383,12 @@ mod macos {
         .authority(Authority::OurRun)
         .limitation(Limitation::new("observational", "A trace shows one run; other inputs may call differently."));
         if truncated {
-            b = b.coverage(Coverage { status: pickaxe_evidence::CoverageStatus::Partial, examined: Some(hits.len() as u64), total: None, next_offset: None });
+            b = b.coverage(Coverage {
+                status: pickaxe_evidence::CoverageStatus::Partial,
+                examined: Some(hits.len() as u64),
+                total: None,
+                next_offset: None,
+            });
         }
         Ok(ToolOutput::evidence(b.build()?))
     }

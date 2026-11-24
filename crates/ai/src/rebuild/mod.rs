@@ -1643,7 +1643,9 @@ pub fn replaced_builder_notice(saved: &str, used: &str) -> String {
 pub fn builder_backend(cfg: &crate::AiConfig, named: Option<&str>) -> Result<crate::BackendEntry, ToolError> {
     if let Some(n) = named {
         let Some(entry) = cfg.get(n) else {
-            return Err(ToolError::invalid(format!("No AI backend named {n:?}")).with_remediation("See `pickaxe-cli ai list`, or add one in Settings → AI."));
+            return Err(
+                ToolError::invalid(format!("No AI backend named {n:?}")).with_remediation("See `pickaxe-cli ai list`, or add one in Settings → AI.")
+            );
         };
         if !entry.config.enabled {
             return Err(ToolError::new(ErrorCode::BadSettings, format!("{} is turned off.", entry.config.name))

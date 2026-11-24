@@ -1359,11 +1359,11 @@ mod tests {
 
     #[test]
     fn declared_curves_accept_compressed_and_uncompressed_points() {
+        use pickaxe_testkit::{android::der_oid, crypto};
         use p384::{
             ecdsa::{Signature, SigningKey, signature::Signer},
             elliptic_curve::rand_core::OsRng,
         };
-        use pickaxe_testkit::{android::der_oid, crypto};
         let message = b"both supported named curves retain both SEC1 encodings";
         let original = crypto::p256_spki();
         let (_, point) = der::spki_parts(&original).unwrap();
@@ -1398,13 +1398,13 @@ mod tests {
 
     #[test]
     fn chain_tries_later_issuers_with_the_same_name() {
-        use p256::{
-            ecdsa::{Signature, SigningKey, signature::Signer},
-            elliptic_curve::rand_core::OsRng,
-        };
         use pickaxe_testkit::{
             android::{der, der_oid},
             crypto,
+        };
+        use p256::{
+            ecdsa::{Signature, SigningKey, signature::Signer},
+            elliptic_curve::rand_core::OsRng,
         };
         let decoy_key = SigningKey::random(&mut OsRng);
         let point = decoy_key.verifying_key().to_encoded_point(false);

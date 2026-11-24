@@ -5,9 +5,9 @@ use crate::i18n::{LANGUAGES, tr, trf};
 use crate::state::SettingsTab;
 use crate::theme::{self, ThemeKind, Tokens};
 use crate::{CraftApp, Pick, icons, widgets};
-use egui::{RichText, Ui, Vec2};
 use pickaxe_ai::BackendKind;
 use pickaxe_engine::Mode;
+use egui::{RichText, Ui, Vec2};
 use std::path::PathBuf;
 
 /// Draws the Settings modal and the content for its selected tab.
@@ -560,11 +560,11 @@ fn ai(app: &mut CraftApp, ui: &mut Ui) {
                                     // Claude Code or Codex with no choice saved passes no model, so it
                                     // uses the one its own settings name: `default` is what's shown. An
                                     // API backend's model is its saved `config.model`.
-                                    let own_default = b.kind == BackendKind::AgentCli && pickaxe_ai::cli_agents::adapter_for(&b.model).offers_own_default();
-                                    let picked =
-                                        app.backend_options.get(&b.name).and_then(|o| o.cli_model.clone()).unwrap_or_else(|| {
-                                            if own_default { pickaxe_ai::anthropic::CLAUDE_CODE_DEFAULT.to_string() } else { b.model.clone() }
-                                        });
+                                    let own_default =
+                                        b.kind == BackendKind::AgentCli && pickaxe_ai::cli_agents::adapter_for(&b.model).offers_own_default();
+                                    let picked = app.backend_options.get(&b.name).and_then(|o| o.cli_model.clone()).unwrap_or_else(|| {
+                                        if own_default { pickaxe_ai::anthropic::CLAUDE_CODE_DEFAULT.to_string() } else { b.model.clone() }
+                                    });
                                     let shown = |m: &str| {
                                         if m == pickaxe_ai::anthropic::CLAUDE_CODE_DEFAULT {
                                             tr("Default (its own settings)").to_string()
@@ -591,7 +591,8 @@ fn ai(app: &mut CraftApp, ui: &mut Ui) {
                                     // Claude always has a level; an OpenAI-style API is sent none until one is chosen.
                                     let unset = (effort_levels != pickaxe_ai::Effort::ALL).then_some(None);
                                     for e in unset.into_iter().chain(effort_levels.iter().map(|&e| Some(e))) {
-                                        if widgets::menu_item(ui, e == effort, e.map_or("default", pickaxe_ai::Effort::as_str)).clicked() && e != effort {
+                                        if widgets::menu_item(ui, e == effort, e.map_or("default", pickaxe_ai::Effort::as_str)).clicked() && e != effort
+                                        {
                                             chosen_effort = Some((b.name.clone(), e));
                                         }
                                     }
@@ -1587,8 +1588,8 @@ mod tests {
 
     #[test]
     fn identical_model_names_are_shown_once_in_the_shared_picker() {
-        use egui_kittest::{Harness, kittest::Queryable};
         use pickaxe_ai::{AgentModel, BackendEntry, ModelContext};
+        use egui_kittest::{Harness, kittest::Queryable};
         let context = ModelContext {
             backend: BackendEntry {
                 config: BackendConfig {
@@ -1626,8 +1627,8 @@ mod tests {
 
     #[test]
     fn shared_picker_warnings_name_the_configured_agent() {
-        use egui_kittest::{Harness, kittest::Queryable};
         use pickaxe_ai::{BackendEntry, ModelContext};
+        use egui_kittest::{Harness, kittest::Queryable};
         for (agent, name) in [("copilot", "GitHub Copilot"), ("opencode", "OpenCode")] {
             let context = ModelContext {
                 backend: BackendEntry {
