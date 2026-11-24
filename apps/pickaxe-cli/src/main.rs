@@ -81,6 +81,8 @@ pub enum Command {
     Doctor(setup_cmd::DoctorArgs),
     /// Remove Pickaxe's registrations and skill from agent apps.
     Uninstall(setup_cmd::UninstallArgs),
+    /// Print the full path of this pickaxe-cli (paste it into apps that ask for a command).
+    Path,
     /// List every tool.
     Commands,
     /// What this install can do: toolsets, tool availability, engines.
@@ -305,6 +307,18 @@ fn run(cli: Cli) -> u8 {
         Command::Setup(a) => setup_cmd::setup(a, f),
         Command::Doctor(a) => setup_cmd::doctor(a, f),
         Command::Uninstall(a) => setup_cmd::uninstall(a, f),
+        Command::Path => {
+            match std::env::current_exe() {
+                Ok(p) => {
+                    println!("{} mcp", p.display());
+                    0
+                }
+                Err(e) => {
+                    eprintln!("pickaxe path: {e}");
+                    1
+                }
+            }
+        }
         Command::Commands => commands(f),
         Command::Capabilities => capabilities(&cli, f),
         Command::Triage { path } => triage(&cli, path, f),

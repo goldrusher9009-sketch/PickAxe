@@ -461,9 +461,30 @@ pub fn clients(host: &Host) -> Vec<Client> {
     let dsh = host.var("DSH_HOME").unwrap_or_else(|| h.join(".dsh"));
     add("dsh", "DeepSeek harness (DSH)", dsh.join("cordis.patch.yml"), vec![dsh.clone()], Format::Manual, vec![], Shape::Plain, None);
 
+    // Muse Code (Meta's coding agent) reads MCP servers from its settings file.
+    let muse = host.xdg_config().join("muse");
+    add("muse_code", "Muse Code", muse.join("settings.json"), vec![muse.clone()], Format::Jsonc, vec!["mcp_servers"], Shape::Plain, None);
+
+    // Apps that only take a hand-entered connector: setup prints the exact steps.
+    let perplexity_marker = match host.os {
+        Os::Windows => h.join("AppData").join("Local").join("Perplexity"),
+        _ => PathBuf::from("/Applications/Perplexity.app"),
+    };
+    add("perplexity", "Perplexity (Mac app)", h.join(".pickaxe").join("perplexity.manual"), vec![perplexity_marker], Format::Manual, vec![], Shape::Plain, None);
+    add("chatgpt", "ChatGPT", h.join(".pickaxe").join("chatgpt.manual"), vec![], Format::Manual, vec![], Shape::Plain, None);
+    add("grok", "Grok", h.join(".pickaxe").join("grok.manual"), vec![], Format::Manual, vec![], Shape::Plain, None);
+    add("muse_app", "Muse (app)", h.join(".pickaxe").join("muse-app.manual"), vec![], Format::Manual, vec![], Shape::Plain, None);
+
     for c in &mut v {
         if c.id == "pi" {
             c.empty_is_invalid = true;
+        }
+        match c.id {
+            "perplexity" => c.manual = Some("Open Perplexity, go to Plugins, choose Add custom, and pick the Simple tab. Name it pickaxe. For the command, paste the line printed by `pickaxe-cli path`. Save, and wait for it to show Running. The first time, Perplexity asks you to install its helper app."),
+            "chatgpt" => c.manual = Some("ChatGPT only talks to servers on the internet, not programs on your computer, and Pickaxe has no hosted mode yet. Until it does, use a coding agent or Perplexity on your computer."),
+            "grok" => c.manual = Some("Grok's web connectors only reach servers on the internet, and Pickaxe has no hosted mode yet. Until it does, use Grok Build, which setup configures for you."),
+            "muse_app" => c.manual = Some("The Muse app has no MCP menu and cannot reach programs on your computer. Use Muse Code, which setup configures for you."),
+            _ => {}
         }
         if c.id == "dsh" {
             c.manual = Some(
