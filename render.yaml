@@ -1,0 +1,9 @@
+services:
+  - type: web
+    name: pickaxe-mcp
+    runtime: docker
+    plan: starter
+    healthCheckPath: /mcp
+    envVars:
+      - key: PICKAXE_TOKEN
+        generateValue: true
