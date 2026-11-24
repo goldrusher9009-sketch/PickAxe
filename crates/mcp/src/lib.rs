@@ -950,7 +950,10 @@ pub fn serve_http(engine: Arc<Engine>, opts: ServerOptions, addr: &str, token: &
             http_reply(&mut stream, "405 Method Not Allowed", "{\"error\":\"POST /mcp only\"}");
             continue;
         }
-        let given = auth.strip_prefix("Bearer ").unwrap_or("");
+        // Apps with no header field (Claude, ChatGPT and Grok custom connectors) can put the token in the path: POST /mcp/<token>.
+        let path = request_line.split_whitespace().nth(1).unwrap_or("");
+        let path_token = path.strip_prefix("/mcp/").unwrap_or("").split('?').next().unwrap_or("");
+        let given = auth.strip_prefix("Bearer ").unwrap_or(path_token);
         if !token_matches(given, token) {
             http_reply(&mut stream, "401 Unauthorized", "{\"error\":\"missing or wrong bearer token\"}");
             continue;
