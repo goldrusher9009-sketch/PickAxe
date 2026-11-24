@@ -74,6 +74,13 @@ pub enum Command {
         /// Target metadata from the desktop (JSON); repeat for each target, active target last.
         #[arg(long = "target")]
         targets: Vec<String>,
+        /// Serve over HTTP at this address (for ChatGPT, Grok and other apps that reach servers
+        /// on the internet), always in restricted mode. Requires a bearer token.
+        #[arg(long, value_name = "ADDR")]
+        http: Option<String>,
+        /// Bearer token for --http (made up and printed if you leave it out).
+        #[arg(long, requires = "http")]
+        token: Option<String>,
     },
     /// Connect Pickaxe to your coding-agent apps.
     Setup(setup_cmd::SetupArgs),
@@ -264,7 +271,7 @@ fn run(cli: Cli) -> u8 {
             }
             0
         }
-        Command::Mcp { all_tools, restricted, allow_web, allow_capture, inbox, targets } => {
+        Command::Mcp { all_tools, restricted, allow_web, allow_capture, inbox, targets, http, token } => {
             let engine = match make_engine(cli.project.as_deref(), cli.deep_for_run()) {
                 Ok(e) => e,
                 Err(e) => {
@@ -296,6 +303,29 @@ fn run(cli: Cli) -> u8 {
             opts.allow_web |= *allow_web;
             opts.allow_capture |= *allow_capture;
             opts.allow_run = cli.allow_run;
+            if let Some(addr) = http {
+                opts.restricted = true;
+                let token = token.clone().unwrap_or_else(|| {
+                    let mut b = [0u8; 24];
+                    if let Ok(mut f) = std::fs::File::open("/dev/urandom") {
+                        let _ = std::io::Read::read_exact(&mut f, &mut b);
+                    } else {
+                        let n = std::time::SystemTime::now().duration_since(std::time::UNIX_EPOCH).map(|d| d.as_nanos()).unwrap_or(1);
+                        for (i, x) in b.iter_mut().enumerate() {
+                            *x = (n >> (i % 16)) as u8 ^ (i as u8).wrapping_mul(37);
+                        }
+                    }
+                    b.iter().map(|x| format!("{x:02x}")).collect()
+                });
+                eprintln!("Pickaxe is serving MCP at http://{addr}/mcp (restricted mode).\nBearer token: {token}\nPut it behind an https tunnel to use it from ChatGPT or Grok. Anyone with the token can use it, so keep it private.");
+                return match pickaxe_mcp::serve_http(engine, opts, addr, &token) {
+                    Ok(()) => 0,
+                    Err(e) => {
+                        eprintln!("pickaxe mcp --http: {e}");
+                        1
+                    }
+                };
+            }
             match pickaxe_mcp::serve_stdio(engine, opts) {
                 Ok(()) => 0,
                 Err(e) => {

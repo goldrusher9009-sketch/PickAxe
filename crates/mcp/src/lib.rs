@@ -870,3 +870,115 @@ fn meta_enable_toolset(sets: &[Toolset]) -> Value {
 
 #[cfg(test)]
 mod tests;
+
+// ---- Hosted mode: MCP over HTTP (POST /mcp) for apps that only reach servers on the internet. ----
+
+#[derive(Clone, Default)]
+struct SharedBuf(Arc<Mutex<Vec<u8>>>);
+
+impl Write for SharedBuf {
+    fn write(&mut self, b: &[u8]) -> std::io::Result<usize> {
+        self.0.lock().unwrap_or_else(|e| e.into_inner()).extend_from_slice(b);
+        Ok(b.len())
+    }
+    fn flush(&mut self) -> std::io::Result<()> {
+        Ok(())
+    }
+}
+
+fn token_matches(given: &str, want: &str) -> bool {
+    let (a, b) = (given.as_bytes(), want.as_bytes());
+    a.len() == b.len() && a.iter().zip(b).fold(0u8, |acc, (x, y)| acc | (x ^ y)) == 0
+}
+
+fn http_reply(stream: &mut std::net::TcpStream, status: &str, body: &str) {
+    let head = format!(
+        "HTTP/1.1 {status}\r\nContent-Type: application/json\r\nContent-Length: {}\r\nConnection: close\r\nAccess-Control-Allow-Origin: *\r\nAccess-Control-Allow-Headers: authorization, content-type, mcp-session-id\r\nAccess-Control-Allow-Methods: POST, OPTIONS\r\n\r\n",
+        body.len()
+    );
+    let _ = stream.write_all(head.as_bytes());
+    let _ = stream.write_all(body.as_bytes());
+}
+
+/// Serve MCP over HTTP on `addr` until the process stops. A bearer `token` is required on every call.
+/// Requests are handled one at a time, so a connection's tool selection persists between calls.
+pub fn serve_http(engine: Arc<Engine>, opts: ServerOptions, addr: &str, token: &str) -> std::io::Result<()> {
+    use std::io::Read;
+    let listener = std::net::TcpListener::bind(addr)?;
+    let buf = SharedBuf::default();
+    let server = Arc::new(Server::new(engine, opts, Box::new(buf.clone())));
+    for conn in listener.incoming() {
+        let Ok(mut stream) = conn else { continue };
+        let _ = stream.set_read_timeout(Some(std::time::Duration::from_secs(30)));
+        let mut data = Vec::new();
+        let mut chunk = [0u8; 8192];
+        let header_end = loop {
+            if let Some(p) = data.windows(4).position(|w| w == b"\r\n\r\n") {
+                break Some(p);
+            }
+            if data.len() > 64 * 1024 {
+                break None;
+            }
+            match stream.read(&mut chunk) {
+                Ok(0) | Err(_) => break None,
+                Ok(n) => data.extend_from_slice(&chunk[..n]),
+            }
+        };
+        let Some(he) = header_end else {
+            http_reply(&mut stream, "400 Bad Request", "{}");
+            continue;
+        };
+        let head = String::from_utf8_lossy(&data[..he]).to_string();
+        let mut lines = head.lines();
+        let request_line = lines.next().unwrap_or_default().to_string();
+        let mut len = 0usize;
+        let mut auth = String::new();
+        for l in lines {
+            if let Some((k, v)) = l.split_once(':') {
+                match k.trim().to_ascii_lowercase().as_str() {
+                    "content-length" => len = v.trim().parse().unwrap_or(0),
+                    "authorization" => auth = v.trim().to_string(),
+                    _ => {}
+                }
+            }
+        }
+        if request_line.starts_with("OPTIONS ") {
+            http_reply(&mut stream, "204 No Content", "");
+            continue;
+        }
+        if !request_line.starts_with("POST /mcp") {
+            http_reply(&mut stream, "405 Method Not Allowed", "{\"error\":\"POST /mcp only\"}");
+            continue;
+        }
+        let given = auth.strip_prefix("Bearer ").unwrap_or("");
+        if !token_matches(given, token) {
+            http_reply(&mut stream, "401 Unauthorized", "{\"error\":\"missing or wrong bearer token\"}");
+            continue;
+        }
+        if len > MAX_REQUEST_BYTES {
+            http_reply(&mut stream, "413 Payload Too Large", "{}");
+            continue;
+        }
+        let mut body = data[he + 4..].to_vec();
+        while body.len() < len {
+            match stream.read(&mut chunk) {
+                Ok(0) | Err(_) => break,
+                Ok(n) => body.extend_from_slice(&chunk[..n]),
+            }
+        }
+        body.truncate(len);
+        let text = String::from_utf8_lossy(&body).replace('\n', " ");
+        buf.0.lock().unwrap_or_else(|e| e.into_inner()).clear();
+        if let Some(h) = server.clone().handle_line(text.trim()) {
+            let _ = h.join();
+        }
+        let out = String::from_utf8_lossy(&buf.0.lock().unwrap_or_else(|e| e.into_inner())).to_string();
+        let reply = out.lines().filter(|l| !l.trim().is_empty()).last().unwrap_or("").to_string();
+        if reply.is_empty() {
+            http_reply(&mut stream, "202 Accepted", "");
+        } else {
+            http_reply(&mut stream, "200 OK", &reply);
+        }
+    }
+    Ok(())
+}
