@@ -1,0 +1,11 @@
+{
+  "name": "pickaxe",
+  "displayName": "Pickaxe",
+  "description": "See how any software works (websites, web apps, desktop and phone apps, games, programs, files and APIs) with evidence-backed answers, then rebuild your own version. Free, open source, pure Rust.",
+  "version": "0.1.0",
+  "author": { "name": "Husham Shabbir", "email": "husham@allamericancg.com", "url": "https://pickaxe.run" },
+  "homepage": "https://pickaxe.run",
+  "repository": "https://github.com/goldrusher9009-sketch/PickAxe",
+  "license": "MIT",
+  "keywords": ["mcp", "reverse-engineering", "clean-room", "software-analysis", "rust", "evidence", "website", "app", "game"]
+}
