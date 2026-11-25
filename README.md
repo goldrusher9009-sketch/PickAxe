@@ -1,7 +1,7 @@
 <h1 align="center">⛏️ Pickaxe</h1>
 
-<p align="center"><b>Open-source MCP server that shows your AI how any website, app or game works, then helps it rebuild your own version.</b><br>
-Reverse engineering, website cloning, app analysis and clean-room rebuilds for Claude, ChatGPT, Grok, Cursor, Codex, Gemini CLI and more. One-click install, no code.</p>
+<p align="center"><b>Open-source MCP server that shows your AI how any software works (websites, web apps, desktop and phone apps, games, programs, files and APIs), then helps it rebuild your own version.</b><br>
+Reverse engineering, website cloning, software analysis and clean-room rebuilds for Claude, ChatGPT, Grok, Cursor, Codex, Gemini CLI and more. One-click install, no code.</p>
 
 <p align="center">
 <a href="https://pickaxe.run">Website</a> ·
