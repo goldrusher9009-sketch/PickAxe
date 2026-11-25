@@ -451,9 +451,7 @@ mod stream_regressions {
     /// Editing and removal reject a stream whose extra documents would be ignored by the reader.
     #[test]
     fn multiple_yaml_documents_are_refused_before_editing() {
-        for text in
-            ["model: first\n---\nmodel: second\n", "---\nmodel: first\n---\n", "mcp_servers:\n  pickaxe:\n    command: old\n---\nmodel: second\n"]
-        {
+        for text in ["model: first\n---\nmodel: second\n", "---\nmodel: first\n---\n", "mcp_servers:\n  pickaxe:\n    command: old\n---\nmodel: second\n"] {
             assert!(parse(text).is_err());
             assert!(set(text, "mcp_servers", "pickaxe", &json!({"command":"c"})).is_err());
             assert!(remove(text, "mcp_servers", "pickaxe").is_none());

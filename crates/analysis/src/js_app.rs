@@ -1369,10 +1369,8 @@ fn read_source_map(
     };
     match map {
         Ok(map) => {
-            let inventory = map.source_inventory(pickaxe_formats::sourcemap::InventoryLimits {
-                max_sources: budget.max_sources.min(5000),
-                max_bytes: budget.max_bytes,
-            });
+            let inventory =
+                map.source_inventory(pickaxe_formats::sourcemap::InventoryLimits { max_sources: budget.max_sources.min(5000), max_bytes: budget.max_bytes });
             budget.max_sources = budget.max_sources.saturating_sub(inventory.sources.len());
             budget.max_bytes = inventory.sources.iter().fold(budget.max_bytes, |left, source| left.saturating_sub(source.len()));
             r.sources = inventory.sources;

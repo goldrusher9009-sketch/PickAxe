@@ -3,9 +3,7 @@
 
 use super::artifact_tools::resolve_evidence_input;
 use crate::tool::{Ctx, Effects, Requires, ToolOutput, ToolSpec, Toolset, parse_params, schema_of};
-use pickaxe_evidence::{
-    Authority, Confidence, Coverage, CoverageStatus, Environment, EvidenceBuilder, Limitation, Location, Subject, ToolError, host_triple,
-};
+use pickaxe_evidence::{Authority, Confidence, Coverage, CoverageStatus, Environment, EvidenceBuilder, Limitation, Location, Subject, ToolError, host_triple};
 use pickaxe_platform::capture::{self, Event, EventKind, Limits, SandboxRequest, Sig, Spec, Terminal};
 use schemars::JsonSchema;
 use serde::{Deserialize, Serialize};
@@ -713,8 +711,7 @@ mod tests {
     #[test]
     fn reserved_env_is_rejected() {
         let e = Engine::new(crate::testing::session());
-        let err =
-            call_consent(&e, "runtime_walkthrough_record", json!({"executable": "/bin/echo", "environment": {"PICKAXE_RUN_ID": "x"}})).unwrap_err();
+        let err = call_consent(&e, "runtime_walkthrough_record", json!({"executable": "/bin/echo", "environment": {"PICKAXE_RUN_ID": "x"}})).unwrap_err();
         assert_eq!(err.code, pickaxe_evidence::ErrorCode::BadInput);
     }
 }

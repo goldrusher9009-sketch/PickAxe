@@ -6,9 +6,9 @@ use crate::i18n::{tr, trf};
 use crate::state::{Modal, Screen};
 use crate::theme::{self, Tokens};
 use crate::{CraftApp, icons, widgets};
+use egui::{RichText, Ui, Vec2};
 use pickaxe_engine::evidence::ToolError;
 use pickaxe_engine::workspace::Workspace;
-use egui::{RichText, Ui, Vec2};
 use serde_json::{Value, json};
 use std::path::Path;
 

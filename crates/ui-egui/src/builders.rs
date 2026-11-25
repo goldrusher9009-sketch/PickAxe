@@ -6,8 +6,8 @@ use crate::i18n::{tr, trf};
 use crate::state::Modal;
 use crate::theme::{self, Tokens};
 use crate::{CraftApp, icons, widgets};
-use pickaxe_ai::{BackendConfig, BackendKind};
 use egui::{RichText, Ui, Vec2};
+use pickaxe_ai::{BackendConfig, BackendKind};
 
 /// Localise only the UI notice; headless callers keep the AI layer's English response.
 pub(crate) fn replaced_builder_notice(saved: &str, used: &str) -> String {
@@ -249,9 +249,9 @@ impl CraftApp {
         }
         let (hub, name, model) = (self.hub.clone(), name.to_string(), model.to_string());
         self.jobs.spawn(tr("Change an AI's model"), false, move |_| {
-            let result = hub.set_model(&name, &model).and_then(|_| {
-                hub.options().get(&name).cloned().ok_or_else(|| pickaxe_engine::evidence::ToolError::invalid("The AI backend was removed."))
-            });
+            let result = hub
+                .set_model(&name, &model)
+                .and_then(|_| hub.options().get(&name).cloned().ok_or_else(|| pickaxe_engine::evidence::ToolError::invalid("The AI backend was removed.")));
             Ok(crate::Done::ModelChanged { name, model, result })
         });
     }

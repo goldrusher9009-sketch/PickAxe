@@ -5,9 +5,9 @@ use crate::i18n::tr;
 use crate::state::FirstRunStep;
 use crate::theme::{self, Tokens};
 use crate::{CraftApp, icons, widgets};
+use egui::{Align2, RichText, Ui, Vec2};
 use pickaxe_ai::{BackendKind, Detected};
 use pickaxe_engine::Mode;
-use egui::{Align2, RichText, Ui, Vec2};
 
 pub fn show(app: &mut CraftApp, ui: &mut Ui) {
     let t = Tokens::get(ui.ctx());

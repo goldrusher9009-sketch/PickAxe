@@ -6,10 +6,10 @@ use crate::i18n::tr;
 use crate::state::{MakeDraft, Screen};
 use crate::theme::{self, Tokens};
 use crate::{CraftApp, Pick, icons, widgets};
+use egui::{RichText, Sense, Ui, Vec2};
 use pickaxe_engine::Mode;
 use pickaxe_engine::tools::web_common;
 use pickaxe_engine::workspace::{ExistingFiles, Status, TargetRef};
-use egui::{RichText, Sense, Ui, Vec2};
 
 const SUGGESTIONS_WEB: &[&str] = &["Recreate this website", "Recreate it with darker colours"];
 const SUGGESTIONS_APP: &[&str] = &["Make my own version of this app", "Recreate just its main feature"];

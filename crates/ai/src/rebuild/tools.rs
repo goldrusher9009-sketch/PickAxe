@@ -299,8 +299,7 @@ pub struct QuestionParams {
 fn rebuild_question_ask(ctx: &mut Ctx<'_>, params: Value) -> Result<ToolOutput, ToolError> {
     let p: QuestionParams = parse_params(params)?;
     let engine = engine(ctx).ok_or_else(|| {
-        ToolError::new(ErrorCode::FeatureMissing, "Questions about a build aren't available in this engine.")
-            .with_remediation("Use the app or `pickaxe-cli`.")
+        ToolError::new(ErrorCode::FeatureMissing, "Questions about a build aren't available in this engine.").with_remediation("Use the app or `pickaxe-cli`.")
     })?;
     let ws = open(&p.project)?;
     let after = pickaxe_engine::feed::load(&ws).len();
@@ -613,8 +612,7 @@ mod tests {
         // The tool runs while the call holds the session; reading it again would wait forever.
         let mut s = pickaxe_engine::testing::session();
         s.settings.ai =
-            toml::from_str("[[backends]]\nname = \"Agent\"\nkind = \"agent_cli\"\nmodel = \"claude-code\"\ncommand = \"pickaxe-no-such-agent\"\n")
-                .unwrap();
+            toml::from_str("[[backends]]\nname = \"Agent\"\nkind = \"agent_cli\"\nmodel = \"claude-code\"\ncommand = \"pickaxe-no-such-agent\"\n").unwrap();
         let e = std::sync::Arc::new(Engine::shared(s, specs()));
         let d = tempfile::tempdir().unwrap();
         let ws = Workspace::create(d.path(), "Snake", "A snake game", TargetRef::None).unwrap();

@@ -5,9 +5,9 @@ use crate::CraftApp;
 use crate::i18n::{self, tr};
 use crate::palette::{self, AppCommand};
 use crate::state::Screen;
-use pickaxe_engine::Mode;
 use muda::accelerator::{Accelerator, Code, Modifiers};
 use muda::{AboutMetadata, CheckMenuItem, Menu, MenuEvent, MenuId, MenuItem, PredefinedMenuItem, Submenu};
+use pickaxe_engine::Mode;
 use std::sync::mpsc::{Receiver, channel};
 
 const REPO: &str = env!("CARGO_PKG_REPOSITORY");

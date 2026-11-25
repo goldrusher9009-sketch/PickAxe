@@ -1033,9 +1033,8 @@ fn v1_files(entries: &[(&str, &[u8])]) -> Vec<(String, Vec<u8>)> {
     for (name, body) in entries {
         mf.extend_from_slice(format!("Name: {name}\r\nSHA-256-Digest: {}\r\n\r\n", crypto::base64(&crypto::sha256(body))).as_bytes());
     }
-    let sf =
-        format!("Signature-Version: 1.0\r\nCreated-By: pickaxe-testkit\r\nSHA-256-Digest-Manifest: {}\r\n\r\n", crypto::base64(&crypto::sha256(&mf)))
-            .into_bytes();
+    let sf = format!("Signature-Version: 1.0\r\nCreated-By: pickaxe-testkit\r\nSHA-256-Digest-Manifest: {}\r\n\r\n", crypto::base64(&crypto::sha256(&mf)))
+        .into_bytes();
     let rsa = crypto::cms_detached_rsa(&sf, SIGN_CN, SIGN_O);
     vec![("META-INF/MANIFEST.MF".into(), mf), ("META-INF/CERT.SF".into(), sf), ("META-INF/CERT.RSA".into(), rsa)]
 }

@@ -117,12 +117,7 @@ fn arg_str_consumers_decode_escaped_templates_for_routes_xhr_ipc_and_exports() {
         "windows: {:?}",
         tsx.facts.windows
     );
-    assert_eq!(
-        tsx.facts.windows[0].web_preferences.get("broken"),
-        Some(&pickaxe_js::PrefValue::Text("dynamic".into())),
-        "windows: {:?}",
-        tsx.facts.windows
-    );
+    assert_eq!(tsx.facts.windows[0].web_preferences.get("broken"), Some(&pickaxe_js::PrefValue::Text("dynamic".into())), "windows: {:?}", tsx.facts.windows);
     assert!(
         tsx.facts.api_operations.iter().any(|op| op.protocol == "graphql" && op.kind == "query" && op.name.as_deref() == Some("GetCompiled")),
         "api ops: {:?}",
