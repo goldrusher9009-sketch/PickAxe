@@ -65,6 +65,8 @@ pub struct ServerOptions {
     pub restricted: bool,
     /// Served over the internet (`serve_http`): tools that read or write files on the host are off.
     pub hosted: bool,
+    /// Public demo with no token: one engine serves everyone, so tools that write session state are refused.
+    pub public: bool,
     /// Allow tools that open or reach websites (`web_site_open`) in restricted mode.
     pub allow_web: bool,
     /// Allow website capture tools (`web_site_capture`, `web_page_states_capture`) in restricted mode.
@@ -81,6 +83,8 @@ const ACTS_ON_MACHINE: [&str; 3] = ["plugins_add", "engines_install", "native_cu
 /// Web tools that act on the person's own desktop and saved sign-ins (a window opens, a sign-in is
 /// kept or deleted): off in restricted mode even with --allow-web.
 /// Tools that read or write files by path without declaring it: off when served over the internet.
+/// Tools that change the shared session; off on a token-free public server so visitors never see each other's data.
+const PUBLIC_STATE_TOOLS: [&str; 4] = ["core_unknown_add", "core_unknown_edit", "core_target_close", "core_target_select"];
 const HOST_FILE_TOOLS: [&str; 4] = ["core_evidence_import", "core_evidence_export", "core_report_save", "core_target_open"];
 
 const ACTS_ON_DESKTOP: [&str; 2] = ["web_site_sign_in", "web_site_sign_out"];
@@ -96,6 +100,7 @@ impl Default for ServerOptions {
             allow_run: false,
             restricted: false,
             hosted: false,
+            public: false,
             allow_web: false,
             allow_capture: false,
             max_response_bytes: DEFAULT_MAX_RESPONSE_BYTES,
@@ -374,6 +379,8 @@ impl Server {
         let capture = web && spec.id.contains("capture");
         let (off, way_back) = if self.opts.hosted && (effects.contains(Effects::WRITES_FILESYSTEM) || HOST_FILE_TOOLS.contains(&spec.id)) {
             (true, "Run Pickaxe on your own computer to read and write files.")
+        } else if self.opts.public && PUBLIC_STATE_TOOLS.contains(&spec.id) {
+            (true, "Run Pickaxe on your own computer, or use a private server, to keep notes and targets.")
         } else if ACTS_ON_DESKTOP.contains(&spec.id) {
             (true, "Start the MCP server without --restricted to sign in to websites.")
         } else if capture {
@@ -913,6 +920,7 @@ pub fn serve_http(engine: Arc<Engine>, mut opts: ServerOptions, addr: &str, toke
     use std::io::Read;
     opts.restricted = true;
     opts.hosted = true;
+    opts.public = token.is_empty();
     let listener = std::net::TcpListener::bind(addr)?;
     let buf = SharedBuf::default();
     let server = Arc::new(Server::new(engine, opts, Box::new(buf.clone())));

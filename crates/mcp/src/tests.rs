@@ -483,6 +483,21 @@ fn hosted_mode_hides_and_refuses_file_tools() {
     }
 }
 
+/// A token-free public server shares one engine, so a visitor can't write notes or switch targets others would see.
+#[test]
+fn public_mode_refuses_tools_that_change_shared_state() {
+    let opts = ServerOptions { restricted: true, hosted: true, public: true, ..Default::default() };
+    let out = run_with(
+        opts,
+        &[
+            req(1, "tools/call", json!({"name": "core_unknown_add", "arguments": {"question": "q", "domain": "d"}})),
+            req(2, "tools/call", json!({"name": "core_session_show", "arguments": {}})),
+        ],
+    );
+    assert_eq!(response(&out, 1)["result"]["isError"], true);
+    assert_ne!(response(&out, 2)["result"]["isError"], true);
+}
+
 /// #856: When the operator allows web or capture tools in restricted mode, they are visible and
 /// callable, while machine-acting tools remain off.
 #[test]

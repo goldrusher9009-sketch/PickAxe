@@ -39,7 +39,7 @@ pub fn specs() -> Vec<ToolSpec> {
         ToolSpec {
             id: "core_person_ask",
             title: "Ask the person",
-            summary: "Ask the person a question in the app and wait for the answer: a short question, up to six suggested answers shown as buttons, and optionally a typed reply. Use it when a choice changes the result (scope, style, which feature first) and you can't decide from the evidence. Returns the answer text, or a note to continue with your best judgement if nobody answers within 30 minutes.",
+            summary: "Ask the person a question in the app and wait for the answer: a short question, up to six suggested answers shown as buttons, and optionally a typed reply. Returns the answer text, or a note that nobody answered within 30 minutes.",
             beginner: "Lets the assistant ask you a quick question.",
             toolset: Toolset::Core,
             effects: Effects::CHANGES_UI_STATE,

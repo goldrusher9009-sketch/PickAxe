@@ -25,7 +25,7 @@ pub fn specs() -> Vec<ToolSpec> {
         ToolSpec {
             id: "core_investigation_show",
             title: "Investigation so far",
-            summary: "The working memory of this investigation: brief, plan with step status, hypotheses, findings (with evidence ids) and the latest handoff. Read it first when starting or resuming.",
+            summary: "The working memory of this investigation: brief, plan with step status, hypotheses, findings (with evidence ids) and the latest handoff.",
             beginner: "See what we're trying to find out, the plan, and what we know so far.",
             toolset: Toolset::Core,
             effects: Effects::READ_ONLY,
