@@ -1,0 +1,21 @@
+# Pickaxe
+
+> Pickaxe is a free, open-source MCP (Model Context Protocol) server written in Rust. It lets AI assistants (Claude, ChatGPT, Grok, Cursor, Codex, Gemini CLI) study how software works - websites, web apps, desktop and phone apps, games, programs, files and APIs - with evidence for every answer, then helps rebuild your own version. Clean-room by default.
+
+## Use it
+- MCP server URL (no sign-in): https://pickaxe.run/mcp
+- Claude: Settings > Connectors > Add custom connector. ChatGPT: Settings > Plugins > Add custom MCP server (no authentication). Grok: Settings > Connect Apps > Add a custom connector.
+- Hosted demo tool core_page_study reads any public web page (headers, scripts, forms, links, stack hints) without running it.
+- Install locally (one command): https://pickaxe.run
+
+## Links
+- [Source code](https://github.com/goldrusher9009-sketch/PickAxe)
+- [Releases](https://github.com/goldrusher9009-sketch/PickAxe/releases)
+- [Support](https://pickaxe.run/support)
+- [Privacy](https://pickaxe.run/privacy)
+- [Terms](https://pickaxe.run/terms)
+
+## Facts
+- License: MIT OR Apache-2.0
+- Language: Rust
+- Author: Husham Shabbir (husham@allamericancg.com)

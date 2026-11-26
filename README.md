@@ -17,7 +17,7 @@ Reverse engineering, website cloning, software analysis and clean-room rebuilds 
 <img alt="MCP server" src="https://img.shields.io/badge/MCP-server-5b6ee1?style=flat-square">
 </p>
 
-> **Keywords:** MCP server, Model Context Protocol, AI agent tools, reverse engineering, website cloner, app analysis, clean-room rebuild, Claude, ChatGPT, Grok, Cursor, Codex, Gemini CLI, Rust.
+> **Keywords:** MCP server, Model Context Protocol, Claude connector, ChatGPT connector, Grok connector, Cursor plugin, Codex, Gemini CLI, reverse engineering, website analyzer, website cloner, app teardown, API discovery, game file inspection, software analysis, clean-room rebuild, AI agent tools, evidence-based analysis, Rust, open source.
 
 ## See it work
 
@@ -94,9 +94,30 @@ Needs Rust 1.97+. On Debian/Ubuntu see `docs/` for the system packages.
 
 ## Status
 
-Early alpha. It builds, `setup` connects agents and `doctor` self-tests the MCP server. Release
-installers (signed .msi/.dmg/.deb) and prebuilt binaries are not published yet, so the install
-scripts build from source until the first release. See `docs/ROADMAP.md` for open work.
+Early alpha. Prebuilt CLI binaries for Linux, macOS and Windows are on the
+[releases page](https://github.com/goldrusher9009-sketch/PickAxe/releases), and the install scripts download them. `setup` connects agents and `doctor` self-tests the MCP server. See `docs/ROADMAP.md` for open work.
+
+## Use cases
+
+- **Analyze a website:** headers, scripts, forms, links, API calls and the stack behind a page, without running its code (works in the hosted demo).
+- **Understand an app or game:** inspect desktop apps, phone apps, game files and programs with real tools, with the evidence behind every claim.
+- **Discover an API:** see what a client sends and receives, then write your own spec.
+- **Clean-room rebuild:** record what a product does, keep observed facts apart from guesses, then build your own version.
+- **Competitor and legacy research:** learn how software you are allowed to study actually works.
+
+## FAQ
+
+**What is Pickaxe?** A free, open-source MCP (Model Context Protocol) server in Rust that lets Claude, ChatGPT, Grok, Cursor, Codex and Gemini CLI study how software works, with evidence, and then helps rebuild your own version.
+
+**How do I add it to Claude, ChatGPT or Grok?** Add `https://pickaxe.run/mcp` as a custom connector (steps in the table above). No sign-in needed.
+
+**Is it a reverse engineering tool?** Yes, for software you own or are authorized to examine. It is clean-room by default: it works from what a user can see and keeps observed facts separate from guesses.
+
+**Is it free?** Yes. MIT OR Apache-2.0.
+
+**Does the hosted demo run websites' code?** No. It fetches a page as text, never runs scripts, and refuses private or internal addresses.
+
+If Pickaxe is useful, a star on GitHub helps other builders find it.
 
 ## Contact
 
