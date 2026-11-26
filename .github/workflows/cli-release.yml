@@ -18,7 +18,7 @@ jobs:
         include:
           - { os: ubuntu-24.04, label: linux-x64, ext: tar.gz }
           - { os: ubuntu-24.04-arm, label: linux-arm64, ext: tar.gz }
-          - { os: macos-14, label: macos-arm64, ext: tar.gz }
+          - { os: macos-latest, label: macos-arm64, ext: tar.gz }
           - { os: macos-15-intel, label: macos-x64, ext: tar.gz }
           - { os: windows-latest, label: windows-x64, ext: zip }
     runs-on: ${{ matrix.os }}
@@ -40,6 +40,7 @@ jobs:
           path: pickaxe-cli-${{ matrix.label }}.${{ matrix.ext }}
   publish:
     needs: build
+    if: ${{ always() }}
     runs-on: ubuntu-24.04
     steps:
       - uses: actions/download-artifact@v4
