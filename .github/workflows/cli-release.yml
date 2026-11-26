@@ -23,7 +23,7 @@ jobs:
           - { os: windows-latest, label: windows-x64, ext: zip }
     runs-on: ${{ matrix.os }}
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v7
       - uses: dtolnay/rust-toolchain@stable
       - name: Build
         run: cargo build --release --locked -p pickaxe-cli
@@ -34,7 +34,7 @@ jobs:
         if: matrix.ext == 'zip'
         shell: pwsh
         run: Compress-Archive -Path target/release/pickaxe-cli.exe -DestinationPath pickaxe-cli-${{ matrix.label }}.zip
-      - uses: actions/upload-artifact@v4
+      - uses: actions/upload-artifact@v7
         with:
           name: pickaxe-cli-${{ matrix.label }}
           path: pickaxe-cli-${{ matrix.label }}.${{ matrix.ext }}
@@ -43,7 +43,7 @@ jobs:
     if: ${{ always() }}
     runs-on: ubuntu-24.04
     steps:
-      - uses: actions/download-artifact@v4
+      - uses: actions/download-artifact@v8
         with:
           path: dist
           merge-multiple: true
