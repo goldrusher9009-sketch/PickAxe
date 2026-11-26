@@ -2609,7 +2609,7 @@ mod tests {
         let saved = format!("{{\"type\":\"user\",\"sessionId\":\"{id}\",\"message\":{{\"content\":\"Make a notes app.\"}}}}\n");
         let cwd = Path::new("/home/someone/Pickaxe/notes.app");
         assert!(adapters::claude_restore(config.path(), id, saved.as_bytes(), cwd).unwrap());
-        let put = config.path().join("projects").join("-home-someone-Craft-Anything-notes-app").join(format!("{id}.jsonl"));
+        let put = config.path().join("projects").join("-home-someone-Pickaxe-notes-app").join(format!("{id}.jsonl"));
         assert_eq!(std::fs::read_to_string(&put).unwrap(), saved);
         assert_eq!(adapters::claude_session_file(config.path(), id), Some(put.clone()), "Claude Code finds it by its id");
         // There already: left as it is (it may have moved on since the copy was kept).
@@ -3670,7 +3670,7 @@ echo '{"type":"turn.completed","usage":{"input_tokens":1,"output_tokens":1}}'
             }
         }
         for builder in [false, true] {
-            let ours: Vec<&str> = agent_env(builder, None).iter().map(|(name, _)| *name).filter(|name| name.starts_with("CRAFT_")).collect();
+            let ours: Vec<&str> = agent_env(builder, None).iter().map(|(name, _)| *name).filter(|name| name.starts_with("PICKAXE_")).collect();
             assert_eq!(ours, [pickaxe_engine::AGENT_ENV]);
         }
     }
