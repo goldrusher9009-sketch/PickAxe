@@ -55,9 +55,9 @@ In Clean room (Deep mode off) only the tools that work from outside are listed: 
 
 /// Added to the instructions when served over the internet: tells the assistant, and so the user,
 /// what this server can't do and the one step that gets the full toolkit.
-const HOSTED_NOTE: &str = "This is the hosted read-only demo: it cannot open files, websites or programs, so there is nothing to study here yet. \
-Tell the user so plainly instead of calling tools that will be refused. You can still explain what Pickaxe does and how an investigation works, using the prompts and resources. \
-To study real software (a website, app, game, file or API), the user installs Pickaxe on their own computer with one command from https://pickaxe.run, then asks again.";
+const HOSTED_NOTE: &str = "This is the hosted read-only demo. It cannot open files or programs, but core_page_study fetches any public web page and reports how it is built (headers, scripts, forms, links, stack hints) without running it. \
+Use it when the user gives a website address. Tell the user plainly that other targets (apps, games, files, APIs) need Pickaxe on their own computer, installed with one command from https://pickaxe.run. \
+You can also explain what Pickaxe does and how an investigation works, using the prompts and resources.";
 
 /// Server options.
 #[derive(Debug, Clone)]
@@ -380,6 +380,11 @@ impl Server {
             return None;
         }
         let spec = self.engine.registry().get(self.engine.registry().canonical(name).unwrap_or(name))?;
+        // The one network tool that is safe on a shared server: it reads a page as text, never runs it,
+        // and refuses internal addresses on every connection.
+        if spec.id == pickaxe_engine::tools::page_study_tools::PAGE_STUDY_TOOL {
+            return None;
+        }
         let effects = spec.effects;
         let web = spec.id.starts_with("web_") && effects.intersects(Effects::ACCESSES_NETWORK | Effects::LAUNCHES_PROCESS);
         let capture = web && spec.id.contains("capture");

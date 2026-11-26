@@ -51,7 +51,7 @@ Server URL: `https://pickaxe.run/mcp` (no sign-in)
 
 The Muse chat app cannot reach MCP servers yet. Use Muse Code.
 
-The hosted demo is read-only: it shows what Pickaxe does and how an investigation works, but it can't open files, websites or programs. To study real software, use the installer below (one command).
+The hosted demo is read-only. It can study any public web page (how it's built, without running it) and shows how an investigation works, but it can't open files or programs. To study apps, games, files and APIs, use the installer below (one command).
 
 ## Install (one command, no code)
 

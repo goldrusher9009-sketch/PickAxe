@@ -65,6 +65,7 @@ pub mod web_common;
 // Browser (CDP) tools: passive inspection, bundle analysis, screenshots, comparisons, walkthroughs.
 pub mod browser_tools;
 // Websites as targets: a browser this session starts, page capture for rebuilding.
+pub mod page_study_tools;
 pub mod website_tools;
 // Saved sign-ins for websites, made by the person in a visible window.
 pub mod site_sign_in;
@@ -125,6 +126,7 @@ pub fn all() -> Vec<crate::ToolSpec> {
     v.extend(web_tools::specs());
     v.extend(browser_tools::specs());
     v.extend(website_tools::specs());
+    v.extend(page_study_tools::specs());
     v.extend(site_sign_in::specs());
     v.extend(standin_tools::specs());
     v.extend(interaction_tools::specs());

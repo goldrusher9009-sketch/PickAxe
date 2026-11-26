@@ -13,6 +13,7 @@ use pickaxe_evidence::{ErrorCode, ToolError};
 /// The tools that run in Clean room, by id. Tools of the AI and setup layers are listed here too.
 pub const TOOLS: &[&str] = &[
     // The session, its evidence and open questions, and the investigation memory.
+    "core_page_study",
     "core_session_show",
     "core_targets_list",
     "core_target_select",

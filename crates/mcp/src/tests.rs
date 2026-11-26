@@ -495,6 +495,28 @@ fn hosted_mode_hides_and_refuses_file_tools() {
     }
 }
 
+/// The hosted demo can study public web pages, but never an address on the host's own network.
+#[test]
+fn hosted_demo_studies_pages_but_not_internal_addresses() {
+    let opts = ServerOptions { restricted: true, hosted: true, public: true, ..Default::default() };
+    let out = run_with(
+        opts,
+        &[
+            req(1, "tools/list", json!({})),
+            req(2, "tools/call", json!({"name": "core_page_study", "arguments": {"url": "http://169.254.169.254/latest/meta-data/"}})),
+            req(3, "tools/call", json!({"name": "core_page_study", "arguments": {"url": "http://localhost:8080/"}})),
+        ],
+    );
+    let names: Vec<String> = response(&out, 1)["result"]["tools"].as_array().unwrap().iter().map(|t| t["name"].as_str().unwrap().to_string()).collect();
+    assert!(names.contains(&"core_page_study".to_string()));
+    for id in [2, 3] {
+        let r = response(&out, id);
+        assert_eq!(r["result"]["isError"], true, "id {id}");
+        let e: Value = serde_json::from_str(r["result"]["content"][0]["text"].as_str().unwrap()).unwrap();
+        assert_ne!(e["error"]["code"], "feature_missing", "it should be refused for the address, not turned off");
+    }
+}
+
 /// A token-free public server shares one engine, so a visitor can't write notes or switch targets others would see.
 #[test]
 fn public_mode_refuses_tools_that_change_shared_state() {
