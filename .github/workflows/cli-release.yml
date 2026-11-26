@@ -1,0 +1,54 @@
+name: CLI release
+
+# Builds the pickaxe-cli binaries the one-command installers download and publishes them as a
+# GitHub release. Unsigned: the installers fetch them with curl / Invoke-WebRequest.
+on:
+  push:
+    tags: ["v*"]
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  build:
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - { os: ubuntu-24.04, label: linux-x64, ext: tar.gz }
+          - { os: ubuntu-24.04-arm, label: linux-arm64, ext: tar.gz }
+          - { os: macos-14, label: macos-arm64, ext: tar.gz }
+          - { os: macos-13, label: macos-x64, ext: tar.gz }
+          - { os: windows-latest, label: windows-x64, ext: zip }
+    runs-on: ${{ matrix.os }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: dtolnay/rust-toolchain@stable
+      - name: Build
+        run: cargo build --release --locked -p pickaxe-cli
+      - name: Package (unix)
+        if: matrix.ext == 'tar.gz'
+        run: tar -czf pickaxe-cli-${{ matrix.label }}.tar.gz -C target/release pickaxe-cli
+      - name: Package (windows)
+        if: matrix.ext == 'zip'
+        shell: pwsh
+        run: Compress-Archive -Path target/release/pickaxe-cli.exe -DestinationPath pickaxe-cli-${{ matrix.label }}.zip
+      - uses: actions/upload-artifact@v4
+        with:
+          name: pickaxe-cli-${{ matrix.label }}
+          path: pickaxe-cli-${{ matrix.label }}.${{ matrix.ext }}
+  publish:
+    needs: build
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/download-artifact@v4
+        with:
+          path: dist
+          merge-multiple: true
+      - name: Publish
+        env:
+          GH_TOKEN: ${{ github.token }}
+          TAG: ${{ github.ref_type == 'tag' && github.ref_name || 'v0.6.1' }}
+        run: |
+          gh release create "$TAG" dist/* --repo "$GITHUB_REPOSITORY" --title "Pickaxe $TAG" --generate-notes --target "$GITHUB_SHA" || gh release upload "$TAG" dist/* --repo "$GITHUB_REPOSITORY" --clobber
