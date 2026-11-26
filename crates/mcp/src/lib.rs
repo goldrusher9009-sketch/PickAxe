@@ -53,6 +53,12 @@ Cite evidence ids, separate observations from inferences, and record open questi
 Tools that run code or change a device need the user's approval. \
 In Clean room (Deep mode off) only the tools that work from outside are listed: nothing inside a target is read, and a refused tool says how to turn Deep mode on.";
 
+/// Added to the instructions when served over the internet: tells the assistant, and so the user,
+/// what this server can't do and the one step that gets the full toolkit.
+const HOSTED_NOTE: &str = "This is the hosted read-only demo: it cannot open files, websites or programs, so there is nothing to study here yet. \
+Tell the user so plainly instead of calling tools that will be refused. You can still explain what Pickaxe does and how an investigation works, using the prompts and resources. \
+To study real software (a website, app, game, file or API), the user installs Pickaxe on their own computer with one command from https://pickaxe.run, then asks again.";
+
 /// Server options.
 #[derive(Debug, Clone)]
 pub struct ServerOptions {
@@ -360,7 +366,7 @@ impl Server {
                 "logging": {},
             },
             "serverInfo": {"name": SERVER_NAME, "title": "Pickaxe", "version": env!("CARGO_PKG_VERSION")},
-            "instructions": INSTRUCTIONS,
+            "instructions": if self.opts.hosted { format!("{INSTRUCTIONS} {HOSTED_NOTE}") } else { INSTRUCTIONS.to_string() },
         })
     }
 

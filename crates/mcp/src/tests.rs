@@ -461,6 +461,18 @@ fn restricted_mode_refuses_calling_turned_off_tools() {
     }
 }
 
+/// A visitor to the hosted demo is told up front that nothing can be studied there and how to get
+/// the full toolkit; a local server doesn't say that.
+#[test]
+fn hosted_demo_tells_the_assistant_what_it_cannot_do() {
+    let init = |opts| {
+        response(&run_with(opts, &[req(1, "initialize", json!({"protocolVersion": "2025-03-26"}))]), 1)["result"]["instructions"].as_str().unwrap().to_string()
+    };
+    let hosted = init(ServerOptions { restricted: true, hosted: true, ..Default::default() });
+    assert!(hosted.contains("read-only demo") && hosted.contains("pickaxe.run"));
+    assert!(!init(ServerOptions::default()).contains("read-only demo"));
+}
+
 /// A server on the internet never reads or writes files on its host, whatever path a caller sends.
 #[test]
 fn hosted_mode_hides_and_refuses_file_tools() {
